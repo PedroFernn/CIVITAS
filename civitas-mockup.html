@@ -1,0 +1,1970 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CIVITAS — Pliego de wireframes (Fase I y II)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#E7ECEF;
+    --sheet:#F8FAFB;
+    --ink:#16212B;
+    --graphite:#5D6C7A;
+    --rule:#AEBBC5;
+    --rule-soft:#D3DBE1;
+    --fill:#D9E0E5;
+    --fill-2:#E6EBEF;
+    --pen:#A83A28;
+    --pen-soft:#F0DCD8;
+    --focus:#2B6CB0;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#0E141A;
+      --sheet:#18212A;
+      --ink:#DDE5EB;
+      --graphite:#93A2AF;
+      --rule:#3A4855;
+      --rule-soft:#2A3540;
+      --fill:#232E38;
+      --fill-2:#1E2831;
+      --pen:#E0765F;
+      --pen-soft:#3A2521;
+      --focus:#7FB2E5;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#0E141A;
+    --sheet:#18212A;
+    --ink:#DDE5EB;
+    --graphite:#93A2AF;
+    --rule:#3A4855;
+    --rule-soft:#2A3540;
+    --fill:#232E38;
+    --fill-2:#1E2831;
+    --pen:#E0765F;
+    --pen-soft:#3A2521;
+    --focus:#7FB2E5;
+  }
+
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;
+    background:var(--paper);
+    background-image:
+      linear-gradient(to right, color-mix(in srgb, var(--rule) 18%, transparent) 1px, transparent 1px),
+      linear-gradient(to bottom, color-mix(in srgb, var(--rule) 18%, transparent) 1px, transparent 1px);
+    background-size:28px 28px;
+    color:var(--ink);
+    font-family:"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size:15px;
+    line-height:1.5;
+  }
+  .mono{font-family:"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;}
+  a{color:inherit;}
+  :focus-visible{outline:2px solid var(--focus);outline-offset:2px;}
+
+  .wrap{max-width:1180px;margin:0 auto;padding:24px 18px 64px;}
+
+  /* ---------- cabecera del pliego ---------- */
+  header.sheet{
+    border:1px solid var(--rule);
+    background:var(--sheet);
+    padding:20px 22px;
+  }
+  .sheet h1{
+    margin:0;
+    font-size:clamp(22px,3.4vw,30px);
+    font-weight:600;
+    letter-spacing:-.01em;
+  }
+  .sheet .sub{margin:6px 0 0;color:var(--graphite);max-width:62ch;}
+  .stamp{
+    display:flex;flex-wrap:wrap;gap:10px 22px;
+    margin-top:16px;padding-top:14px;border-top:1px solid var(--rule-soft);
+    font-size:12.5px;color:var(--graphite);
+  }
+  .stamp b{color:var(--ink);font-weight:600;}
+
+  /* ---------- índice de pantallas ---------- */
+  .layout{display:grid;grid-template-columns:232px 1fr;gap:18px;margin-top:18px;align-items:start;}
+  nav.index{
+    border:1px solid var(--rule);background:var(--sheet);
+    position:sticky;top:18px;
+  }
+  nav.index .index-h{
+    padding:10px 12px;border-bottom:1px solid var(--rule-soft);
+    font-size:11.5px;letter-spacing:.06em;color:var(--graphite);
+  }
+  nav.index ul{list-style:none;margin:0;padding:6px;}
+  nav.index button{
+    width:100%;text-align:left;border:0;background:none;color:var(--ink);
+    font:inherit;font-size:13px;padding:7px 8px;cursor:pointer;display:flex;gap:9px;
+    border-left:2px solid transparent;
+  }
+  nav.index button:hover{background:var(--fill-2);}
+  nav.index button[aria-current="true"]{background:var(--fill-2);border-left-color:var(--pen);font-weight:600;}
+  nav.index button .num{color:var(--graphite);font-family:"IBM Plex Mono",monospace;font-size:12px;}
+  nav.index button[aria-current="true"] .num{color:var(--pen);}
+  nav.index li.later button .num,nav.index li.later button{color:var(--graphite);}
+
+  /* ---------- pantalla ---------- */
+  .screen{display:none;}
+  .screen.on{display:block;}
+  .screen-head{
+    border:1px solid var(--rule);border-bottom:0;background:var(--sheet);
+    padding:14px 16px;display:flex;flex-wrap:wrap;gap:8px 14px;align-items:baseline;
+  }
+  .screen-head h2{margin:0;font-size:18px;font-weight:600;}
+  .screen-head .code{font-family:"IBM Plex Mono",monospace;font-size:13px;color:var(--pen);}
+  .tags{display:flex;flex-wrap:wrap;gap:6px;width:100%;margin-top:2px;}
+  .tag{
+    font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--graphite);
+    border:1px solid var(--rule-soft);padding:2px 7px;
+  }
+  .body{display:grid;grid-template-columns:1fr 288px;gap:0;border:1px solid var(--rule);background:var(--sheet);}
+  .canvas{padding:18px;min-width:0;border-right:1px solid var(--rule-soft);}
+  aside.notes{padding:18px 16px;background:var(--fill-2);min-width:0;}
+  aside.notes h3{margin:0 0 10px;font-size:11.5px;letter-spacing:.06em;color:var(--graphite);font-weight:600;}
+  aside.notes ol{margin:0;padding:0;list-style:none;counter-reset:n;}
+  aside.notes li{
+    counter-increment:n;position:relative;padding-left:26px;margin-bottom:11px;
+    font-size:13px;line-height:1.45;
+  }
+  aside.notes li::before{
+    content:counter(n);position:absolute;left:0;top:1px;
+    width:18px;height:18px;border:1px solid var(--pen);color:var(--pen);
+    border-radius:50%;font-family:"IBM Plex Mono",monospace;font-size:11px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  aside.notes .uc{color:var(--pen);font-family:"IBM Plex Mono",monospace;font-size:12px;}
+  aside.notes .kpi{
+    margin-top:14px;padding-top:12px;border-top:1px solid var(--rule-soft);
+    font-size:12.5px;color:var(--graphite);
+  }
+
+  /* ---------- lenguaje de wireframe ---------- */
+  .browser{border:1px solid var(--rule);background:var(--sheet);}
+  .chrome{
+    display:flex;align-items:center;gap:8px;padding:7px 10px;
+    border-bottom:1px solid var(--rule-soft);background:var(--fill-2);
+  }
+  .dot{width:8px;height:8px;border:1px solid var(--rule);border-radius:50%;}
+  .url{
+    flex:1;font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--graphite);
+    background:var(--sheet);border:1px solid var(--rule-soft);padding:3px 8px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .view{padding:14px;display:flex;flex-direction:column;gap:12px;}
+
+  .topbar{display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--rule);padding-bottom:10px;flex-wrap:wrap;}
+  .logo{font-weight:700;letter-spacing:.02em;font-size:14px;}
+  .navlinks{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--graphite);}
+  .spacer{flex:1;min-width:8px;}
+
+  .btn{
+    display:inline-flex;align-items:center;gap:6px;border:1px solid var(--rule);
+    padding:5px 11px;font-size:12px;color:var(--ink);background:transparent;white-space:nowrap;
+  }
+  .btn.solid{background:var(--fill);border-color:var(--rule);font-weight:600;}
+  .btn.ghost{border-style:dashed;color:var(--graphite);}
+
+  .blk{
+    border:1px solid var(--rule);background:var(--fill-2);
+    display:flex;align-items:center;justify-content:center;text-align:center;
+    font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--graphite);
+    padding:10px;line-height:1.4;
+    background-image:linear-gradient(135deg,transparent 46%,var(--rule-soft) 46%,var(--rule-soft) 50%,transparent 50%);
+    background-size:12px 12px;
+  }
+  .blk.plain{background-image:none;background:var(--fill-2);}
+  .h-40{min-height:40px;} .h-64{min-height:64px;} .h-92{min-height:92px;}
+  .h-140{min-height:140px;} .h-200{min-height:200px;} .h-260{min-height:260px;}
+
+  .ph{height:9px;background:var(--fill);display:block;margin:6px 0;}
+  .ph.t{height:13px;background:var(--rule-soft);}
+  .w100{width:100%;} .w85{width:85%;} .w70{width:70%;} .w55{width:55%;} .w40{width:40%;} .w25{width:25%;}
+
+  .card{border:1px solid var(--rule-soft);padding:10px;background:var(--sheet);min-width:0;}
+  .card .lbl{font-size:12px;font-weight:600;}
+  .card .meta{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--graphite);}
+
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+  .row.tight{gap:6px;}
+  .cols{display:grid;gap:10px;}
+  .c2{grid-template-columns:1fr 1fr;}
+  .c3{grid-template-columns:repeat(3,1fr);}
+  .c4{grid-template-columns:repeat(4,1fr);}
+  .side{display:grid;grid-template-columns:186px 1fr;gap:12px;}
+  .side-r{display:grid;grid-template-columns:1fr 200px;gap:12px;}
+
+  .field{border:1px solid var(--rule);padding:6px 9px;background:var(--sheet);min-width:0;}
+  .field .cap{font-size:10.5px;color:var(--graphite);font-family:"IBM Plex Mono",monospace;}
+  .field .val{height:10px;background:var(--fill);margin-top:5px;}
+  .field.grow{flex:1;}
+
+  .chip{border:1px solid var(--rule-soft);padding:2px 8px;font-size:11px;color:var(--graphite);}
+  .chip.on{border-color:var(--ink);color:var(--ink);}
+
+  .stat{border:1px solid var(--rule-soft);padding:9px 10px;min-width:0;}
+  .stat .big{font-size:20px;font-weight:600;letter-spacing:-.01em;}
+  .stat .cap{font-size:11px;color:var(--graphite);}
+
+  .bar-viz{display:flex;align-items:flex-end;gap:4px;height:64px;}
+  .bar-viz i{flex:1;background:var(--fill);border:1px solid var(--rule-soft);display:block;}
+
+  .range{position:relative;height:30px;border-bottom:1px solid var(--rule);margin:10px 0 4px;}
+  .range .band{position:absolute;left:22%;width:40%;top:6px;bottom:6px;background:var(--fill);border:1px solid var(--rule);}
+  .range .pin{position:absolute;left:78%;top:0;bottom:0;width:2px;background:var(--pen);}
+  .range .pin::after{
+    content:"pedido";position:absolute;top:-2px;left:6px;font-size:10px;
+    font-family:"IBM Plex Mono",monospace;color:var(--pen);white-space:nowrap;
+  }
+  .range-cap{display:flex;justify-content:space-between;font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--graphite);}
+
+  .tbl{width:100%;border-collapse:collapse;font-size:12px;}
+  .tbl th,.tbl td{border:1px solid var(--rule-soft);padding:6px 8px;text-align:left;}
+  .tbl th{font-weight:600;color:var(--graphite);font-size:11px;}
+  .tbl td .ph{margin:0;}
+  .scroll-x{overflow-x:auto;}
+
+  .tabs{display:flex;gap:0;border-bottom:1px solid var(--rule);flex-wrap:wrap;}
+  .tabs span{padding:5px 11px;font-size:12px;color:var(--graphite);border:1px solid transparent;border-bottom:0;}
+  .tabs span.on{color:var(--ink);border-color:var(--rule);background:var(--sheet);margin-bottom:-1px;font-weight:600;}
+
+  .dashed{border:1px dashed var(--rule);padding:10px;}
+  .lock{
+    border:1px dashed var(--rule);padding:8px 10px;font-size:11.5px;color:var(--graphite);
+    font-family:"IBM Plex Mono",monospace;text-align:center;
+  }
+  .foot-strip{border-top:1px solid var(--rule);padding-top:8px;font-size:11px;color:var(--graphite);display:flex;gap:14px;flex-wrap:wrap;}
+
+  .mk{
+    display:inline-flex;align-items:center;justify-content:center;
+    width:17px;height:17px;border:1px solid var(--pen);color:var(--pen);background:var(--pen-soft);
+    border-radius:50%;font-family:"IBM Plex Mono",monospace;font-size:10.5px;font-weight:600;
+    vertical-align:middle;margin-left:6px;flex:none;
+  }
+
+  /* ---------- pie del pliego ---------- */
+  footer.sheet-foot{
+    margin-top:18px;border:1px solid var(--rule);background:var(--sheet);padding:16px 18px;
+  }
+  footer.sheet-foot h3{margin:0 0 8px;font-size:12px;letter-spacing:.05em;color:var(--graphite);font-weight:600;}
+  .legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;font-size:12.5px;color:var(--graphite);}
+  .legend .sw{display:flex;gap:9px;align-items:center;}
+  .legend .sw .box{width:34px;height:20px;flex:none;}
+  .legend .sw .box.hatch{border:1px solid var(--rule);background-image:linear-gradient(135deg,transparent 46%,var(--rule-soft) 46%,var(--rule-soft) 50%,transparent 50%);background-size:10px 10px;}
+  .legend .sw .box.solid{border:1px solid var(--rule);background:var(--fill);}
+  .legend .sw .box.dash{border:1px dashed var(--rule);}
+  .closing{margin-top:14px;padding-top:12px;border-top:1px solid var(--rule-soft);font-size:13px;color:var(--graphite);max-width:74ch;}
+
+
+  /* ---------- tipografía de anotación, ahora global y no solo dentro de .card ---------- */
+  .meta{font-size:12.5px;color:var(--graphite);line-height:1.45;}
+  .lbl{font-size:12.5px;font-weight:600;color:var(--ink);}
+  .uc{color:var(--pen);font-family:"IBM Plex Mono",monospace;font-size:12px;}
+
+  /* ---------- componentes compartidos (paneles, pasos, rutas) ---------- */
+  .stack{display:flex;flex-direction:column;gap:10px;min-width:0;}
+  .grow{flex:1;min-width:0;}
+  .btn.wide{width:100%;justify-content:center;}
+
+  .pane{border:1px solid var(--rule);background:var(--sheet);min-width:0;display:flex;flex-direction:column;}
+  .pane > .pane-h{
+    display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;
+    padding:6px 10px;border-bottom:1px solid var(--rule-soft);background:var(--fill-2);
+    font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.05em;color:var(--graphite);
+  }
+  .pane > .pane-h b{color:var(--ink);font-weight:600;letter-spacing:0;}
+  .pane > .pane-b{padding:10px;display:flex;flex-direction:column;gap:9px;min-width:0;}
+  .pane.cond{border-style:dashed;}
+  .pane.cond > .pane-h{background:transparent;border-bottom-style:dashed;color:var(--pen);}
+
+  .steps{display:flex;flex-wrap:wrap;border:1px solid var(--rule);background:var(--sheet);}
+  .steps .step{
+    display:flex;align-items:center;gap:8px;padding:7px 11px;font-size:12px;color:var(--graphite);
+    border-right:1px solid var(--rule-soft);flex:1;min-width:158px;
+  }
+  .steps .step:last-child{border-right:0;}
+  .steps .step i{
+    width:17px;height:17px;border:1px solid var(--rule);flex:none;font-style:normal;
+    display:flex;align-items:center;justify-content:center;
+    font-family:"IBM Plex Mono",monospace;font-size:10.5px;
+  }
+  .steps .step.on{color:var(--ink);font-weight:600;background:var(--fill-2);}
+  .steps .step.on i{border-color:var(--pen);color:var(--pen);background:var(--pen-soft);}
+  .steps .step.opt i{border-style:dashed;}
+
+  .rail{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));border:1px solid var(--rule);background:var(--sheet);}
+  .rail .seg{padding:9px 11px;border-right:1px solid var(--rule-soft);min-width:0;}
+  .rail .seg:last-child{border-right:0;}
+  .rail .seg .p{font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--graphite);}
+  .rail .seg .l{font-size:12.5px;font-weight:600;margin-top:3px;}
+  .rail .seg .d{font-size:11.5px;color:var(--graphite);margin-top:3px;}
+  .rail .seg.on{background:var(--fill-2);box-shadow:inset 0 2px 0 var(--pen);}
+  .rail .seg.off{color:var(--graphite);}
+
+  .route{display:flex;flex-direction:column;gap:6px;}
+  .route .r{
+    display:flex;gap:8px;align-items:center;border:1px solid var(--rule-soft);background:var(--sheet);
+    padding:5px 8px;font-size:12px;min-width:0;
+  }
+  .route .r .n{font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--pen);flex:none;}
+  .route .r .t{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+  .check{
+    width:13px;height:13px;border:1px solid var(--rule);background:var(--sheet);
+    flex:none;display:inline-block;position:relative;margin-top:2px;
+  }
+  .check.on{border-color:var(--pen);}
+  .check.on::after{content:"";position:absolute;left:2px;top:2px;right:2px;bottom:2px;background:var(--pen);}
+
+  .kv{display:grid;grid-template-columns:auto 1fr;gap:5px 10px;font-size:12px;align-items:center;}
+  .kv .k{color:var(--graphite);font-family:"IBM Plex Mono",monospace;font-size:11px;}
+
+  /* ---------- pie de pantalla: salidas y recorrido ---------- */
+  .screen-foot{
+    border:1px solid var(--rule);border-top:0;background:var(--fill-2);
+    padding:9px 12px;display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;
+  }
+  .screen-foot .fh{
+    font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.06em;color:var(--graphite);
+  }
+  .screen-foot .exits{display:flex;flex-wrap:wrap;gap:6px;}
+  .screen-foot .nav{display:flex;flex-wrap:wrap;gap:6px;margin-left:auto;}
+  .jump{
+    display:inline-flex;align-items:center;gap:7px;border:1px solid var(--rule);background:var(--sheet);
+    padding:4px 9px;font-size:11.5px;color:var(--ink);white-space:nowrap;
+  }
+  .jump .n{font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--pen);}
+  .jump.prev::before{content:"\2190";color:var(--graphite);}
+  .jump.next::after{content:"\2192";color:var(--graphite);}
+
+  /* ---------- afordancia de los elementos que navegan ---------- */
+  [data-target]{cursor:pointer;transition:background-color .12s ease,border-color .12s ease,color .12s ease;}
+  .btn[data-target]::after{content:"\203A";font-family:"IBM Plex Mono",monospace;opacity:.5;}
+  .btn[data-target]:hover,.jump[data-target]:hover,.chip[data-target]:hover,.route .r[data-target]:hover{
+    border-color:var(--pen);color:var(--pen);background:var(--pen-soft);
+  }
+  .btn[data-target]:hover::after{opacity:1;}
+  .lock[data-target]:hover,.card[data-target]:hover,.blk[data-target]:hover{border-color:var(--pen);color:var(--pen);}
+  .navlinks span[data-target]:hover,.meta[data-target]:hover,.foot-strip span[data-target]:hover{color:var(--pen);}
+  .tbl tr[data-target]:hover td{background:var(--pen-soft);}
+
+  /* ---------- entrada de pantalla ---------- */
+  .screen.on{animation:sheet-in .18s ease-out;}
+  @keyframes sheet-in{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:none;}}
+
+  @media (max-width:900px){
+    .layout{grid-template-columns:1fr;}
+    nav.index{position:static;}
+    nav.index ul{display:flex;overflow-x:auto;padding:6px;}
+    nav.index button{white-space:nowrap;width:auto;border-left:0;border-bottom:2px solid transparent;}
+    nav.index button[aria-current="true"]{border-left:0;border-bottom-color:var(--pen);}
+    .body{grid-template-columns:1fr;}
+    .canvas{border-right:0;border-bottom:1px solid var(--rule-soft);}
+    .side,.side-r{grid-template-columns:1fr;}
+    .c3,.c4{grid-template-columns:1fr 1fr;}
+    .screen-foot .nav{margin-left:0;}
+  }
+  @media (max-width:560px){
+    .c2,.c3,.c4{grid-template-columns:1fr;}
+  }
+  @media (prefers-reduced-motion:reduce){
+    *{animation:none !important;transition:none !important;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="sheet">
+  <h1>CIVITAS — pliego de wireframes</h1>
+  <p class="sub">Baja fidelidad, sin identidad visual todavía: bloques, jerarquía y flujo. Cada región está anotada con el caso de uso que la origina y el sprint que la entrega, para que el diseño de la web salga del catálogo y no al revés.</p>
+  <div class="stamp">
+    <span>Alcance: <b>Fase I y II · Web 1.0 / 2.0 · Sprints 1–16</b></span>
+    <span>Pantallas: <b>15 + 1 fuera de alcance</b></span>
+    <span>Fuente: <b>catálogo UC v3 · diagramas de clase · plan de sprints</b></span>
+    <span class="mono">v0.1 — wireframe, no diseño final</span>
+    <span class="mono">navegable: clic en los botones · ← → recorre las pantallas</span>
+  </div>
+</header>
+
+<div class="layout">
+
+  <nav class="index" aria-label="Índice de pantallas">
+    <div class="index-h mono">PANTALLAS</div>
+    <ul id="index"></ul>
+  </nav>
+
+  <main id="screens">
+
+    <!-- ══════════ P-01 ══════════ -->
+    <section class="screen on" id="p01" data-flow="p02|Explorar zonas, p04|Crear cuenta, p11|Entrar" data-title="Inicio público" data-num="P-01">
+      <div class="screen-head">
+        <span class="code">P-01</span>
+        <h2>Inicio público</h2>
+        <div class="tags">
+          <span class="tag">Actor: Visitante no autenticado</span>
+          <span class="tag">UC-V1 · V1.1 · V2 · V3 · V4</span>
+          <span class="tag">Sprints 1, 3, 4</span>
+        </div>
+      </div>
+      <div class="body">
+        <div class="canvas">
+          <div class="browser">
+            <div class="chrome"><i class="dot"></i><i class="dot"></i><i class="dot"></i><span class="url">civitas.mx</span></div>
+            <div class="view">
+
+              <div class="topbar">
+                <span class="logo">CIVITAS</span>
+                <span class="navlinks"><span data-target="p02">Colonias</span><span>Cómo funciona</span><span>Aviso de privacidad<span class="mk">4</span></span></span>
+                <span class="spacer"></span>
+                <span class="btn" data-target="p11">Entrar</span>
+                <span class="btn solid" data-target="p04">Crear cuenta<span class="mk">5</span></span>
+              </div>
+
+              <div>
+                <span class="ph t w70"></span>
+                <span class="ph w55"></span>
+                <div class="row" style="margin-top:12px">
+                  <span class="field grow"><span class="cap">busca una colonia, calle o ciudad</span><span class="val"></span></span>
+                  <span class="btn solid" data-target="p02">Explorar<span class="mk">2</span></span>
+                </div>
+              </div>
+
+              <div class="cols c3">
+                <div class="stat"><div class="big">200+</div><div class="cap">colonias en catálogo</div></div>
+                <div class="stat"><div class="big">2</div><div class="cap">ciudades piloto</div></div>
+                <div class="stat"><div class="big">—</div><div class="cap">última actualización de datos</div></div>
+              </div>
+
+              <div class="blk h-200">MAPA — índice de asequibilidad por colonia<br>(agregado y anónimo, sin detalle por inmueble)<span class="mk">3</span></div>
+
+              <div>
+                <span class="ph t w40"></span>
+                <div class="cols c3" style="margin-top:8px">
+                  <div class="card" data-target="p03"><div class="lbl">Colonia</div><div class="meta">índice 0.00</div><div class="bar-viz" style="height:28px;margin-top:8px"><i style="height:60%"></i><i style="height:80%"></i><i style="height:45%"></i><i style="height:70%"></i></div></div>
+                  <div class="card" data-target="p03"><div class="lbl">Colonia</div><div class="meta">índice 0.00</div><div class="bar-viz" style="height:28px;margin-top:8px"><i style="height:40%"></i><i style="height:55%"></i><i style="height:85%"></i><i style="height:50%"></i></div></div>
+                  <div class="card" data-target="p03"><div class="lbl">Colonia</div><div class="meta">índice 0.00</div><div class="bar-viz" style="height:28px;margin-top:8px"><i style="height:75%"></i><i style="height:35%"></i><i style="height:60%"></i><i style="height:90%"></i></div></div>
+                </div>
+              </div>
+
+              <div class="lock" data-target="p04">Para ver precio por inmueble y señal de anomalía necesitas una cuenta<span class="mk">1</span></div>
+
+              <div class="foot-strip"><span>Fuentes: INEGI · gobierno municipal · datos de movilidad</span><span>Aviso de privacidad</span><span>Metodología</span><span data-target="p14">Centro de ayuda</span></div>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+          <h3>ANOTACIONES</h3>
+          <ol>
+            <li><span class="uc">UC-V1</span> El visitante explora sin cuenta, pero solo con datos agregados por colonia. Este muro es la frontera con <span class="uc">UC-I1</span>.</li>
+            <li><span class="uc">UC-V2</span> Buscar y filtrar zonas. Entregable del Sprint 4 (buscador y comparador geolocalizado).</li>
+            <li><span class="uc">UC-V1.1</span> Consultar índices agregados. El mapa nunca muestra inmuebles individuales en esta vista.</li>
+            <li><span class="uc">UC-V3</span> El aviso de privacidad se publica en el Sprint 1, antes de cualquier registro (requisito de OE4).</li>
+            <li><span class="uc">UC-V4</span> Puerta de entrada al registro; la verificación KYC es una rama condicional, no un paso obligatorio.</li>
+          </ol>
+          <div class="kpi">Meta de cobertura asociada: 200+ colonias en 2 ciudades piloto al cierre de Fase I (Sprint 8).</div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ══════════ P-02 ══════════ -->
+    <section class="screen" id="p02" data-flow="p03|Ficha de colonia, p07|Comparar, p08|Mapa de calor" data-title="Explorador de zonas" data-num="P-02">
+      <div class="screen-head">
+        <span class="code">P-02</span>
+        <h2>Explorador de zonas</h2>
+        <div class="tags">
+          <span class="tag">Actor: Visitante · Inquilino · Comprador</span>
+          <span class="tag">UC-V2 · UC-V1.1</span>
+          <span class="tag">Sprints 3, 4</span>
+        </div>
+      </div>
+      <div class="body">
+        <div class="canvas">
+          <div class="browser">
+            <div class="chrome"><i class="dot"></i><i class="dot"></i><i class="dot"></i><span class="url">civitas.mx/colonias?ciudad=…&amp;renta=…</span></div>
+            <div class="view">
+              <div class="topbar"><span class="logo">CIVITAS</span><span class="navlinks"><span data-target="p02">Colonias</span><span data-target="p07">Comparar</span><span data-target="p08">Mapa de calor</span></span><span class="spacer"></span><span class="btn" data-target="p11">Entrar</span></div>
+
+              <div class="side">
+                <div class="card">
+                  <div class="lbl">Filtros<span class="mk">1</span></div>
+                  <div class="field" style="margin-top:8px"><span class="cap">ciudad</span><span class="val"></span></div>
+                  <div class="field" style="margin-top:6px"><span class="cap">rango de renta</span><span class="val"></span></div>
+                  <div class="meta" style="margin-top:10px">equipamiento</div>
+                  <div class="row tight" style="margin-top:5px"><span class="chip on">Transporte</span><span class="chip">Escuelas</span><span class="chip">Salud</span><span class="chip">Comercio</span></div>
+                  <div class="meta" style="margin-top:10px">seguridad</div>
+                  <div class="row tight" style="margin-top:5px"><span class="chip">Baja</span><span class="chip on">Media</span><span class="chip">Alta</span></div>
+                  <div class="btn solid" style="margin-top:12px;width:100%;justify-content:center">Aplicar</div>
+                </div>
+
+                <div style="display:flex;flex-direction:column;gap:10px;min-width:0">
+                  <div class="blk h-200">MAPA interactivo — resultados geolocalizados<span class="mk">2</span></div>
+                  <div class="row" style="justify-content:space-between">
+                    <span class="meta mono">00 colonias encontradas</span>
+                    <span class="row tight"><span class="chip">Ordenar: asequibilidad</span><span class="chip">Vista: lista</span></span>
+                  </div>
+                  <div class="cols c2">
+                    <div class="card"><div class="lbl">Colonia</div><div class="meta">renta mediana · índice · transporte</div><span class="ph w85"></span><div class="row tight" style="margin-top:6px"><span class="chip" data-target="p07">Comparar</span><span class="chip" data-target="p03">Ver ficha</span></div></div>
+                    <div class="card"><div class="lbl">Colonia</div><div class="meta">renta mediana · índice · transporte</div><span class="ph w70"></span><div class="row tight" style="margin-top:6px"><span class="chip" data-target="p07">Comparar</span><span class="chip" data-target="p03">Ver ficha</span></div></div>
+                    <div class="card"><div class="lbl">Colonia</div><div class="meta">renta mediana · índice · transporte</div><span class="ph w85"></span><div class="row tight" style="margin-top:6px"><span class="chip" data-target="p07">Comparar</span><span class="chip" data-target="p03">Ver ficha</span></div></div>
+                    <div class="card"><div class="lbl">Colonia</div><div class="meta">renta mediana · índice · transporte</div><span class="ph w55"></span><div class="row tight" style="margin-top:6px"><span class="chip" data-target="p07">Comparar</span><span class="chip" data-target="p03">Ver ficha</span></div></div>
+                  </div>
+                  <div class="lock">Señal de anomalía por inmueble: disponible con cuenta verificada<span class="mk">3</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+          <h3>ANOTACIONES</h3>
+          <ol>
+            <li><span class="uc">UC-V2</span> Los filtros son las cuatro dimensiones del catálogo: transporte, equipamiento, seguridad y servicios (Sprint 3).</li>
+            <li>Buscador y comparador geolocalizado, entregable del Sprint 4. El mapa y la lista son la misma consulta con dos representaciones.</li>
+            <li>El mismo motor de índices sirve a visitante y a usuario verificado; lo que cambia es el nivel de exposición, no la consulta.</li>
+            <li>Selección múltiple de tarjetas alimenta el comparador (P-07).</li>
+          </ol>
+          <div class="kpi">Pendiente de decidir: si el mapa es la vista por defecto en móvil o si la lista lo es.</div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ══════════ P-03 ══════════ -->
+    <section class="screen" id="p03" data-flow="p05|Ficha de inmueble, p07|Comparar, p04|Crear cuenta" data-title="Ficha de colonia" data-num="P-03">
+      <div class="screen-head">
+        <span class="code">P-03</span>
+        <h2>Ficha de colonia</h2>
+        <div class="tags">
+          <span class="tag">Actor: Visitante · Inquilino · Comprador</span>
+          <span class="tag">UC-V1.1 · UC-I1 (parcial)</span>
+          <span class="tag">Sprints 3, 5, 11</span>
+        </div>
+      </div>
+      <div class="body">
+        <div class="canvas">
+          <div class="browser">
+            <div class="chrome"><i class="dot"></i><i class="dot"></i><i class="dot"></i><span class="url">civitas.mx/colonias/{ciudad}/{colonia}</span></div>
+            <div class="view">
+              <div class="topbar"><span class="logo">CIVITAS</span><span class="navlinks"><span data-target="p02">Colonias</span><span data-target="p07">Comparar</span></span><span class="spacer"></span><span class="btn" data-target="p11">Entrar</span></div>
+
+              <div class="meta mono">Colonias › Ciudad › Colonia</div>
+              <div class="row" style="justify-content:space-between;align-items:flex-start">
+                <div style="min-width:0"><span class="ph t w40"></span><div class="meta mono">actualizado el —</div></div>
+                <div class="row tight"><span class="btn" data-target="p07">Comparar</span><span class="btn" data-target="p09">Guardar</span></div>
+              </div>
+
+              <div class="side-r">
+                <div class="cols" style="gap:12px">
+                  <div class="stat">
+                    <div class="cap">Índice de asequibilidad<span class="mk">1</span></div>
+                    <div class="big">0.00</div>
+                    <span class="ph w85"></span>
+                    <div class="meta mono">renta mediana ÷ ingreso mediano de la zona</div>
+                  </div>
+                  <div class="tabs"><span class="on">Precios</span><span>Servicios</span><span>Seguridad</span><span>Transporte</span></div>
+                  <div class="blk h-140">GRÁFICA — histórico de renta y servicios por zona<span class="mk">2</span></div>
+                  <div class="scroll-x">
+                    <table class="tbl">
+                      <thead><tr><th>Indicador</th><th>Colonia</th><th>Ciudad</th><th>Fuente</th></tr></thead>
+                      <tbody>
+                        <tr><td>Renta mediana</td><td><span class="ph w55"></span></td><td><span class="ph w55"></span></td><td><span class="ph w70"></span></td></tr>
+                        <tr><td>Cobertura de transporte</td><td><span class="ph w40"></span></td><td><span class="ph w40"></span></td><td><span class="ph w70"></span></td></tr>
+                        <tr><td>Equipamiento urbano</td><td><span class="ph w70"></span></td><td><span class="ph w55"></span></td><td><span class="ph w70"></span></td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:10px;min-width:0">
+                  <div class="blk h-140 plain">MINIMAPA<br>límites de la colonia</div>
+                  <div class="dashed"><div class="meta mono">inmuebles publicados en la zona<span class="mk">3</span></div><span class="ph w85"></span><span class="ph w70"></span><span class="ph w55"></span><div class="lock" style="margin-top:8px" data-target="p04">detalle con cuenta</div></div>
+                </div>
+              </div>
+
+              <div class="foot-strip"><span>Metodología del índice</span><span data-target="p15">Reportar un dato incorrecto</span></div>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+          <h3>ANOTACIONES</h3>
+          <ol>
+            <li><span class="uc">Zona.calcularIndiceAsequibilidad()</span> del diagrama de clases; el índice dinámico llega en el Sprint 11, antes se muestra solo el histórico.</li>
+            <li>Histórico de precios de alquiler y servicios por zona: entregable del Sprint 5.</li>
+            <li>La lista de inmuebles existe desde Fase I pero su señal de anomalía depende del motor del Sprint 10; hasta entonces la tarjeta va sin badge.</li>
+            <li>El enlace de reportar un dato es el punto de enganche futuro con <span class="uc">UC-C1</span> (Fase III, fuera de este mockup).</li>
+          </ol>
+          <div class="kpi">Esta pantalla se construye dos veces: versión Fase I sin anomalía y versión Fase II con ella.</div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ══════════ P-04 ══════════ -->
+    <section class="screen" id="p04" data-flow="p12|Tu perfil, p11|Entrar, p05|Lo que desbloquea" data-title="Registro e identidad" data-num="P-04">
+      <div class="screen-head">
+        <span class="code">P-04</span>
+        <h2>Registro e identidad</h2>
+        <div class="tags">
+          <span class="tag">Actor: Visitante &rarr; Usuario Verificado</span>
+          <span class="tag">UC-V4 · UC-V4.1 · UC-AUTH-06 · UC-AUTH-07</span>
+          <span class="tag">Sprint 6</span>
+        </div>
+      </div>
+      <div class="body">
+        <div class="canvas">
+          <div class="browser">
+            <div class="chrome"><i class="dot"></i><i class="dot"></i><i class="dot"></i><span class="url">civitas.mx/crear-cuenta</span></div>
+            <div class="view">
+              <div class="topbar">
+                <span class="logo">CIVITAS</span>
+                <span class="navlinks"><span data-target="p02">Colonias</span><span>Cómo funciona</span><span>Aviso de privacidad</span></span>
+                <span class="spacer"></span>
+                <span class="btn" data-target="p11">Ya tengo cuenta</span>
+              </div>
+
+              <div class="steps">
+                <span class="step on"><i>1</i>Datos de la cuenta</span>
+                <span class="step"><i>2</i>Confirmar correo<span class="mk">3</span></span>
+                <span class="step opt"><i>3</i>Verificar identidad — opcional<span class="mk">4</span></span>
+              </div>
+
+              <div class="side-r">
+                <div class="stack">
+                  <div class="pane">
+                    <div class="pane-h"><span><b>FORMULARIO</b> · paso 1 de 3 · UC-V4</span><span>obligatorio</span></div>
+                    <div class="pane-b">
+                      <div class="cols c2">
+                        <div class="field"><span class="cap">correo electrónico</span><span class="val"></span></div>
+                        <div class="field"><span class="cap">contraseña</span><span class="val"></span></div>
+                      </div>
+                      <div>
+                        <div class="meta mono">fuerza de la contraseña — regla declarada, no oculta</div>
+                        <div class="bar-viz" style="height:12px;margin-top:5px"><i style="height:100%"></i><i style="height:100%"></i><i style="height:100%;background:transparent"></i><i style="height:100%;background:transparent"></i></div>
+                      </div>
+                      <div>
+                        <div class="meta">¿para qué vas a usar CIVITAS?<span class="mk">1</span></div>
+                        <div class="row tight" style="margin-top:6px"><span class="chip on">Voy a rentar</span><span class="chip">Voy a comprar</span><span class="chip">Otro</span></div>
+                      </div>
+                      <div class="row tight" style="align-items:flex-start">
+                        <span class="check on"></span>
+                        <span class="meta grow">Acepto el aviso de privacidad y el tratamiento de datos descrito en él<span class="mk">2</span></span>
+                      </div>
+                      <div class="row tight">
+                        <span class="btn solid grow" style="justify-content:center" data-target="p12">Crear cuenta</span>
+                        <span class="btn ghost" data-target="p11">Entrar</span>
+                      </div>
+                      <div class="meta mono">al enviar: correo de confirmación &rarr; bandeja del sistema<span class="mk">3</span></div>
+                    </div>
+                  </div>
+
+                  <div class="pane cond">
+                    <div class="pane-h"><span><b>RAMA CONDICIONAL</b> · «extend» UC-V4.1<span class="mk">4</span></span><span>omitible</span></div>
+                    <div class="pane-b">
+                      <div class="row" style="justify-content:space-between">
+                        <span class="lbl">Verificación de identidad ligera</span>
+                        <span class="chip mono">se dispara al pedir una función verificada</span>
+                      </div>
+                      <div class="cols c3">
+                        <div class="blk h-92">documento de identidad</div>
+                        <div class="blk h-92">selfie / prueba de vida</div>
+                        <div class="blk h-92 plain">resultado<br>en revisión</div>
+                      </div>
+                      <div class="row tight">
+                        <span class="btn" data-target="p05">Verificar ahora</span>
+                        <span class="btn ghost" data-target="p12">Hacerlo después</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="pane">
+                    <div class="pane-h"><span><b>QUÉ DESBLOQUEA CADA NIVEL</b><span class="mk">5</span></span><span>clic = pantalla de ejemplo</span></div>
+                    <div class="pane-b">
+                      <div class="scroll-x">
+                        <table class="tbl">
+                          <thead><tr><th style="width:120px">Nivel</th><th>Qué ve</th><th style="width:86px">Ejemplo</th></tr></thead>
+                          <tbody>
+                            <tr><td>Visitante</td><td>índices agregados por colonia</td><td><span class="chip" data-target="p01">P-01</span></td></tr>
+                            <tr><td>Cuenta</td><td>favoritos, alertas, comparador</td><td><span class="chip" data-target="p09">P-09</span></td></tr>
+                            <tr><td>Verificada</td><td>anomalía por inmueble, Precio Justo</td><td><span class="chip" data-target="p05">P-05</span></td></tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="stack">
+                  <div class="card">
+                    <div class="lbl">Por qué pedimos esto</div>
+                    <span class="ph w85"></span><span class="ph w70"></span><span class="ph w55"></span>
+                    <div class="meta mono" style="margin-top:6px">aviso de privacidad · Sprint 1</div>
+                  </div>
+                  <div class="pane">
+                    <div class="pane-h"><span>A DÓNDE SIGUE</span></div>
+                    <div class="pane-b">
+                      <div class="route">
+                        <span class="r" data-target="p12"><span class="n">P-12</span><span class="t">Tu perfil</span></span>
+                        <span class="r" data-target="p09"><span class="n">P-09</span><span class="t">Favoritos y alertas</span></span>
+                        <span class="r" data-target="p05"><span class="n">P-05</span><span class="t">Ficha con anomalía</span></span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="lock" data-target="p14">¿Dudas antes de registrarte? Centro de ayuda</div>
+                </div>
+              </div>
+
+              <div class="foot-strip"><span>Aviso de privacidad</span><span>Metodología</span><span data-target="p14">Centro de ayuda</span></div>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+          <h3>ANOTACIONES</h3>
+          <ol>
+            <li>Esta pregunta separa Inquilino de Comprador, que en el catálogo son actores distintos: el Inquilino es el único que más adelante certifica solvencia vía ZK.</li>
+            <li>El consentimiento apunta al aviso publicado en el Sprint 1; sin él no debería existir esta pantalla.</li>
+            <li><span class="uc">UC-AUTH-07</span> Verificar correo electrónico.</li>
+            <li><span class="uc">UC-V4.1</span> El KYC es «extend»: solo se dispara si el usuario intenta una función que exige identidad confirmada. Debe poder saltarse.</li>
+            <li>Hacer visible el gate evita que el usuario sienta que la verificación es arbitraria.</li>
+          </ol>
+          <div class="kpi">Roles base Visitante &rarr; Usuario Verificado: entregable del Sprint 6.</div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ══════════ P-05 ══════════ -->
+    <section class="screen" id="p05" data-flow="p06|Precio Justo, p07|Comparar, p09|Crear alerta" data-title="Ficha de inmueble con anomalía" data-num="P-05">
+      <div class="screen-head">
+        <span class="code">P-05</span>
+        <h2>Ficha de inmueble con anomalía</h2>
+        <div class="tags">
+          <span class="tag">Actor: Inquilino · Comprador</span>
+          <span class="tag">UC-I1 · UC-I4 · UC-I5 · entrada a UC-I2</span>
+          <span class="tag">Sprint 10</span>
+        </div>
+      </div>
+      <div class="body">
+        <div class="canvas">
+          <div class="browser">
+            <div class="chrome"><i class="dot"></i><i class="dot"></i><i class="dot"></i><span class="url">civitas.mx/inmuebles/{id}</span></div>
+            <div class="view">
+              <div class="topbar"><span class="logo">CIVITAS</span><span class="navlinks"><span data-target="p02">Colonias</span><span data-target="p09">Mis alertas</span><span data-target="p09">Favoritos</span></span><span class="spacer"></span><span class="chip on" data-target="p12">Cuenta verificada</span></div>
+
+              <div class="side-r">
+                <div style="display:flex;flex-direction:column;gap:10px;min-width:0">
+                  <div class="blk h-200">FOTOGRAFÍA / GALERÍA del inmueble</div>
+                  <div class="row" style="justify-content:space-between;align-items:flex-start">
+                    <div style="min-width:0"><span class="ph t w55"></span><div class="meta mono">colonia · superficie · tipo</div></div>
+                    <div class="stat" style="min-width:140px"><div class="cap">precio pedido</div><div class="big">$ 00,000</div></div>
+                  </div>
+
+                  <div class="card">
+                    <div class="row" style="justify-content:space-between">
+                      <span class="lbl">Contraste contra el rango esperado de la zona<span class="mk">1</span></span>
+                      <span class="chip on mono">severidad: alta</span>
+                    </div>
+                    <div class="range"><span class="band"></span><span class="pin"></span></div>
+                    <div class="range-cap"><span>mín. esperado</span><span>máx. esperado</span></div>
+                    <div class="meta" style="margin-top:8px">El precio pedido queda 00% por encima del rango esperado para inmuebles comparables de la colonia.<span class="mk">2</span></div>
+                  </div>
+
+                  <div class="row tight">
+                    <span class="btn solid" data-target="p06">Generar Reporte de Precio Justo<span class="mk">3</span></span>
+                    <span class="btn" data-target="p09">Guardar en favoritos<span class="mk">4</span></span>
+                    <span class="btn" data-target="p07">Comparar</span>
+                  </div>
+
+                  <div class="scroll-x">
+                    <table class="tbl">
+                      <thead><tr><th>Comparable</th><th>Superficie</th><th>Precio</th><th>Distancia</th></tr></thead>
+                      <tbody>
+                        <tr><td><span class="ph w70"></span></td><td><span class="ph w40"></span></td><td><span class="ph w40"></span></td><td><span class="ph w25"></span></td></tr>
+                        <tr><td><span class="ph w85"></span></td><td><span class="ph w40"></span></td><td><span class="ph w40"></span></td><td><span class="ph w25"></span></td></tr>
+                        <tr><td><span class="ph w55"></span></td><td><span class="ph w40"></span></td><td><span class="ph w40"></span></td><td><span class="ph w25"></span></td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                <div style="display:flex;flex-direction:column;gap:10px;min-width:0">
+                  <div class="blk h-140 plain">MINIMAPA<br>ubicación aproximada</div>
+                  <div class="card"><div class="lbl">Índices de la colonia</div><span class="ph w85"></span><span class="ph w70"></span><span class="ph w55"></span><div class="meta mono" style="margin-top:6px" data-target="p03">ver ficha completa</div></div>
+                  <div class="card"><div class="lbl">Avisarme si algo cambia<span class="mk">5</span></div><div class="field" style="margin-top:6px"><span class="cap">umbral de variación</span><span class="val"></span></div><div class="btn wide" style="margin-top:8px" data-target="p09">Crear alerta</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+          <h3>ANOTACIONES</h3>
+          <ol>
+            <li><span class="uc">UC-I1</span> Aquí vive <span class="uc">MotorAnomalias.detectarAnomalia()</span>. Es la primera pantalla que un visitante no puede ver.</li>
+            <li>La anomalía se explica en lenguaje de usuario, nunca como puntaje del modelo. Si la precisión cae bajo el umbral, el bloque no se muestra.</li>
+            <li><span class="uc">UC-I2</span> Única entrada al Reporte de Precio Justo (P-06).</li>
+            <li><span class="uc">UC-I4</span> Guardar favoritos.</li>
+            <li><span class="uc">UC-I5</span> Alertas de anomalías en zonas de interés.</li>
+          </ol>
+          <div class="kpi">KPI del Sprint 10: ≥85% de precisión validada contra panel de expertos antes de exponer este bloque al usuario.</div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ══════════ P-06 ══════════ -->
+    <section class="screen" id="p06" data-flow="p09|Mis reportes, p15|Feedback, p05|Volver al inmueble" data-title="Reporte de Precio Justo" data-num="P-06">
+      <div class="screen-head">
+        <span class="code">P-06</span>
+        <h2>Reporte de Precio Justo</h2>
+        <div class="tags">
+          <span class="tag">Actor: Inquilino · Comprador</span>
+          <span class="tag">UC-I2 · I2.1 · I2.2 · I2.3 · I2.4</span>
+          <span class="tag">Sprints 13, 14</span>
+        </div>
+      </div>
+      <div class="body">
+        <div class="canvas">
+          <div class="browser">
+            <div class="chrome"><i class="dot"></i><i class="dot"></i><i class="dot"></i><span class="url">civitas.mx/reportes/{folio}</span></div>
+            <div class="view">
+              <div class="topbar"><span class="logo">CIVITAS</span><span class="spacer"></span><span class="btn ghost">Exportar PDF<span class="mk">4</span></span><span class="btn ghost">Compartir enlace</span><span class="btn" data-target="p09">Mis reportes</span></div>
+
+              <div class="row" style="justify-content:space-between;align-items:flex-start;border-bottom:1px solid var(--rule);padding-bottom:10px">
+                <div style="min-width:0"><span class="ph t w55"></span><div class="meta mono">folio — · generado el — · vigencia 30 días</div></div>
+                <div class="blk h-64 plain" style="width:88px">SELLO /<br>QR</div>
+              </div>
+
+              <div class="card">
+                <div class="lbl">1 · Precio pedido contra rango esperado<span class="mk">1</span></div>
+                <div class="range"><span class="band"></span><span class="pin"></span></div>
+                <div class="range-cap"><span>$ mín.</span><span>$ máx.</span></div>
+                <span class="ph w85"></span>
+              </div>
+
+              <div class="card">
+                <div class="lbl">2 · Rango de negociación recomendado<span class="mk">2</span></div>
+                <div class="cols c3" style="margin-top:8px">
+                  <div class="stat"><div class="cap">objetivo</div><div class="big">$ —</div></div>
+                  <div class="stat"><div class="cap">aceptable</div><div class="big">$ —</div></div>
+                  <div class="stat"><div class="cap">límite</div><div class="big">$ —</div></div>
+                </div>
+                <span class="ph w70"></span>
+              </div>
+
+              <div class="card">
+                <div class="lbl">3 · Sustento<span class="mk">3</span></div>
+                <div class="cols c2" style="margin-top:8px">
+                  <div class="blk h-92">GRÁFICA — distribución de comparables</div>
+                  <div><span class="ph w100"></span><span class="ph w85"></span><span class="ph w70"></span><div class="meta mono" style="margin-top:6px">fuentes y fecha de corte</div></div>
+                </div>
+              </div>
+
+              <div class="dashed">
+                <div class="meta mono">rama condicional — «extend»<span class="mk">5</span></div>
+                <div class="row" style="justify-content:space-between;margin-top:6px">
+                  <span class="lbl">¿Usaste este reporte para negociar? ¿En cuánto cerraste?</span>
+                  <span class="row tight"><span class="btn" data-target="p15">Responder</span><span class="btn ghost">Ahora no</span></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+          <h3>ANOTACIONES</h3>
+          <ol>
+            <li><span class="uc">UC-I2.1</span> «include» — contrastar precio pedido vs. rango esperado. Sin este bloque el reporte no existe.</li>
+            <li><span class="uc">UC-I2.2</span> «include» — recomendar rango de negociación. El usuario se lleva tres números, no un puntaje.</li>
+            <li>Sustento visible: el reporte sirve frente a un arrendador solo si se puede defender.</li>
+            <li><span class="uc">UC-I2.3</span> «extend» — exportar o compartir es opcional; el reporte es válido aunque nunca salga de la plataforma.</li>
+            <li><span class="uc">UC-I2.4</span> «extend» — encuesta de uso declarado. Es el instrumento de medición del KPI, por eso se pide después de la negociación y no antes.</li>
+          </ol>
+          <div class="kpi">KPI del Sprint 16: ≥5% de diferencia en el precio de cierre en el piloto controlado de negociación.</div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ══════════ P-07 ══════════ -->
+    <section class="screen" id="p07" data-flow="p03|Ficha de colonia, p06|Precio Justo, p08|Mapa de calor" data-title="Comparador" data-num="P-07">
+      <div class="screen-head">
+        <span class="code">P-07</span>
+        <h2>Comparador lado a lado</h2>
+        <div class="tags">
+          <span class="tag">Actor: Inquilino · Comprador</span>
+          <span class="tag">UC-I6 · UC-I6.1</span>
+          <span class="tag">Sprint 4 (zonas) · Sprint 12 (índices)</span>
+        </div>
+      </div>
+      <div class="body">
+        <div class="canvas">
+          <div class="browser">
+            <div class="chrome"><i class="dot"></i><i class="dot"></i><i class="dot"></i><span class="url">civitas.mx/comparar?items=…</span></div>
+            <div class="view">
+              <div class="topbar"><span class="logo">CIVITAS</span><span class="navlinks"><span data-target="p02">Colonias</span><span data-target="p07">Comparar</span></span><span class="spacer"></span><span class="btn ghost">Exportar tabla<span class="mk">3</span></span></div>
+
+              <div class="row" style="justify-content:space-between">
+                <span class="meta mono">comparando 3 de 4 máximo<span class="mk">1</span></span>
+                <span class="row tight"><span class="chip on">Solo diferencias</span><span class="chip">Todos los indicadores</span></span>
+              </div>
+
+              <div class="scroll-x">
+                <table class="tbl">
+                  <thead>
+                    <tr><th style="width:190px">Indicador</th><th>Colonia A</th><th>Colonia B</th><th>Colonia C</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr><td>Índice de asequibilidad</td><td><span class="ph w55"></span></td><td><span class="ph w70"></span></td><td><span class="ph w40"></span></td></tr>
+                    <tr><td>Renta mediana</td><td><span class="ph w40"></span></td><td><span class="ph w55"></span></td><td><span class="ph w70"></span></td></tr>
+                    <tr><td>Anomalías detectadas<span class="mk">2</span></td><td><span class="ph w25"></span></td><td><span class="ph w40"></span></td><td><span class="ph w25"></span></td></tr>
+                    <tr><td>Transporte</td><td><span class="ph w70"></span></td><td><span class="ph w40"></span></td><td><span class="ph w55"></span></td></tr>
+                    <tr><td>Equipamiento</td><td><span class="ph w55"></span></td><td><span class="ph w55"></span></td><td><span class="ph w70"></span></td></tr>
+                    <tr><td>Seguridad</td><td><span class="ph w40"></span></td><td><span class="ph w70"></span></td><td><span class="ph w40"></span></td></tr>
+                    <tr><td>Inflación local proyectada</td><td><span class="ph w55"></span></td><td><span class="ph w25"></span></td><td><span class="ph w70"></span></td></tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="cols c3">
+                <div class="blk h-92" data-target="p03">MINIMAPA A</div>
+                <div class="blk h-92" data-target="p03">MINIMAPA B</div>
+                <div class="blk h-92" data-target="p03">MINIMAPA C</div>
+              </div>
+
+              <div class="row tight"><span class="btn">Quitar una columna</span><span class="btn">Añadir colonia</span><span class="btn solid" data-target="p06">Generar Precio Justo del mejor candidato</span></div>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+          <h3>ANOTACIONES</h3>
+          <ol>
+            <li><span class="uc">UC-I6</span> Comparar inmuebles o zonas en paralelo. Tope de 3–4 columnas: más que eso deja de ser legible en móvil.</li>
+            <li>Fila disponible solo desde Fase II; en Fase I la tabla existe sin ella.</li>
+            <li><span class="uc">UC-I6.1</span> «include» — la tabla comparativa exportable es insumo de <span class="uc">UC-I2.3</span>.</li>
+            <li>La misma pantalla, con corredores en vez de colonias, cubre <span class="uc">UC-U5</span> del Inversionista y el Urbanista en Fase III.</li>
+          </ol>
+          <div class="kpi">Decisión abierta: en móvil, ¿tabla con scroll horizontal o tarjetas apiladas por indicador?</div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ══════════ P-08 ══════════ -->
+    <section class="screen" id="p08" data-flow="p03|Ficha de colonia, p02|Explorador, p09|Guardar alerta" data-title="Mapa de calor" data-num="P-08">
+      <div class="screen-head">
+        <span class="code">P-08</span>
+        <h2>Mapa de calor</h2>
+        <div class="tags">
+          <span class="tag">Actor: Usuario verificado</span>
+          <span class="tag">Visualización de OE1 y del motor de OE1/OE2</span>
+          <span class="tag">Sprints 11, 12, 15</span>
+        </div>
+      </div>
+      <div class="body">
+        <div class="canvas">
+          <div class="browser">
+            <div class="chrome"><i class="dot"></i><i class="dot"></i><i class="dot"></i><span class="url">civitas.mx/mapa?capa=anomalias</span></div>
+            <div class="view">
+              <div class="topbar"><span class="logo">CIVITAS</span><span class="navlinks"><span data-target="p02">Colonias</span><span data-target="p08">Mapa de calor</span></span><span class="spacer"></span><span class="btn" data-target="p09">Guardar vista</span></div>
+
+              <div class="row tight">
+                <span class="chip on">Anomalías de precio<span class="mk">1</span></span>
+                <span class="chip">Índice de asequibilidad<span class="mk">2</span></span>
+                <span class="chip">Inflación local proyectada<span class="mk">3</span></span>
+              </div>
+
+              <div class="side-r">
+                <div class="blk h-260">MAPA DE CALOR — capa activa sobre polígonos de colonia</div>
+                <div style="display:flex;flex-direction:column;gap:10px;min-width:0">
+                  <div class="card">
+                    <div class="lbl">Leyenda<span class="mk">4</span></div>
+                    <div class="bar-viz" style="height:22px;margin-top:8px"><i style="height:100%"></i><i style="height:100%"></i><i style="height:100%"></i><i style="height:100%"></i><i style="height:100%"></i></div>
+                    <div class="range-cap" style="margin-top:4px"><span>bajo</span><span>alto</span></div>
+                    <div class="meta" style="margin-top:8px">Escala y método de corte declarados en la leyenda, no ocultos en el código.</div>
+                  </div>
+                  <div class="card"><div class="lbl">Colonia seleccionada</div><span class="ph w85"></span><span class="ph w55"></span><div class="btn wide" style="margin-top:8px" data-target="p03">Ver ficha</div></div>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="row" style="justify-content:space-between"><span class="meta mono">línea de tiempo<span class="mk">5</span></span><span class="meta mono">— / —</span></div>
+                <div style="height:4px;background:var(--fill);margin-top:10px;position:relative"><span style="position:absolute;left:62%;top:-5px;width:12px;height:14px;border:1px solid var(--rule);background:var(--sheet)"></span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+          <h3>ANOTACIONES</h3>
+          <ol>
+            <li>Capa de anomalías: Sprint 10, visualizada en el Sprint 12.</li>
+            <li>Capa de asequibilidad: índice dinámico del Sprint 11.</li>
+            <li>Capa predictiva: primera versión del modelo de inflación local del Sprint 15. Debe ir rotulada como proyección, no como dato observado.</li>
+            <li>Una sola capa activa a la vez; superponerlas hace ilegible el mapa y confunde dos métricas distintas.</li>
+            <li>El control temporal solo aparece en capas con histórico (Sprint 5 en adelante).</li>
+          </ol>
+          <div class="kpi">Hito de cierre de Fase II: motor de anomalías y mapas de calor validados.</div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ══════════ P-09 ══════════ -->
+    <section class="screen" id="p09" data-flow="p05|Ficha de inmueble, p06|Mis reportes, p13|Notificaciones" data-title="Favoritos y alertas" data-num="P-09">
+      <div class="screen-head">
+        <span class="code">P-09</span>
+        <h2>Favoritos y alertas</h2>
+        <div class="tags">
+          <span class="tag">Actor: Inquilino · Comprador</span>
+          <span class="tag">UC-I4 · UC-I5</span>
+          <span class="tag">Backlog — sin sprint asignado</span>
+        </div>
+      </div>
+      <div class="body">
+        <div class="canvas">
+          <div class="browser">
+            <div class="chrome"><i class="dot"></i><i class="dot"></i><i class="dot"></i><span class="url">civitas.mx/mi-cuenta/alertas</span></div>
+            <div class="view">
+              <div class="topbar"><span class="logo">CIVITAS</span><span class="navlinks"><span>Favoritos</span><span>Alertas</span><span data-target="p06">Mis reportes</span><span data-target="p12">Cuenta</span></span><span class="spacer"></span></div>
+
+              <div class="side">
+                <div class="card">
+                  <div class="lbl">Secciones</div>
+                  <div style="margin-top:8px;display:flex;flex-direction:column;gap:6px">
+                    <span class="chip on">Alertas activas</span><span class="chip">Zonas guardadas</span><span class="chip">Inmuebles guardados</span><span class="chip" data-target="p06">Mis reportes<span class="mk">4</span></span>
+                  </div>
+                </div>
+
+                <div style="display:flex;flex-direction:column;gap:10px;min-width:0">
+                  <div class="card">
+                    <div class="lbl">Nueva alerta<span class="mk">1</span></div>
+                    <div class="cols c3" style="margin-top:8px">
+                      <div class="field"><span class="cap">zona o inmueble</span><span class="val"></span></div>
+                      <div class="field"><span class="cap">condición</span><span class="val"></span></div>
+                      <div class="field"><span class="cap">umbral</span><span class="val"></span></div>
+                    </div>
+                    <div class="row tight" style="margin-top:8px"><span class="chip on">Correo</span><span class="chip">En la app</span><span class="btn solid">Crear alerta</span></div>
+                  </div>
+
+                  <div class="card">
+                    <div class="row" style="justify-content:space-between"><span class="lbl">Historial<span class="mk">2</span></span><span class="meta mono">00 sin leer</span></div>
+                    <table class="tbl" style="margin-top:8px">
+                      <thead><tr><th>Fecha</th><th>Zona</th><th>Qué cambió</th><th></th></tr></thead>
+                      <tbody>
+                        <tr><td><span class="ph w70"></span></td><td><span class="ph w70"></span></td><td><span class="ph w85"></span></td><td><span class="chip" data-target="p05">Ver</span></td></tr>
+                        <tr><td><span class="ph w70"></span></td><td><span class="ph w55"></span></td><td><span class="ph w70"></span></td><td><span class="chip" data-target="p05">Ver</span></td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div class="dashed" style="text-align:center">
+                    <div class="meta">Estado vacío<span class="mk">3</span></div>
+                    <span class="ph w55" style="margin:8px auto"></span>
+                    <div class="btn" style="margin-top:4px" data-target="p02">Explorar colonias</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+          <h3>ANOTACIONES</h3>
+          <ol>
+            <li><span class="uc">UC-I5</span> La alerta se define con zona + condición + umbral; es el mismo patrón que <span class="uc">UC-U2.1</span> usará en Fase III.</li>
+            <li>El historial es lo que permite saber si la alerta sirvió; sin él no hay forma de medir utilidad.</li>
+            <li>El estado vacío es la primera pantalla que casi todo usuario nuevo ve. Se diseña, no se improvisa.</li>
+            <li><span class="uc">ReportePrecioJusto</span> del diagrama de clases: los reportes generados viven aquí, no en la ficha del inmueble.</li>
+          </ol>
+          <div class="kpi">Esta pantalla no tiene sprint asignado en el plan actual: hay que meterla en Fase I (con favoritos, Sprint 6) o aceptar que las alertas del Sprint 10 no tienen dónde vivir.</div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ══════════ P-10 ══════════ -->
+    <section class="screen" id="p10" data-flow="p12|Perfil admin, p13|Cumplimiento, p14|Soporte" data-title="Panel de administración" data-num="P-10">
+      <div class="screen-head">
+        <span class="code">P-10</span>
+        <h2>Panel de administración</h2>
+        <div class="tags">
+          <span class="tag">Actor: Administrador de la plataforma</span>
+          <span class="tag">UC-A1 · A1.1 · A4.1 · A4.2 · A4.3 · A7</span>
+          <span class="tag">Sprints 1, 2, 8</span>
+        </div>
+      </div>
+      <div class="body">
+        <div class="canvas">
+          <div class="browser">
+            <div class="chrome"><i class="dot"></i><i class="dot"></i><i class="dot"></i><span class="url">admin.civitas.mx/catalogo</span></div>
+            <div class="view">
+              <div class="topbar"><span class="logo">CIVITAS · admin</span><span class="spacer"></span><span class="chip mono" data-target="p14">soporte</span><span class="chip on mono" data-target="p12">rol: administrador</span></div>
+
+              <div class="side">
+                <div class="card">
+                  <div class="lbl">Módulos</div>
+                  <div style="margin-top:8px;display:flex;flex-direction:column;gap:6px">
+                    <span class="chip on">Catálogo de colonias</span>
+                    <span class="chip">Fuentes de datos</span>
+                    <span class="chip">Cumplimiento</span>
+                    <span class="chip">Salud de la plataforma</span>
+                    <span class="chip" style="opacity:.55">Disputas DAO · Fase III</span>
+                    <span class="chip" style="opacity:.55">Cuentas B2B · Fase III</span>
+                  </div>
+                </div>
+
+                <div style="display:flex;flex-direction:column;gap:10px;min-width:0">
+                  <div class="card">
+                    <div class="row" style="justify-content:space-between"><span class="lbl">Colonias en catálogo<span class="mk">1</span></span><span class="row tight"><span class="chip">Filtrar</span><span class="btn solid">Añadir colonia</span></span></div>
+                    <table class="tbl" style="margin-top:8px">
+                      <thead><tr><th>Colonia</th><th>Ciudad</th><th>Completitud</th><th>Estado</th><th></th></tr></thead>
+                      <tbody>
+                        <tr><td><span class="ph w70"></span></td><td><span class="ph w55"></span></td><td><span class="ph w40"></span></td><td><span class="chip">publicada</span></td><td><span class="chip">Editar</span></td></tr>
+                        <tr><td><span class="ph w85"></span></td><td><span class="ph w55"></span></td><td><span class="ph w25"></span></td><td><span class="chip">borrador</span></td><td><span class="chip">Editar</span></td></tr>
+                        <tr><td><span class="ph w55"></span></td><td><span class="ph w55"></span></td><td><span class="ph w70"></span></td><td><span class="chip">revisión</span></td><td><span class="chip">Editar</span></td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div class="cols c2">
+                    <div class="card">
+                      <div class="lbl">Fuentes de datos abiertas<span class="mk">2</span></div>
+                      <table class="tbl" style="margin-top:8px">
+                        <tbody>
+                          <tr><td>INEGI</td><td><span class="ph w55"></span></td><td><span class="chip">ok</span></td></tr>
+                          <tr><td>Gobierno municipal</td><td><span class="ph w70"></span></td><td><span class="chip">ok</span></td></tr>
+                          <tr><td>Movilidad</td><td><span class="ph w40"></span></td><td><span class="chip">retraso</span></td></tr>
+                        </tbody>
+                      </table>
+                    </div>
+                    <div class="card">
+                      <div class="lbl">Cumplimiento normativo<span class="mk">3</span></div>
+                      <table class="tbl" style="margin-top:8px">
+                        <tbody>
+                          <tr><td>Aviso de privacidad</td><td><span class="chip">publicado v—</span></td></tr>
+                          <tr><td>Evaluación de impacto</td><td><span class="chip">en curso</span></td></tr>
+                          <tr><td>Dictámenes legales</td><td><span class="chip">00 registrados</span></td></tr>
+                          <tr><td>Gate económico DAO</td><td><span class="chip">bloqueado</span></td></tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  <div class="card">
+                    <div class="lbl">Salud de la plataforma<span class="mk">4</span></div>
+                    <div class="cols c4" style="margin-top:8px">
+                      <div class="stat"><div class="cap">uptime</div><div class="big">—</div></div>
+                      <div class="stat"><div class="cap">latencia p95</div><div class="big">—</div></div>
+                      <div class="stat"><div class="cap">usuarios activos</div><div class="big">—</div></div>
+                      <div class="stat"><div class="cap">reportes generados</div><div class="big">—</div></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+          <h3>ANOTACIONES</h3>
+          <ol>
+            <li><span class="uc">UC-A1</span> Gestionar catálogo de colonias. La columna de completitud es lo que permite decidir si una colonia ya puede publicarse.</li>
+            <li><span class="uc">UC-A1.1</span> Revisar fuentes de datos abiertas importadas (Sprint 2). El Proveedor de Datos Abiertos es actor secundario, no humano.</li>
+            <li><span class="uc">UC-A4.1–4.3</span> Cumplimiento de OE4. El aviso de privacidad debe estar publicado antes del Sprint 6, cuando aparece el registro.</li>
+            <li><span class="uc">UC-A7</span> Monitoreo de salud y métricas de uso.</li>
+            <li>Los módulos de DAO y B2B quedan visibles pero deshabilitados: existen en el catálogo, no en estas dos fases.</li>
+          </ol>
+          <div class="kpi">Este panel es el consumidor real del hito del Sprint 8: catálogo en producción en zonas piloto.</div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ══════════ P-11 ══════════ -->
+    <section class="screen" id="p11" data-flow="p12|Perfil, p10|Panel admin, p04|Crear cuenta" data-title="Inicio de sesión" data-num="P-11">
+      <div class="screen-head">
+        <span class="code">P-11</span>
+        <h2>Inicio de sesión</h2>
+        <div class="tags">
+          <span class="tag">Actor: Visitante &rarr; cualquier cuenta</span>
+          <span class="tag">UC-V4 (parcial) · UC-AUTH-01 · UC-AUTH-02</span>
+          <span class="tag">Sprint 6</span>
+        </div>
+      </div>
+      <div class="body">
+        <div class="canvas">
+          <div class="browser">
+            <div class="chrome"><i class="dot"></i><i class="dot"></i><i class="dot"></i><span class="url">civitas.mx/entrar</span></div>
+            <div class="view">
+              <div class="topbar">
+                <span class="logo">CIVITAS</span>
+                <span class="navlinks"><span data-target="p02">Colonias</span><span data-target="p14">Ayuda</span></span>
+                <span class="spacer"></span>
+                <span class="btn" data-target="p04">¿Nuevo? Crear cuenta</span>
+              </div>
+
+              <div class="steps">
+                <span class="step on"><i>1</i>Credenciales</span>
+                <span class="step"><i>2</i>Se resuelve el rol<span class="mk">2</span></span>
+                <span class="step"><i>3</i>Destino según rol</span>
+              </div>
+
+              <div class="side-r">
+                <div class="stack">
+                  <div class="pane">
+                    <div class="pane-h"><span><b>ACCESO</b> · UC-AUTH-01</span><span>correo y contraseña</span></div>
+                    <div class="pane-b">
+                      <div class="cols c2">
+                        <div class="field"><span class="cap">correo electrónico</span><span class="val"></span></div>
+                        <div class="field"><span class="cap">contraseña</span><span class="val"></span></div>
+                      </div>
+                      <div class="row" style="justify-content:space-between">
+                        <span class="row tight"><span class="check"></span><span class="meta">Recordarme en este equipo</span></span>
+                        <span class="meta mono">¿olvidaste tu contraseña? &rarr;</span>
+                      </div>
+                      <div class="row tight">
+                        <span class="btn solid grow" style="justify-content:center" data-target="p12">Entrar</span>
+                        <span class="btn ghost" data-target="p04">Crear cuenta</span>
+                      </div>
+                      <div class="meta mono">no hay selector «entro como…»: el destino lo resuelve el rol tras autenticar<span class="mk">2</span></div>
+                      <div class="dashed" style="text-align:center">
+                        <span class="meta mono">estado de error — credenciales inválidas · 3 intentos &rarr; bloqueo temporal</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="pane">
+                    <div class="pane-h"><span><b>A DÓNDE TE LLEVA ESTA PUERTA</b><span class="mk">3</span></span><span>clic = pantalla destino</span></div>
+                    <div class="pane-b">
+                      <div class="scroll-x">
+                        <table class="tbl">
+                          <thead><tr><th style="width:180px">Rol de la cuenta</th><th>Destino tras autenticar</th><th style="width:86px"></th></tr></thead>
+                          <tbody>
+                            <tr><td>Usuario Verificado</td><td>Mi cuenta &rarr; favoritos y alertas</td><td><span class="chip" data-target="p12">P-12</span></td></tr>
+                            <tr><td>Administrador</td><td>Panel de administración</td><td><span class="chip" data-target="p10">P-10</span></td></tr>
+                            <tr><td>Validador DAO · Cliente B2B</td><td><span class="meta">sin cuenta operativa en Fase I/II: fila deshabilitada, no oculta<span class="mk">4</span></span></td><td><span class="chip" data-target="p16">P-16</span></td></tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="stack">
+                  <div class="pane cond">
+                    <div class="pane-h"><span><b>«extend»</b> · UC-AUTH-02<span class="mk">1</span></span></div>
+                    <div class="pane-b">
+                      <div class="lbl">Recuperar contraseña</div>
+                      <div class="field"><span class="cap">correo electrónico</span><span class="val"></span></div>
+                      <div class="btn ghost wide">Enviar enlace</div>
+                      <div class="route">
+                        <span class="r"><span class="n">1</span><span class="t">enlace por correo</span></span>
+                        <span class="r"><span class="n">2</span><span class="t">nueva contraseña</span></span>
+                        <span class="r" data-target="p11"><span class="n">3</span><span class="t">vuelve a este acceso</span></span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="card">
+                    <div class="lbl">Sesión</div>
+                    <div class="kv" style="margin-top:8px">
+                      <span class="k">estado</span><span><span class="chip">sin sesión</span></span>
+                      <span class="k">rol</span><span><span class="chip">—</span></span>
+                      <span class="k">token</span><span class="meta">vigencia 30 días</span>
+                    </div>
+                  </div>
+                  <div class="lock" data-target="p04">¿Todavía sin cuenta? Crearla toma un paso</div>
+                </div>
+              </div>
+
+              <div class="foot-strip"><span>Aviso de privacidad</span><span data-target="p14">Centro de ayuda</span><span data-target="p01">Volver al inicio público</span></div>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+          <h3>ANOTACIONES</h3>
+          <ol>
+            <li><span class="uc">UC-AUTH-02</span> Recuperar contraseña, rama «extend» desde el mismo formulario de acceso.</li>
+            <li><span class="uc">UC-AUTH-01</span> Iniciar sesión con correo y contraseña. Es la misma puerta para las dos cuentas con acceso en esta fase (Usuario Verificado, Administrador); el destino se resuelve por rol tras autenticar, no por una elección del usuario.</li>
+            <li>Por eso no hay un selector "entro como…" en esta pantalla: la tabla de la derecha es la especificación de a dónde va cada rol.</li>
+            <li>Los actores sin cuenta operativa en Fase I/II (Validador DAO, Cliente B2B) verían esta misma pantalla si el gate económico o el contrato aún no existen — de ahí la fila deshabilitada, no oculta.</li>
+          </ol>
+          <div class="kpi">Se entrega junto con el registro (P-04) en el Sprint 6: sin login no hay a dónde llevar el "Entrar" de la topbar en P-01–P-03.</div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ══════════ P-12 ══════════ -->
+    <section class="screen" id="p12" data-flow="p09|Favoritos y alertas, p13|Notificaciones, p14|Soporte, p01|Cerrar sesión" data-title="Perfil de usuario" data-num="P-12">
+      <div class="screen-head">
+        <span class="code">P-12</span>
+        <h2>Perfil de usuario</h2>
+        <div class="tags">
+          <span class="tag">Actor: Visitante · Usuario Verificado · Administrador</span>
+          <span class="tag">UC-AUTH-04 · UC-AUTH-05</span>
+          <span class="tag">Sprint 6 (base) · Sprint 9 (vista admin)</span>
+        </div>
+      </div>
+      <div class="body">
+        <div class="canvas">
+          <div class="browser">
+            <div class="chrome"><i class="dot"></i><i class="dot"></i><i class="dot"></i><span class="url">civitas.mx/mi-cuenta/perfil</span></div>
+            <div class="view">
+              <div class="topbar">
+                <span class="logo">CIVITAS</span>
+                <span class="navlinks"><span data-target="p09">Favoritos</span><span data-target="p09">Alertas</span><span data-target="p06">Mis reportes</span><span>Cuenta</span></span>
+                <span class="spacer"></span>
+                <span class="chip on">Verificada</span>
+              </div>
+
+              <div class="tabs">
+                <span class="on">Perfil</span>
+                <span data-target="p13">Notificaciones</span>
+                <span data-target="p09">Favoritos y alertas</span>
+                <span data-target="p14">Soporte</span>
+              </div>
+
+              <div class="side-r">
+                <div class="stack">
+                  <div class="pane">
+                    <div class="pane-h"><span><b>IDENTIDAD</b> · UC-AUTH-04<span class="mk">3</span></span><span>sesión: Usuario Verificado</span></div>
+                    <div class="pane-b">
+                      <div class="row" style="align-items:flex-start">
+                        <div class="blk h-64" style="width:64px;flex:none;padding:0">foto</div>
+                        <div class="grow">
+                          <span class="ph t w40"></span><span class="ph w55"></span>
+                          <div class="row tight" style="margin-top:6px"><span class="chip on">Verificada</span><span class="chip">Inquilino</span><span class="chip mono">alta: —</span></div>
+                        </div>
+                        <span class="btn">Editar</span>
+                      </div>
+                      <div class="scroll-x">
+                        <table class="tbl">
+                          <thead><tr><th style="width:150px">Campo</th><th>Valor</th><th style="width:100px">Editable</th></tr></thead>
+                          <tbody>
+                            <tr><td>Nombre</td><td><span class="ph w70"></span></td><td><span class="chip">sí</span></td></tr>
+                            <tr><td>Correo</td><td><span class="ph w85"></span></td><td><span class="chip">reverificar</span></td></tr>
+                            <tr><td>Teléfono</td><td><span class="ph w55"></span></td><td><span class="chip">sí</span></td></tr>
+                            <tr><td>Identidad verificada</td><td><span class="chip on">confirmada</span></td><td><span class="chip">no</span></td></tr>
+                          </tbody>
+                        </table>
+                      </div>
+                      <div class="row tight">
+                        <span class="btn" data-target="p09">Favoritos y alertas</span>
+                        <span class="btn" data-target="p06">Mis reportes</span>
+                        <span class="btn" data-target="p13">Notificaciones</span>
+                        <span class="btn ghost" data-target="p01">Cerrar sesión</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="pane">
+                    <div class="pane-h"><span><b>MISMA RUTA, OTRO ROL</b> · solo para revisión<span class="mk">1</span></span><span>en producción cada sesión ve una sola</span></div>
+                    <div class="pane-b">
+                      <div class="cols c2">
+                        <div class="card">
+                          <div class="row" style="justify-content:space-between"><span class="lbl">Visitante (sin cuenta)</span><span class="chip mono">redirección</span></div>
+                          <div class="dashed" style="margin-top:8px;text-align:center">
+                            <div class="meta mono">GET /mi-cuenta/perfil</div>
+                            <div class="route" style="margin-top:8px"><span class="r" data-target="p11"><span class="n">P-11</span><span class="t">Inicio de sesión</span></span></div>
+                            <div class="meta" style="margin-top:6px">no existe instancia de Usuario en la sesión: no hay campos que editar<span class="mk">2</span></div>
+                          </div>
+                          <div class="btn wide" style="margin-top:8px" data-target="p04">Crear cuenta</div>
+                        </div>
+                        <div class="card">
+                          <div class="row" style="justify-content:space-between"><span class="lbl">Administrador<span class="mk">4</span></span><span class="chip on mono">nivel: total</span></div>
+                          <div class="row" style="margin-top:8px;align-items:flex-start">
+                            <div class="blk h-40" style="width:44px;flex:none;padding:0">foto</div>
+                            <div class="grow"><span class="ph t w70"></span><span class="ph w55"></span></div>
+                          </div>
+                          <table class="tbl" style="margin-top:8px">
+                            <tbody>
+                              <tr><td>Nombre</td><td><span class="ph w70"></span></td></tr>
+                              <tr><td>Correo institucional</td><td><span class="ph w85"></span></td></tr>
+                            </tbody>
+                          </table>
+                          <div class="meta" style="margin-top:6px">mismo layout, accesos rápidos distintos: los de P-10, no favoritos ni reportes</div>
+                          <div class="row tight" style="margin-top:8px"><span class="btn" data-target="p10">Panel de administración</span><span class="btn ghost" data-target="p01">Cerrar sesión</span></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="stack">
+                  <div class="card">
+                    <div class="lbl">Estado de verificación</div>
+                    <div class="route" style="margin-top:8px">
+                      <span class="r"><span class="n">1</span><span class="t">correo confirmado</span></span>
+                      <span class="r"><span class="n">2</span><span class="t">identidad ligera</span></span>
+                      <span class="r" data-target="p04"><span class="n">P-04</span><span class="t">ver niveles y gates</span></span>
+                    </div>
+                  </div>
+                  <div class="pane">
+                    <div class="pane-h"><span>ACCESOS RÁPIDOS</span></div>
+                    <div class="pane-b">
+                      <div class="route">
+                        <span class="r" data-target="p09"><span class="n">P-09</span><span class="t">Favoritos y alertas</span></span>
+                        <span class="r" data-target="p06"><span class="n">P-06</span><span class="t">Mis reportes</span></span>
+                        <span class="r" data-target="p13"><span class="n">P-13</span><span class="t">Notificaciones</span></span>
+                        <span class="r" data-target="p14"><span class="n">P-14</span><span class="t">Soporte</span></span>
+                        <span class="r" data-target="p15"><span class="n">P-15</span><span class="t">Feedback</span></span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="card">
+                    <div class="lbl">Privacidad de la cuenta</div>
+                    <div class="kv" style="margin-top:8px">
+                      <span class="k">datos</span><span class="meta">descargar copia</span>
+                      <span class="k">cuenta</span><span class="meta">eliminar</span>
+                    </div>
+                    <div class="meta mono" style="margin-top:6px">requisito de OE4</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="foot-strip"><span>Validador DAO · Administradora de Propiedades · Cliente B2B: sin esta pantalla en Fase I/II</span><span data-target="p16">ver P-16</span></div>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+          <h3>ANOTACIONES</h3>
+          <ol>
+            <li>Este marco muestra las tres vistas juntas solo para revisión; en producción cada sesión ve únicamente la suya.</li>
+            <li><span class="uc">UC-AUTH-04</span> parcial — el Visitante no tiene ficha de perfil persistente, por eso no hay campos que editar, solo una redirección.</li>
+            <li>Esta ficha es la que P-09 (favoritos/alertas) y P-06 (reportes) dan por hecha: aquí solo se edita identidad, no se repite el detalle de esas pantallas.</li>
+            <li><span class="uc">UC-AUTH-05</span> La vista de Administrador reutiliza el mismo layout pero cambia los accesos rápidos por los de P-10, no por favoritos ni reportes.</li>
+          </ol>
+          <div class="kpi">Qué campos son editables por rol lo define el modelo de datos, no este layout: se fija junto con el registro en el Sprint 6 y se extiende en el Sprint 9 cuando entra el panel de administración.</div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ══════════ P-13 ══════════ -->
+    <section class="screen" id="p13" data-flow="p09|Alertas de precio, p14|Soporte, p12|Preferencias" data-title="Notificaciones del sistema" data-num="P-13">
+      <div class="screen-head">
+        <span class="code">P-13</span>
+        <h2>Notificaciones del sistema</h2>
+        <div class="tags">
+          <span class="tag">Actor: Usuario Verificado · Administrador</span>
+          <span class="tag">UC-SYS-01 · UC-SYS-02</span>
+          <span class="tag">Backlog — sin sprint asignado</span>
+        </div>
+      </div>
+      <div class="body">
+        <div class="canvas">
+          <div class="browser">
+            <div class="chrome"><i class="dot"></i><i class="dot"></i><i class="dot"></i><span class="url">civitas.mx/notificaciones</span></div>
+            <div class="view">
+              <div class="topbar"><span class="logo">CIVITAS</span><span class="navlinks"><span>Bandeja</span><span data-target="p12">Preferencias</span></span><span class="spacer"></span><span class="chip on">3 sin leer</span></div>
+
+              <div class="side">
+                <div class="card">
+                  <div class="lbl">Filtrar</div>
+                  <div style="margin-top:8px;display:flex;flex-direction:column;gap:6px">
+                    <span class="chip on">Todas</span><span class="chip">Cuenta</span><span class="chip">Seguridad</span><span class="chip">Producto</span><span class="chip">Cumplimiento<span class="mk">3</span></span>
+                  </div>
+                </div>
+
+                <div style="display:flex;flex-direction:column;gap:10px;min-width:0">
+                  <div class="card">
+                    <div class="row" style="justify-content:space-between"><span class="lbl">Bandeja<span class="mk">1</span></span><span class="btn ghost">Marcar todo como leído</span></div>
+                    <table class="tbl" style="margin-top:8px">
+                      <thead><tr><th></th><th>Tipo</th><th>Mensaje</th><th>Cuándo</th><th></th></tr></thead>
+                      <tbody>
+                        <tr><td><span class="chip on">●</span></td><td><span class="chip">Seguridad</span></td><td><span class="ph w85"></span></td><td><span class="meta mono">hace —</span></td><td><span class="chip" data-target="p12">Ver</span></td></tr>
+                        <tr><td><span class="chip on">●</span></td><td><span class="chip">Cuenta</span></td><td><span class="ph w70"></span></td><td><span class="meta mono">hace —</span></td><td><span class="chip" data-target="p12">Ver</span></td></tr>
+                        <tr><td></td><td><span class="chip">Producto</span></td><td><span class="ph w85"></span></td><td><span class="meta mono">hace —</span></td><td><span class="chip" data-target="p15">Ver</span></td></tr>
+                        <tr><td><span class="chip on">●</span></td><td><span class="chip">Cumplimiento</span></td><td><span class="ph w55"></span></td><td><span class="meta mono">hace —</span></td><td><span class="chip" data-target="p10">Ver</span></td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <div class="card">
+                    <div class="lbl">Preferencias de notificación<span class="mk">2</span></div>
+                    <table class="tbl" style="margin-top:8px">
+                      <thead><tr><th>Categoría</th><th>Correo</th><th>En la app</th></tr></thead>
+                      <tbody>
+                        <tr><td>Cuenta y seguridad</td><td><span class="chip on">activo</span></td><td><span class="chip on">activo</span></td></tr>
+                        <tr data-target="p09"><td>Alertas de precio (P-09)</td><td><span class="chip on">activo</span></td><td><span class="chip">apagado</span></td></tr>
+                        <tr><td>Producto y novedades</td><td><span class="chip">apagado</span></td><td><span class="chip on">activo</span></td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+          <h3>ANOTACIONES</h3>
+          <ol>
+            <li><span class="uc">UC-SYS-01</span> Centro de notificaciones del sistema: cuenta, seguridad y producto. No sustituye a P-09, que son alertas de precio/zona sobre datos del catálogo, no eventos de plataforma.</li>
+            <li><span class="uc">UC-SYS-02</span> Configurar preferencias de notificación por categoría y canal; reutiliza el patrón de chips Correo/En la app ya usado en P-09.</li>
+            <li>La categoría "Cumplimiento" solo aparece en la vista de Administrador (vencimiento de dictámenes, gate económico) — mismo componente, filtro distinto según rol, igual que en P-12.</li>
+          </ol>
+          <div class="kpi">Sin sprint asignado en el plan actual: la bandeja depende de que existan eventos que notificar (verificación, KYC, catálogo), así que no puede entrar antes del Sprint 6.</div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ══════════ P-14 ══════════ -->
+    <section class="screen" id="p14" data-flow="p13|Notificaciones, p15|Feedback, p04|Crear cuenta" data-title="Soporte técnico" data-num="P-14">
+      <div class="screen-head">
+        <span class="code">P-14</span>
+        <h2>Soporte técnico</h2>
+        <div class="tags">
+          <span class="tag">Actor: Visitante (FAQ) · Usuario Verificado · Administrador</span>
+          <span class="tag">UC-SYS-03 · UC-SYS-04</span>
+          <span class="tag">Backlog — sin sprint asignado</span>
+        </div>
+      </div>
+      <div class="body">
+        <div class="canvas">
+          <div class="browser">
+            <div class="chrome"><i class="dot"></i><i class="dot"></i><i class="dot"></i><span class="url">civitas.mx/soporte</span></div>
+            <div class="view">
+              <div class="topbar">
+                <span class="logo">CIVITAS</span>
+                <span class="navlinks"><span>Centro de ayuda</span><span>Mis tickets</span></span>
+                <span class="spacer"></span>
+                <span class="chip mono" data-target="p12">Mi cuenta</span>
+              </div>
+
+              <div class="row" style="justify-content:space-between;align-items:flex-end;border-bottom:1px solid var(--rule);padding-bottom:10px">
+                <div class="grow" style="max-width:460px">
+                  <span class="ph t w40"></span>
+                  <div class="field" style="margin-top:8px"><span class="cap">buscar en el centro de ayuda</span><span class="val"></span></div>
+                </div>
+                <div class="row tight">
+                  <div class="stat"><div class="cap">artículos</div><div class="big">00</div></div>
+                  <div class="stat"><div class="cap">1ª respuesta</div><div class="big">—</div></div>
+                </div>
+              </div>
+
+              <div class="side">
+                <div class="stack">
+                  <div class="card">
+                    <div class="lbl">Temas</div>
+                    <div style="margin-top:8px;display:flex;flex-direction:column;gap:6px">
+                      <span class="chip on">Cuenta</span>
+                      <span class="chip">Verificación</span>
+                      <span class="chip">Precio Justo</span>
+                      <span class="chip">Privacidad</span>
+                      <span class="chip">Datos y fuentes</span>
+                    </div>
+                  </div>
+                  <div class="lock" data-target="p04">Abrir un ticket requiere cuenta<span class="mk">2</span></div>
+                </div>
+
+                <div class="stack">
+                  <div class="pane">
+                    <div class="pane-h"><span><b>PREGUNTAS FRECUENTES</b> · UC-SYS-03<span class="mk">1</span></span><span>público, sin cuenta</span></div>
+                    <div class="pane-b">
+                      <div class="row tight"><span class="chip on">Cuenta</span><span class="chip">Verificación</span><span class="chip">Precio Justo</span><span class="chip">Privacidad</span></div>
+                      <div class="stack" style="gap:8px">
+                        <div class="card"><div class="row" style="justify-content:space-between"><span class="grow"><span class="ph t w70"></span></span><span class="meta mono">+</span></div></div>
+                        <div class="card">
+                          <div class="row" style="justify-content:space-between"><span class="grow"><span class="ph t w85"></span></span><span class="meta mono">&minus;</span></div>
+                          <span class="ph w100"></span><span class="ph w70"></span>
+                          <div class="row tight" style="margin-top:6px"><span class="meta mono">¿te sirvió?</span><span class="chip">sí</span><span class="chip" data-target="p15">no</span></div>
+                        </div>
+                        <div class="card"><div class="row" style="justify-content:space-between"><span class="grow"><span class="ph t w55"></span></span><span class="meta mono">+</span></div></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="cols c2">
+                    <div class="pane">
+                      <div class="pane-h"><span><b>ABRIR UN TICKET</b> · UC-SYS-04<span class="mk">3</span></span><span>requiere cuenta</span></div>
+                      <div class="pane-b">
+                        <div class="field"><span class="cap">asunto</span><span class="val"></span></div>
+                        <div class="cols c2">
+                          <div class="field"><span class="cap">categoría</span><span class="val"></span></div>
+                          <div class="field"><span class="cap">prioridad</span><span class="val"></span></div>
+                        </div>
+                        <div class="blk h-92 plain">descripción del problema</div>
+                        <div class="meta mono">categoría y prioridad alimentan el enrutamiento interno · SLA por tipo de cuenta sin definir</div>
+                        <div class="row tight"><span class="btn ghost">Adjuntar captura</span><span class="btn solid" data-target="p13">Enviar ticket</span></div>
+                      </div>
+                    </div>
+                    <div class="pane">
+                      <div class="pane-h"><span><b>MIS TICKETS</b><span class="mk">4</span></span><span>historial</span></div>
+                      <div class="pane-b">
+                        <div class="scroll-x">
+                          <table class="tbl">
+                            <thead><tr><th>Folio</th><th>Asunto</th><th>Estado</th><th></th></tr></thead>
+                            <tbody>
+                              <tr><td class="mono">#0000</td><td><span class="ph w70"></span></td><td><span class="chip">en revisión</span></td><td><span class="chip" data-target="p13">Ver</span></td></tr>
+                              <tr><td class="mono">#0000</td><td><span class="ph w55"></span></td><td><span class="chip on">resuelto</span></td><td><span class="chip" data-target="p13">Ver</span></td></tr>
+                            </tbody>
+                          </table>
+                        </div>
+                        <div class="dashed">
+                          <div class="meta">Estado vacío: sin tickets abiertos</div>
+                          <div class="row tight" style="margin-top:6px"><span class="btn" data-target="p15">Mandar feedback en vez de ticket</span></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="foot-strip"><span>Canal real por decidir: soporte interno vs. proveedor externo</span><span data-target="p15">Feedback de producto</span><span data-target="p13">Notificaciones</span></div>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+          <h3>ANOTACIONES</h3>
+          <ol>
+            <li><span class="uc">UC-SYS-03</span> Consultar el centro de ayuda. Visible sin cuenta, igual que el catálogo de colonias en P-01: el Visitante puede resolver dudas antes de registrarse.</li>
+            <li>El muro para abrir ticket reutiliza el mismo patrón de bloqueo que P-01 y P-02: consultar es público, actuar requiere cuenta.</li>
+            <li><span class="uc">UC-SYS-04</span> Abrir ticket de soporte técnico. Categoría y prioridad alimentan el enrutamiento interno; no está definido aún si hay SLA distinto por tipo de cuenta (Administrador vs. Usuario Verificado).</li>
+            <li>El historial de tickets es lo que evita que el usuario repita el problema por otro canal mientras espera respuesta.</li>
+          </ol>
+          <div class="kpi">Sin sprint asignado: depende de decidir el canal real de soporte (interno vs. proveedor externo) antes de comprometerlo a un sprint.</div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ══════════ P-15 ══════════ -->
+    <section class="screen" id="p15" data-flow="p06|Reporte que lo originó, p13|Notificaciones, p16|Aporte DAO" data-title="Feedback de producto" data-num="P-15">
+      <div class="screen-head">
+        <span class="code">P-15</span>
+        <h2>Feedback de producto</h2>
+        <div class="tags">
+          <span class="tag">Actor: Usuario Verificado · Administrador</span>
+          <span class="tag">UC-SYS-05</span>
+          <span class="tag">Backlog — sin sprint asignado</span>
+        </div>
+      </div>
+      <div class="body">
+        <div class="canvas">
+          <div class="browser">
+            <div class="chrome"><i class="dot"></i><i class="dot"></i><i class="dot"></i><span class="url">civitas.mx/feedback</span></div>
+            <div class="view">
+              <div class="topbar">
+                <span class="logo">CIVITAS</span>
+                <span class="navlinks"><span data-target="p12">Mi cuenta</span><span>Feedback</span></span>
+                <span class="spacer"></span>
+                <span class="chip mono" data-target="p14">¿Necesitas soporte?</span>
+              </div>
+
+              <div class="meta mono" data-target="p12">Mi cuenta › Feedback de producto</div>
+
+              <div class="side-r">
+                <div class="stack">
+                  <div class="pane">
+                    <div class="pane-h"><span><b>ENVIAR FEEDBACK</b> · UC-SYS-05<span class="mk">1</span></span><span>sin folio formal, sin SLA</span></div>
+                    <div class="pane-b">
+                      <div>
+                        <div class="meta">¿qué tan útil fue lo que acabas de usar?</div>
+                        <div class="row tight" style="margin-top:6px"><span class="chip">1</span><span class="chip">2</span><span class="chip on">3</span><span class="chip">4</span><span class="chip">5</span><span class="meta mono">escala declarada, no emojis</span></div>
+                      </div>
+                      <div>
+                        <div class="meta">tipo<span class="mk">2</span></div>
+                        <div class="row tight" style="margin-top:6px"><span class="chip on">Error</span><span class="chip">Idea</span><span class="chip">Dato incorrecto de la interfaz</span><span class="chip">Otro</span></div>
+                      </div>
+                      <div class="blk h-92 plain">describe tu experiencia</div>
+                      <div class="dashed"><div class="meta mono">contexto que se adjunta solo: pantalla de origen, folio del reporte y versión de la app</div></div>
+                      <div class="row tight">
+                        <span class="btn ghost">Adjuntar captura</span>
+                        <span class="btn solid" data-target="p13">Enviar</span>
+                        <span class="btn ghost" data-target="p14">Prefiero abrir un ticket</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="cols c2">
+                    <div class="pane">
+                      <div class="pane-h"><span><b>TU HISTORIAL</b><span class="mk">3</span></span><span>cierra el círculo</span></div>
+                      <div class="pane-b">
+                        <div class="scroll-x">
+                          <table class="tbl">
+                            <thead><tr><th>Folio</th><th>Tipo</th><th>Estado</th><th></th></tr></thead>
+                            <tbody>
+                              <tr><td class="mono">#0000</td><td><span class="chip">Idea</span></td><td><span class="chip">recibido</span></td><td><span class="chip" data-target="p13">Ver</span></td></tr>
+                              <tr><td class="mono">#0000</td><td><span class="chip">Error</span></td><td><span class="chip on">aplicado</span></td><td><span class="chip" data-target="p13">Ver</span></td></tr>
+                            </tbody>
+                          </table>
+                        </div>
+                        <div class="meta">sin esto la pantalla se siente como un buzón sin fondo</div>
+                      </div>
+                    </div>
+                    <div class="pane cond">
+                      <div class="pane-h"><span><b>NO CONFUNDIR CON</b> · AporteDato<span class="mk">4</span></span><span>fuera de alcance</span></div>
+                      <div class="pane-b">
+                        <div class="lbl">AporteDato del Ciudadano Aportador</div>
+                        <div class="meta">Esto es feedback de producto y UX. Reportar un precio o un dato de zona es <span class="uc">UC-C1</span>, parte de la red DAO.</div>
+                        <div class="blk h-64 plain">diagrama de clases · módulo 3</div>
+                        <div class="route"><span class="r" data-target="p16"><span class="n">P-16</span><span class="t">Fuera de alcance · DAO</span></span></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="stack">
+                  <div class="pane">
+                    <div class="pane-h"><span>DÓNDE SE DISPARA</span></div>
+                    <div class="pane-b">
+                      <div class="route">
+                        <span class="r" data-target="p06"><span class="n">P-06</span><span class="t">Encuesta del reporte</span></span>
+                        <span class="r" data-target="p03"><span class="n">P-03</span><span class="t">Reportar dato incorrecto</span></span>
+                        <span class="r" data-target="p14"><span class="n">P-14</span><span class="t">FAQ: «no me sirvió»</span></span>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="card">
+                    <div class="lbl">Qué pasa con tu envío</div>
+                    <div class="route" style="margin-top:8px">
+                      <span class="r"><span class="n">1</span><span class="t">recibido</span></span>
+                      <span class="r"><span class="n">2</span><span class="t">triaje de producto</span></span>
+                      <span class="r" data-target="p13"><span class="n">3</span><span class="t">aviso al usuario</span></span>
+                    </div>
+                  </div>
+                  <div class="card">
+                    <div class="lbl">Volumen</div>
+                    <div class="kv" style="margin-top:8px">
+                      <span class="k">este mes</span><span class="meta">—</span>
+                      <span class="k">aplicados</span><span class="meta">—</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="foot-strip"><span>Quick win de bajo costo, junto con P-13</span><span data-target="p14">Centro de ayuda</span></div>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+          <h3>ANOTACIONES</h3>
+          <ol>
+            <li><span class="uc">UC-SYS-05</span> Enviar feedback de producto: calificación rápida + categoría + texto libre, sin la fricción de un ticket formal.</li>
+            <li>La categoría "Dato incorrecto" aquí reporta un error de la interfaz o del reporte mostrado, no un aporte de dato ciudadano.</li>
+            <li>El historial cierra el círculo: sin mostrar qué pasó con el feedback, la pantalla se siente como un buzón sin fondo.</li>
+            <li>Ese deslinde con <span class="uc">AporteDato</span> (diagrama de clases, módulo 3) es la razón de ser de esta pantalla separada de P-16: una es UX de producto, la otra es gobernanza DAO.</li>
+          </ol>
+          <div class="kpi">Sin sprint asignado: útil desde el primer piloto (Sprint 8), pero no está en el plan actual — vale la pena meterla como quick win de bajo costo junto con P-13.</div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ══════════ P-16 ══════════ -->
+    <section class="screen" id="p16" data-flow="p10|Panel de administración, p11|Inicio de sesión, p01|Inicio público" data-title="Fuera de alcance" data-num="P-16">
+      <div class="screen-head">
+        <span class="code">P-16</span>
+        <h2>Fuera del alcance de este mockup</h2>
+        <div class="tags">
+          <span class="tag">Fase III y IV</span>
+          <span class="tag">OE2 · OE3</span>
+          <span class="tag">Desarrollo en espiral y XP, no Scrum</span>
+        </div>
+      </div>
+      <div class="body">
+        <div class="canvas">
+          <div class="stack">
+            <div class="rail">
+              <div class="seg on"><div class="p">FASE I</div><div class="l">Fundamentos y web 1.0</div><div class="d">Sprints 1–8 · en este pliego</div></div>
+              <div class="seg on"><div class="p">FASE II</div><div class="l">Anomalías y web 2.0</div><div class="d">Sprints 9–16 · en este pliego</div></div>
+              <div class="seg off"><div class="p">FASE III</div><div class="l">Web 3.0, DAO y B2B</div><div class="d">espiral y XP, no sprints<span class="mk">1</span></div></div>
+              <div class="seg off"><div class="p">FASE IV</div><div class="l">Escala y federación</div><div class="d">sin iteraciones definidas</div></div>
+            </div>
+
+            <div class="pane">
+              <div class="pane-h"><span><b>QUÉ QUEDA FUERA</b> · y de qué depende para poder dibujarse</span><span>clic = dónde se toca hoy</span></div>
+              <div class="pane-b">
+                <div class="cols c3">
+                  <div class="pane cond">
+                    <div class="pane-h"><span>OE2 · WEB 3.0</span></div>
+                    <div class="pane-b">
+                      <div class="lbl">Certificar solvencia vía ZK</div>
+                      <div class="blk h-140 plain">UC-I3 · I3.1–I3.4<br>UC-ZK-01 a 09</div>
+                      <div class="kv">
+                        <span class="k">actor</span><span><span class="chip">Inquilino</span></span>
+                        <span class="k">bloqueo</span><span class="meta">oráculo de privacidad + puente Open Banking</span>
+                      </div>
+                      <div class="meta">La interfaz no se puede dibujar antes de fijar el circuito.</div>
+                      <div class="route"><span class="r" data-target="p04"><span class="n">P-04</span><span class="t">Hoy: verificación ligera</span></span></div>
+                    </div>
+                  </div>
+
+                  <div class="pane cond">
+                    <div class="pane-h"><span>OE2 · B2B</span></div>
+                    <div class="pane-b">
+                      <div class="lbl">Panel institucional de verificaciones</div>
+                      <div class="blk h-140 plain">UC-B1 a B5<br>Administradora · PropTech</div>
+                      <div class="kv">
+                        <span class="k">actor</span><span><span class="chip">Cliente B2B</span></span>
+                        <span class="k">bloqueo</span><span class="meta">contrato, KYB y credenciales de API</span>
+                      </div>
+                      <div class="meta">Sin eso el panel no tiene contenido real.</div>
+                      <div class="route"><span class="r" data-target="p10"><span class="n">P-10</span><span class="t">Hoy: módulo deshabilitado</span></span></div>
+                    </div>
+                  </div>
+
+                  <div class="pane cond">
+                    <div class="pane-h"><span>OE3 · DAO E IA</span></div>
+                    <div class="pane-b">
+                      <div class="lbl">Aportes, validación y arbitraje</div>
+                      <div class="blk h-140 plain">UC-C1 a C4 · UC-D1 a D4<br>UC-DAO-01 a 07</div>
+                      <div class="kv">
+                        <span class="k">actor</span><span><span class="chip">Aportador · Validador</span></span>
+                        <span class="k">bloqueo</span><span class="meta">gate económico sin dictamen legal</span>
+                      </div>
+                      <div class="meta">Diseñarla ahora sería comprometerse con un mecanismo aún no aprobado.</div>
+                      <div class="route"><span class="r" data-target="p15"><span class="n">P-15</span><span class="t">Hoy: deslinde con feedback</span></span></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="pane">
+              <div class="pane-h"><span><b>ACTORES DEL CATÁLOGO SIN PANTALLA EN ESTE PLIEGO</b><span class="mk">2</span></span><span>3 de 11</span></div>
+              <div class="pane-b">
+                <div class="scroll-x">
+                  <table class="tbl">
+                    <thead><tr><th style="width:210px">Actor</th><th>Casos de uso</th><th>Qué falta para tener pantalla</th><th style="width:190px">Dónde se asoma hoy</th></tr></thead>
+                    <tbody>
+                      <tr><td>Validador DAO</td><td>UC-D1 a D4 · UC-DAO-01 a 07</td><td>dictamen legal y gate económico</td><td><span class="chip" data-target="p11">P-11 · fila deshabilitada</span></td></tr>
+                      <tr><td>Administradora de Propiedades</td><td>UC-B1 a B5</td><td>contrato y KYB</td><td><span class="chip" data-target="p10">P-10 · módulo bloqueado</span></td></tr>
+                      <tr><td>Cliente PropTech</td><td>UC-B3 · UC-B4</td><td>tarifas y contrato de datos</td><td><span class="chip" data-target="p10">P-10 · módulo bloqueado</span></td></tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="meta">Es correcto para este alcance, pero conviene decirlo explícitamente al presentar.</div>
+              </div>
+            </div>
+
+            <div class="foot-strip"><span>El pliego de Fase III se arma cuando existan las iteraciones de espiral, no antes<span class="mk">3</span></span><span data-target="p01">Volver al inicio del recorrido</span></div>
+          </div>
+        </div>
+        <aside class="notes">
+          <h3>POR QUÉ NO ESTÁN</h3>
+          <ol>
+            <li>El plan de sprints solo cubre Fase I y II. A partir de Fase III el proyecto cambia a desarrollo en espiral, y sus pantallas se definen por iteración, no por sprint.</li>
+            <li>Tres de los once actores del catálogo no aparecen en ninguna pantalla de este pliego: Validador DAO, Administradora de Propiedades y Cliente PropTech. Es correcto para este alcance, pero conviene decirlo explícitamente al presentar.</li>
+            <li>Si se necesita el pliego de Fase III, se arma cuando existan las iteraciones de espiral, no antes.</li>
+          </ol>
+        </aside>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<footer class="sheet-foot">
+  <h3>CONVENCIONES DEL WIREFRAME</h3>
+  <div class="legend">
+    <div class="sw"><span class="box hatch"></span><span>Bloque con contenido visual pendiente: mapa, gráfica o imagen.</span></div>
+    <div class="sw"><span class="box solid"></span><span>Texto o dato real que irá en producción; el ancho sugiere su extensión.</span></div>
+    <div class="sw"><span class="box dash"></span><span>Elemento condicional «extend», opcional o fuera del alcance de la fase.</span></div>
+    <div class="sw"><span class="mk" style="margin-left:0">1</span><span>Marcador que liga la región con su anotación en la columna derecha.</span></div>
+  </div>
+  <p class="closing">Sin color de marca, sin tipografía definitiva y sin fotografía: eso viene después, cuando estas dieciséis pantallas estén aprobadas. Lo que aquí se decide es qué ve cada actor, en qué orden y con qué información — y qué pantalla entrega cada sprint. Cosas que este pliego dejó al descubierto y conviene resolver antes de diseñar: P-09, P-13, P-14 y P-15 no tienen sprint asignado; la ficha de colonia se construye dos veces (con y sin anomalía); tres actores del catálogo no tienen interfaz en estas dos fases; y P-11 a P-15 son pantallas transversales de producto (sesión, perfil, notificaciones, soporte, feedback) que el catálogo de casos de uso no modela por actor — se anotan con códigos UC-AUTH/UC-SYS internos, igual que UC-AUTH-06/07 en P-04, no con códigos del catálogo v3.</p>
+</footer>
+
+</div>
+
+<script>
+(function(){
+  var screens = Array.prototype.slice.call(document.querySelectorAll('.screen'));
+  var list = document.getElementById('index');
+
+  // ---------- índice lateral (se genera a partir de las secciones) ----------
+  screens.forEach(function(s){
+    var li = document.createElement('li');
+    if (s.id === 'p16') li.className = 'later';
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.setAttribute('data-target', s.id);
+    b.innerHTML = '<span class="num">' + s.dataset.num + '</span><span>' + s.dataset.title + '</span>';
+    b.setAttribute('aria-current', s.classList.contains('on') ? 'true' : 'false');
+    li.appendChild(b);
+    list.appendChild(li);
+  });
+
+  // ---------- pie de navegación (salidas declaradas + anterior/siguiente) ----------
+  // Cada sección declara a dónde lleva en data-flow="pXX|etiqueta, pYY|etiqueta".
+  // El pie se genera aquí para que las 16 pantallas tengan el mismo componente.
+  var meta = {};
+  screens.forEach(function(s){ meta[s.id] = { num: s.dataset.num, title: s.dataset.title }; });
+
+  function jump(id, label, cls){
+    if (!meta[id]) return '';
+    return '<span class="jump ' + (cls || '') + '" data-target="' + id + '">' +
+           '<span class="n">' + meta[id].num + '</span>' +
+           (label || meta[id].title) + '</span>';
+  }
+
+  screens.forEach(function(s, i){
+    var foot = document.createElement('div');
+    foot.className = 'screen-foot';
+    var html = '';
+
+    var exits = (s.dataset.flow || '').split(',').map(function(x){ return x.trim(); }).filter(Boolean);
+    if (exits.length){
+      html += '<span class="fh">SALIDAS</span><span class="exits">';
+      exits.forEach(function(x){
+        var p = x.split('|');
+        html += jump(p[0].trim(), (p[1] || '').trim());
+      });
+      html += '</span>';
+    }
+
+    html += '<span class="nav"><span class="fh">← →</span>';
+    if (i > 0) html += jump(screens[i - 1].id, 'anterior', 'prev');
+    if (i < screens.length - 1) html += jump(screens[i + 1].id, 'siguiente', 'next');
+    html += '</span>';
+
+    foot.innerHTML = html;
+    s.appendChild(foot);
+  });
+
+  // ---------- mecanismo central de cambio de pantalla ----------
+  // Quita `.on` de la sección activa, se la asigna a #screenId, sincroniza
+  // el estado aria-current del menú lateral y hace scroll suave al inicio.
+  function goToScreen(screenId){
+    var target = document.getElementById(screenId);
+    if (!target || !target.classList.contains('screen')) return;
+
+    screens.forEach(function(s){
+      s.classList.toggle('on', s === target);
+    });
+
+    Array.prototype.forEach.call(list.querySelectorAll('button'), function(b){
+      b.setAttribute('aria-current', b.getAttribute('data-target') === screenId ? 'true' : 'false');
+    });
+
+    try { localStorage.setItem('civitas-wf-screen', screenId); } catch (e) {}
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // Restaura la última pantalla vista sin animar el scroll (carga inicial).
+  function restoreScreen(screenId){
+    var target = document.getElementById(screenId);
+    if (!target || !target.classList.contains('screen')) return;
+    screens.forEach(function(s){ s.classList.toggle('on', s === target); });
+    Array.prototype.forEach.call(list.querySelectorAll('button'), function(b){
+      b.setAttribute('aria-current', b.getAttribute('data-target') === screenId ? 'true' : 'false');
+    });
+  }
+
+  // ---------- delegación de clics: menú lateral + interacciones del cuerpo ----------
+  // Tanto los botones del índice como cualquier elemento del cuerpo con
+  // data-target="pXX" (creado o marcado abajo) disparan la misma función,
+  // así el índice nunca se desincroniza de la pantalla mostrada.
+  document.addEventListener('click', function(e){
+    var el = e.target.closest('[data-target]');
+    if (!el) return;
+    e.preventDefault();
+    goToScreen(el.getAttribute('data-target'));
+  });
+
+  document.addEventListener('keydown', function(e){
+    if (e.target && /^(INPUT|TEXTAREA)$/.test(e.target.tagName)) return;
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    var i = screens.findIndex(function(s){ return s.classList.contains('on'); });
+    if (i < 0) return;
+    var next = e.key === 'ArrowRight' ? i + 1 : i - 1;
+    if (next >= 0 && next < screens.length) goToScreen(screens[next].id);
+  });
+
+  try {
+    var saved = localStorage.getItem('civitas-wf-screen');
+    if (saved) restoreScreen(saved);
+  } catch (e) {}
+})();
+</script>
+</body>
+</html>

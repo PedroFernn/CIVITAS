@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CIVITAS — Pliego de acceso y privilegios (backend)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#E7ECEF;
+    --sheet:#F8FAFB;
+    --ink:#16212B;
+    --graphite:#5D6C7A;
+    --rule:#AEBBC5;
+    --rule-soft:#D3DBE1;
+    --fill:#D9E0E5;
+    --fill-2:#E6EBEF;
+    --pen:#A83A28;
+    --pen-soft:#F0DCD8;
+    --focus:#2B6CB0;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --paper:#0E141A; --sheet:#18212A; --ink:#DDE5EB; --graphite:#93A2AF;
+      --rule:#3A4855; --rule-soft:#2A3540; --fill:#232E38; --fill-2:#1E2831;
+      --pen:#E0765F; --pen-soft:#3A2521; --focus:#7FB2E5;
+    }
+  }
+  :root[data-theme="dark"]{
+    --paper:#0E141A; --sheet:#18212A; --ink:#DDE5EB; --graphite:#93A2AF;
+    --rule:#3A4855; --rule-soft:#2A3540; --fill:#232E38; --fill-2:#1E2831;
+    --pen:#E0765F; --pen-soft:#3A2521; --focus:#7FB2E5;
+  }
+
+  *{box-sizing:border-box;}
+  html{-webkit-text-size-adjust:100%;}
+  body{
+    margin:0;background:var(--paper);
+    background-image:
+      linear-gradient(to right, color-mix(in srgb, var(--rule) 18%, transparent) 1px, transparent 1px),
+      linear-gradient(to bottom, color-mix(in srgb, var(--rule) 18%, transparent) 1px, transparent 1px);
+    background-size:28px 28px;
+    color:var(--ink);
+    font-family:"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-size:15px;line-height:1.5;
+  }
+  .mono{font-family:"IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;}
+  :focus-visible{outline:2px solid var(--focus);outline-offset:2px;}
+  .wrap{max-width:1180px;margin:0 auto;padding:24px 18px 64px;}
+
+  header.sheet{border:1px solid var(--rule);background:var(--sheet);padding:20px 22px;}
+  .sheet h1{margin:0;font-size:clamp(22px,3.4vw,30px);font-weight:600;letter-spacing:-.01em;}
+  .sheet .sub{margin:6px 0 0;color:var(--graphite);max-width:64ch;}
+  .stamp{display:flex;flex-wrap:wrap;gap:10px 22px;margin-top:16px;padding-top:14px;
+    border-top:1px solid var(--rule-soft);font-size:12.5px;color:var(--graphite);}
+  .stamp b{color:var(--ink);font-weight:600;}
+
+  .layout{display:grid;grid-template-columns:232px 1fr;gap:18px;margin-top:18px;align-items:start;}
+  nav.index{border:1px solid var(--rule);background:var(--sheet);position:sticky;top:18px;}
+  nav.index .index-h{padding:10px 12px;border-bottom:1px solid var(--rule-soft);font-size:11.5px;letter-spacing:.06em;color:var(--graphite);}
+  nav.index ul{list-style:none;margin:0;padding:6px;}
+  nav.index button{width:100%;text-align:left;border:0;background:none;color:var(--ink);font:inherit;font-size:13px;
+    padding:7px 8px;cursor:pointer;display:flex;gap:9px;border-left:2px solid transparent;}
+  nav.index button:hover{background:var(--fill-2);}
+  nav.index button[aria-current="true"]{background:var(--fill-2);border-left-color:var(--pen);font-weight:600;}
+  nav.index button .num{color:var(--graphite);font-family:"IBM Plex Mono",monospace;font-size:12px;}
+  nav.index button[aria-current="true"] .num{color:var(--pen);}
+
+  .screen{display:none;}
+  .screen.on{display:block;}
+  .screen-head{border:1px solid var(--rule);border-bottom:0;background:var(--sheet);padding:14px 16px;
+    display:flex;flex-wrap:wrap;gap:8px 14px;align-items:baseline;}
+  .screen-head h2{margin:0;font-size:18px;font-weight:600;}
+  .screen-head .code{font-family:"IBM Plex Mono",monospace;font-size:13px;color:var(--pen);}
+  .tags{display:flex;flex-wrap:wrap;gap:6px;width:100%;margin-top:2px;}
+  .tag{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--graphite);border:1px solid var(--rule-soft);padding:2px 7px;}
+
+  .body{display:grid;grid-template-columns:1fr 288px;border:1px solid var(--rule);background:var(--sheet);}
+  .canvas{padding:18px;min-width:0;border-right:1px solid var(--rule-soft);}
+  aside.notes{padding:18px 16px;background:var(--fill-2);min-width:0;}
+  aside.notes h3{margin:0 0 10px;font-size:11.5px;letter-spacing:.06em;color:var(--graphite);font-weight:600;}
+  aside.notes ol{margin:0;padding:0;list-style:none;counter-reset:n;}
+  aside.notes li{counter-increment:n;position:relative;padding-left:26px;margin-bottom:11px;font-size:13px;line-height:1.45;}
+  aside.notes li::before{content:counter(n);position:absolute;left:0;top:1px;width:18px;height:18px;
+    border:1px solid var(--pen);color:var(--pen);border-radius:50%;font-family:"IBM Plex Mono",monospace;font-size:11px;
+    display:flex;align-items:center;justify-content:center;}
+  aside.notes .uc{color:var(--pen);font-family:"IBM Plex Mono",monospace;font-size:12px;}
+  aside.notes .kpi{margin-top:14px;padding-top:12px;border-top:1px solid var(--rule-soft);font-size:12.5px;color:var(--graphite);}
+
+  .mk{display:inline-flex;align-items:center;justify-content:center;width:17px;height:17px;
+    border:1px solid var(--pen);color:var(--pen);background:var(--pen-soft);border-radius:50%;
+    font-family:"IBM Plex Mono",monospace;font-size:10.5px;font-weight:600;vertical-align:middle;margin-left:6px;flex:none;}
+
+  /* piezas de diagrama */
+  .flow{display:grid;grid-template-columns:repeat(4,1fr);gap:0;align-items:stretch;}
+  .lane{border:1px solid var(--rule);border-right:0;background:var(--sheet);padding:12px 11px;min-width:0;}
+  .lane:last-child{border-right:1px solid var(--rule);}
+  .lane > .cap{font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--graphite);
+    display:block;padding-bottom:8px;border-bottom:1px solid var(--rule-soft);margin-bottom:10px;}
+  .node{border:1px solid var(--rule-soft);background:var(--fill-2);padding:7px 9px;margin-bottom:7px;font-size:12px;min-width:0;}
+  .node .t{font-weight:600;display:block;}
+  .node .s{font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--graphite);display:block;margin-top:2px;word-break:break-word;}
+  .node.gate{background:var(--pen-soft);border-color:var(--pen);}
+  .node.off{border-style:dashed;opacity:.62;}
+  .node.hard{border-color:var(--rule);background:var(--fill);}
+
+  .rb{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;
+    border:1px solid var(--rule);font-family:"IBM Plex Mono",monospace;font-size:10.5px;
+    color:var(--graphite);margin-right:3px;background:var(--sheet);}
+  .rb.on{border-color:var(--pen);color:var(--pen);background:var(--pen-soft);font-weight:600;}
+  .rb.adm{border-color:var(--ink);color:var(--ink);background:var(--fill);font-weight:600;}
+  .roles{margin-top:5px;display:flex;flex-wrap:wrap;gap:2px;}
+
+  .tbl{width:100%;border-collapse:collapse;font-size:12px;}
+  .tbl th,.tbl td{border:1px solid var(--rule-soft);padding:6px 8px;text-align:left;vertical-align:top;}
+  .tbl th{font-weight:600;color:var(--graphite);font-size:11px;background:var(--fill-2);}
+  .tbl th.rot{text-align:center;font-family:"IBM Plex Mono",monospace;}
+  .tbl td.c{text-align:center;font-family:"IBM Plex Mono",monospace;}
+  .tbl tr.sec td{background:var(--fill-2);font-weight:600;font-size:11px;color:var(--graphite);
+    font-family:"IBM Plex Mono",monospace;letter-spacing:.04em;}
+  .scroll-x{overflow-x:auto;}
+  .no{color:var(--graphite);opacity:.55;}
+  .yes{color:var(--ink);font-weight:600;}
+  .pen{color:var(--pen);font-weight:600;}
+
+  pre.code{margin:0;font-family:"IBM Plex Mono",monospace;font-size:11.5px;line-height:1.55;
+    border:1px solid var(--rule-soft);background:var(--fill-2);padding:10px;overflow-x:auto;white-space:pre;}
+  pre.code b{color:var(--pen);font-weight:600;}
+  pre.code i{color:var(--graphite);font-style:normal;opacity:.7;}
+
+  .cols{display:grid;gap:10px;}
+  .c2{grid-template-columns:1fr 1fr;}
+  .c3{grid-template-columns:repeat(3,1fr);}
+  .c4{grid-template-columns:repeat(4,1fr);}
+  .card{border:1px solid var(--rule-soft);padding:10px;background:var(--sheet);min-width:0;}
+  .card .lbl{font-size:12px;font-weight:600;}
+  .card .meta{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--graphite);}
+  .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+  .row.tight{gap:6px;}
+  .stack{display:flex;flex-direction:column;gap:10px;min-width:0;}
+  .chip{border:1px solid var(--rule-soft);padding:2px 8px;font-size:11px;color:var(--graphite);
+    font-family:"IBM Plex Mono",monospace;white-space:nowrap;}
+  .chip.on{border-color:var(--ink);color:var(--ink);}
+  .chip.deny{border-style:dashed;opacity:.6;}
+  .ph{height:9px;background:var(--fill);display:block;margin:6px 0;}
+  .w85{width:85%;} .w70{width:70%;} .w55{width:55%;} .w40{width:40%;} .w25{width:25%;}
+  .btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--rule);padding:5px 11px;font-size:12px;white-space:nowrap;}
+  .btn.solid{background:var(--fill);font-weight:600;}
+  .btn.ghost{border-style:dashed;color:var(--graphite);}
+  .dashed{border:1px dashed var(--rule);padding:10px;}
+  .blk{border:1px solid var(--rule);background:var(--fill-2);display:flex;align-items:center;justify-content:center;
+    text-align:center;font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--graphite);padding:10px;
+    background-image:linear-gradient(135deg,transparent 46%,var(--rule-soft) 46%,var(--rule-soft) 50%,transparent 50%);
+    background-size:12px 12px;}
+  .h-92{min-height:92px;} .h-140{min-height:140px;}
+
+  .browser{border:1px solid var(--rule);background:var(--sheet);}
+  .chrome{display:flex;align-items:center;gap:8px;padding:7px 10px;border-bottom:1px solid var(--rule-soft);background:var(--fill-2);}
+  .dot{width:8px;height:8px;border:1px solid var(--rule);border-radius:50%;}
+  .url{flex:1;font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--graphite);background:var(--sheet);
+    border:1px solid var(--rule-soft);padding:3px 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .view{padding:14px;display:flex;flex-direction:column;gap:12px;}
+  .topbar{display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--rule);padding-bottom:10px;flex-wrap:wrap;}
+  .logo{font-weight:700;letter-spacing:.02em;font-size:14px;}
+  .navlinks{display:flex;gap:12px;flex-wrap:wrap;font-size:12px;color:var(--graphite);}
+  .spacer{flex:1;min-width:8px;}
+  .side{display:grid;grid-template-columns:186px 1fr;gap:12px;}
+  .field{border:1px solid var(--rule);padding:6px 9px;background:var(--sheet);min-width:0;}
+  .field .cap{font-size:10.5px;color:var(--graphite);font-family:"IBM Plex Mono",monospace;}
+  .field .val{height:10px;background:var(--fill);margin-top:5px;}
+
+  .steps{display:grid;grid-template-columns:repeat(5,1fr);gap:0;}
+  .step{border:1px solid var(--rule);border-right:0;padding:11px 10px;min-width:0;background:var(--sheet);}
+  .step:last-child{border-right:1px solid var(--rule);}
+  .step .n{font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--pen);}
+  .step .t{font-weight:600;font-size:12.5px;display:block;margin-top:3px;}
+  .step .d{font-size:11.5px;color:var(--graphite);margin-top:5px;display:block;}
+  .who{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:10.5px;
+    border:1px solid var(--rule-soft);padding:1px 6px;margin-top:7px;color:var(--graphite);}
+
+  footer.sheet-foot{margin-top:18px;border:1px solid var(--rule);background:var(--sheet);padding:16px 18px;}
+  footer.sheet-foot h3{margin:0 0 8px;font-size:12px;letter-spacing:.05em;color:var(--graphite);font-weight:600;}
+  .legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;font-size:12.5px;color:var(--graphite);}
+  .legend .sw{display:flex;gap:9px;align-items:flex-start;}
+  .closing{margin-top:14px;padding-top:12px;border-top:1px solid var(--rule-soft);font-size:13px;color:var(--graphite);max-width:76ch;}
+
+  @media (max-width:900px){
+    .layout{grid-template-columns:1fr;}
+    nav.index{position:static;}
+    nav.index ul{display:flex;overflow-x:auto;padding:6px;}
+    nav.index button{white-space:nowrap;width:auto;border-left:0;border-bottom:2px solid transparent;}
+    nav.index button[aria-current="true"]{border-left:0;border-bottom-color:var(--pen);}
+    .body{grid-template-columns:1fr;}
+    .canvas{border-right:0;border-bottom:1px solid var(--rule-soft);}
+    .flow,.steps{grid-template-columns:1fr;}
+    .lane,.step{border-right:1px solid var(--rule);border-bottom:0;}
+    .lane:last-child,.step:last-child{border-bottom:1px solid var(--rule);}
+    .side{grid-template-columns:1fr;}
+    .c3,.c4{grid-template-columns:1fr 1fr;}
+  }
+  @media (max-width:560px){ .c2,.c3,.c4{grid-template-columns:1fr;} }
+  @media (prefers-reduced-motion:reduce){ *{animation:none !important;transition:none !important;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="sheet">
+  <h1>CIVITAS — acceso y privilegios del backend</h1>
+  <p class="sub">Complemento del pliego de wireframes. Aquí no se dibuja una pantalla sino el reverso: por qué puerta entra cada actor, qué comprueba el gateway antes de dejarlo pasar, y cómo el mismo endpoint devuelve cosas distintas según el token que lo llame. Las dos consolas que sí son interfaz — administración y portal de desarrollador — van dibujadas como wireframe.</p>
+  <div class="stamp">
+    <span>Actores con acceso de backend: <b>Administrador · Desarrollador · Cliente B2B</b></span>
+    <span>Fuente: <b>UC-A1 a A7 · UC-Dv1 a Dv5 · UC-AUTH-01 a 09</b></span>
+    <span class="mono">v0.1 — modelo de acceso, no implementación</span>
+  </div>
+</header>
+
+<div class="layout">
+  <nav class="index" aria-label="Índice de láminas">
+    <div class="index-h mono">LÁMINAS</div>
+    <ul id="index"></ul>
+  </nav>
+
+  <main id="screens">
+
+    <!-- ══════════ B-01 ══════════ -->
+    <section class="screen on" id="b01" data-title="Mapa de puertas" data-num="B-01">
+      <div class="screen-head">
+        <span class="code">B-01</span>
+        <h2>Mapa de puertas de entrada</h2>
+        <div class="tags"><span class="tag">Todos los actores</span><span class="tag">UC-AUTH-01 · UC-Dv3 · UC-A3.1</span><span class="tag">Vista de capas</span></div>
+      </div>
+      <div class="body">
+        <div class="canvas">
+          <div class="flow">
+            <div class="lane">
+              <span class="cap">1 · QUIÉN LLAMA</span>
+              <div class="node"><span class="t">Visitante</span><span class="s">sin token</span><div class="roles"><span class="rb on">P</span></div></div>
+              <div class="node"><span class="t">Inquilino / Comprador</span><span class="s">JWT · role=verified</span><div class="roles"><span class="rb on">V</span></div></div>
+              <div class="node off"><span class="t">Ciudadano / Validador</span><span class="s">JWT · Fase III</span><div class="roles"><span class="rb">C</span></div></div>
+              <div class="node off"><span class="t">Administradora / PropTech</span><span class="s">API key B2B · Fase III</span><div class="roles"><span class="rb">B</span></div></div>
+              <div class="node hard"><span class="t">Desarrollador</span><span class="s">API key · OAuth</span><div class="roles"><span class="rb on">D</span></div></div>
+              <div class="node hard"><span class="t">Administrador</span><span class="s">JWT · role=admin · MFA</span><div class="roles"><span class="rb adm">A</span></div></div>
+            </div>
+
+            <div class="lane">
+              <span class="cap">2 · POR DÓNDE ENTRA<span class="mk">1</span></span>
+              <div class="node"><span class="t">Web pública</span><span class="s">civitas.mx</span><div class="roles"><span class="rb on">P</span><span class="rb on">V</span></div></div>
+              <div class="node"><span class="t">App autenticada</span><span class="s">civitas.mx/mi-cuenta</span><div class="roles"><span class="rb on">V</span></div></div>
+              <div class="node hard"><span class="t">API pública v1</span><span class="s">api.civitas.mx/v1</span><div class="roles"><span class="rb on">D</span><span class="rb">B</span></div></div>
+              <div class="node hard"><span class="t">Portal del desarrollador</span><span class="s">developers.civitas.mx</span><div class="roles"><span class="rb on">D</span></div></div>
+              <div class="node hard"><span class="t">Consola de administración</span><span class="s">admin.civitas.mx · red restringida</span><div class="roles"><span class="rb adm">A</span></div></div>
+              <div class="node off"><span class="t">Webhooks salientes</span><span class="s">hacia el sistema del Dev</span><div class="roles"><span class="rb">D</span></div></div>
+            </div>
+
+            <div class="lane">
+              <span class="cap">3 · QUÉ SE COMPRUEBA</span>
+              <div class="node gate"><span class="t">API Gateway</span><span class="s">única puerta: ninguna superficie habla directo con un servicio</span></div>
+              <div class="node"><span class="t">Límite de tasa</span><span class="s">ventana deslizante por IP y por cuenta</span></div>
+              <div class="node"><span class="t">Validación de token</span><span class="s">firma RS256 · vigencia · lista de revocados</span></div>
+              <div class="node"><span class="t">Resolución de rol</span><span class="s">claims: sub · role · kyc_level</span><span class="mk">2</span></div>
+              <div class="node"><span class="t">Comprobación de scope</span><span class="s">el scope decide el campo, el rol decide la puerta</span><span class="mk">3</span></div>
+              <div class="node"><span class="t">Bitácora de auditoría</span><span class="s">actor · acción · recurso · fecha</span><span class="mk">4</span></div>
+            </div>
+
+            <div class="lane">
+              <span class="cap">4 · QUÉ ALCANZA</span>
+              <div class="node"><span class="t">Servicio de catálogo</span><span class="s">zonas · inmuebles</span><div class="roles"><span class="rb on">P</span><span class="rb on">V</span><span class="rb on">D</span><span class="rb adm">A</span></div></div>
+              <div class="node"><span class="t">Motor de índices y anomalías</span><span class="s">lectura agregada o por inmueble según rol</span><div class="roles"><span class="rb on">V</span><span class="rb on">D</span><span class="rb adm">A</span></div></div>
+              <div class="node"><span class="t">Servicio de reportes</span><span class="s">Precio Justo</span><div class="roles"><span class="rb on">V</span><span class="rb adm">A</span></div></div>
+              <div class="node"><span class="t">Servicio de identidad</span><span class="s">cuentas · sesiones · credenciales</span><div class="roles"><span class="rb on">V</span><span class="rb on">D</span><span class="rb adm">A</span></div></div>
+              <div class="node"><span class="t">Cumplimiento</span><span class="s">avisos · dictámenes · auditorías</span><div class="roles"><span class="rb adm">A</span></div></div>
+              <div class="node off"><span class="t">ZK y DAO</span><span class="s">Fase III · gate económico bloqueado</span><div class="roles"><span class="rb">B</span><span class="rb">C</span><span class="rb adm">A</span></div></div>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+          <h3>ANOTACIONES</h3>
+          <ol>
+            <li>Cinco superficies, un solo gateway. Que el Administrador entre por una consola separada y en red restringida es una decisión de exposición, no de comodidad.</li>
+            <li>El rol viaja en el token (<span class="uc">claims: sub, role, kyc_level</span>), no se consulta en cada llamada. Por eso revocar privilegios exige revocar la sesión.</li>
+            <li>Rol y scope no son lo mismo: el rol abre la puerta, el scope decide qué campos vuelven. Un Dev y un Inquilino pueden tocar el mismo servicio con resultados distintos.</li>
+            <li>Toda escritura queda registrada con el actor que la hizo. Es lo que permite responder «quién publicó esta colonia».</li>
+          </ol>
+          <div class="kpi">Punteado = existe en el catálogo pero no en Fase I y II.</div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ══════════ B-02 ══════════ -->
+    <section class="screen" id="b02" data-title="Matriz de privilegios" data-num="B-02">
+      <div class="screen-head">
+        <span class="code">B-02</span>
+        <h2>Matriz de privilegios</h2>
+        <div class="tags"><span class="tag">Recursos × roles</span><span class="tag">UC-A1 a A7 · UC-Dv1 a Dv5</span><span class="tag">Fases I y II</span></div>
+      </div>
+      <div class="body">
+        <div class="canvas">
+          <div class="row tight" style="margin-bottom:10px">
+            <span class="chip">P = visitante</span><span class="chip">V = usuario verificado</span>
+            <span class="chip">D = desarrollador</span><span class="chip">B = cliente B2B</span><span class="chip on">A = administrador</span>
+          </div>
+          <div class="scroll-x">
+            <table class="tbl">
+              <thead>
+                <tr><th style="min-width:180px">Recurso</th><th class="rot">P</th><th class="rot">V</th><th class="rot">D</th><th class="rot">B</th><th class="rot">A</th><th style="min-width:170px">Nota</th></tr>
+              </thead>
+              <tbody>
+                <tr class="sec"><td colspan="7">CATÁLOGO</td></tr>
+                <tr><td>Índices agregados por colonia</td><td class="c yes">L</td><td class="c yes">L</td><td class="c yes">L</td><td class="c yes">L</td><td class="c yes">L</td><td>Único dato público sin cuenta.</td></tr>
+                <tr><td>Detalle por inmueble</td><td class="c no">—</td><td class="c yes">L</td><td class="c yes">L</td><td class="c no">—</td><td class="c yes">L</td><td>Muro de registro<span class="mk">1</span></td></tr>
+                <tr><td>Señal de anomalía de precio</td><td class="c no">—</td><td class="c yes">L</td><td class="c yes">L</td><td class="c no">—</td><td class="c yes">L</td><td>Depende del motor del Sprint 10.</td></tr>
+                <tr><td>Alta / edición de colonia</td><td class="c no">—</td><td class="c no">—</td><td class="c no">—</td><td class="c no">—</td><td class="c pen">L E P</td><td><span class="mono">UC-A1</span></td></tr>
+                <tr><td>Fuentes de datos importadas</td><td class="c no">—</td><td class="c no">—</td><td class="c no">—</td><td class="c no">—</td><td class="c pen">L E</td><td><span class="mono">UC-A1.1</span></td></tr>
+
+                <tr class="sec"><td colspan="7">USUARIO</td></tr>
+                <tr><td>Reporte de Precio Justo propio</td><td class="c no">—</td><td class="c pen">L C</td><td class="c no">—</td><td class="c no">—</td><td class="c yes">L</td><td>El admin lo ve para soporte, no lo genera.<span class="mk">2</span></td></tr>
+                <tr><td>Favoritos y alertas propias</td><td class="c no">—</td><td class="c pen">L C E</td><td class="c no">—</td><td class="c no">—</td><td class="c no">—</td><td>Ni el admin necesita leerlas.</td></tr>
+                <tr><td>Sesiones propias</td><td class="c no">—</td><td class="c pen">L R</td><td class="c pen">L R</td><td class="c pen">L R</td><td class="c pen">L R</td><td><span class="mono">UC-AUTH-09</span></td></tr>
+                <tr><td>Sesiones de otra cuenta</td><td class="c no">—</td><td class="c no">—</td><td class="c no">—</td><td class="c no">—</td><td class="c pen">L R</td><td>Scope <span class="mono">sessions:revoke:any</span><span class="mk">3</span></td></tr>
+
+                <tr class="sec"><td colspan="7">INTEGRACIÓN</td></tr>
+                <tr><td>Documentación de la API</td><td class="c yes">L</td><td class="c yes">L</td><td class="c yes">L</td><td class="c yes">L</td><td class="c yes">L</td><td><span class="mono">UC-Dv1</span>, pública.</td></tr>
+                <tr><td>Credenciales propias</td><td class="c no">—</td><td class="c no">—</td><td class="c pen">L C R</td><td class="c pen">L</td><td class="c yes">L</td><td><span class="mono">UC-Dv2</span> vs <span class="mono">UC-B1.2</span><span class="mk">4</span></td></tr>
+                <tr><td>Credenciales de cualquier cuenta</td><td class="c no">—</td><td class="c no">—</td><td class="c no">—</td><td class="c no">—</td><td class="c pen">L C R</td><td><span class="mono">UC-A3.1</span></td></tr>
+                <tr><td>Webhooks de eventos</td><td class="c no">—</td><td class="c no">—</td><td class="c pen">L C E</td><td class="c no">—</td><td class="c yes">L</td><td><span class="mono">UC-Dv5</span> «extend».</td></tr>
+                <tr><td>Sandbox ZK</td><td class="c no">—</td><td class="c no">—</td><td class="c pen">L C</td><td class="c no">—</td><td class="c yes">L</td><td><span class="mono">UC-Dv4.1</span>, datos sintéticos.</td></tr>
+
+                <tr class="sec"><td colspan="7">GOBIERNO DE LA PLATAFORMA</td></tr>
+                <tr><td>Aviso de privacidad</td><td class="c yes">L</td><td class="c yes">L</td><td class="c yes">L</td><td class="c yes">L</td><td class="c pen">L E P</td><td><span class="mono">UC-A4.1</span></td></tr>
+                <tr><td>Evaluación de impacto y dictámenes</td><td class="c no">—</td><td class="c no">—</td><td class="c no">—</td><td class="c no">—</td><td class="c pen">L C E</td><td><span class="mono">UC-A4.2 · A4.3</span></td></tr>
+                <tr><td>Bitácora de auditoría</td><td class="c no">—</td><td class="c no">—</td><td class="c no">—</td><td class="c no">—</td><td class="c yes">L</td><td>Solo lectura, ni el admin la edita.<span class="mk">5</span></td></tr>
+                <tr><td>Métricas de salud</td><td class="c no">—</td><td class="c no">—</td><td class="c no">—</td><td class="c no">—</td><td class="c pen">L E</td><td><span class="mono">UC-A7 · A7.1</span></td></tr>
+                <tr><td>Gate económico de la DAO</td><td class="c no">—</td><td class="c no">—</td><td class="c no">—</td><td class="c no">—</td><td class="c pen">L E</td><td><span class="mono">UC-A6</span>, bloqueado sin dictamen.</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="row tight" style="margin-top:10px">
+            <span class="chip">L = leer</span><span class="chip">C = crear</span><span class="chip">E = editar</span>
+            <span class="chip">P = publicar</span><span class="chip">R = revocar</span><span class="chip">— = sin acceso</span>
+          </div>
+        </div>
+        <aside class="notes">
+          <h3>ANOTACIONES</h3>
+          <ol>
+            <li>Esta fila es la frontera entre <span class="uc">UC-V1</span> y <span class="uc">UC-I1</span>: mismo motor, distinta exposición.</li>
+            <li>Nadie genera un reporte en nombre de otro. El admin lo lee para atender un reclamo y esa lectura queda en bitácora.</li>
+            <li>Único privilegio del admin sobre la sesión ajena, y viene de <span class="uc">UC-AUTH-05</span>. Es el caso que justifica un scope explícito en vez de un «es admin, puede todo».</li>
+            <li>El Dev administra sus propias llaves; el B2B las recibe emitidas. Misma tabla de credenciales, dos verbos distintos.</li>
+            <li>La bitácora es de solo lectura para todos. Si el administrador pudiera editarla, dejaría de servir como evidencia ante la autoridad.</li>
+          </ol>
+          <div class="kpi">Regla de lectura: una fila sin ninguna marca en una columna significa que ese rol ni siquiera ve que el recurso existe.</div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ══════════ B-03 ══════════ -->
+    <section class="screen" id="b03" data-title="Mismo endpoint, cuatro respuestas" data-num="B-03">
+      <div class="screen-head">
+        <span class="code">B-03</span>
+        <h2>Mismo endpoint, cuatro respuestas</h2>
+        <div class="tags"><span class="tag">GET /api/v1/colonias/{id}</span><span class="tag">UC-V1.1 · UC-I1 · UC-Dv3 · UC-A1</span></div>
+      </div>
+      <div class="body">
+        <div class="canvas">
+          <div class="card" style="margin-bottom:12px">
+            <span class="mono" style="font-size:12px">GET /api/v1/colonias/centro-puebla</span>
+            <div class="meta" style="margin-top:4px">La URL no cambia. Lo que cambia es el encabezado de autorización, y con él el cuerpo de la respuesta.<span class="mk">1</span></div>
+          </div>
+
+          <div class="cols c2">
+            <div class="stack">
+              <div class="card">
+                <div class="row" style="justify-content:space-between"><span class="lbl">Sin token</span><span class="rb on">P</span></div>
+                <div class="meta">Authorization: —</div>
+<pre class="code">{
+  "id": "centro-puebla",
+  "nombre": "Centro",
+  "indice_asequibilidad": 0.00,
+  "renta_mediana": 0000,
+  "actualizado": "2026-0X-XX"
+  <i>// sin inmuebles</i>
+  <i>// sin anomalias</i>
+}</pre>
+              </div>
+
+              <div class="card">
+                <div class="row" style="justify-content:space-between"><span class="lbl">Usuario verificado</span><span class="rb on">V</span></div>
+                <div class="meta">Bearer JWT · role=verified · kyc_level=1</div>
+<pre class="code">{
+  "id": "centro-puebla",
+  ... <i>campos anteriores</i> ...,
+  <b>"inmuebles"</b>: [ { "id":"…",
+      "precio": 00000,
+      <b>"anomalia"</b>: { "severidad":"alta",
+        "rango": [00000, 00000] } } ],
+  <b>"puede_generar_reporte"</b>: true
+}</pre>
+              </div>
+            </div>
+
+            <div class="stack">
+              <div class="card">
+                <div class="row" style="justify-content:space-between"><span class="lbl">Desarrollador</span><span class="rb on">D</span></div>
+                <div class="meta">X-API-Key · scopes: catalogo:read, indices:read</div>
+<pre class="code">{
+  "id": "centro-puebla",
+  ... <i>campos anteriores</i> ...,
+  <b>"fuente"</b>: { "origen":"INEGI",
+      "corte":"2026-0X", "version":"v3" },
+  <b>"metodologia"</b>: "indice-v2",
+  <i>// sin datos de usuario, nunca</i>
+  <b>"_meta"</b>: { "limite": 1000,
+      "restante": 0000 }
+}<span class="mk">3</span></pre>
+              </div>
+
+              <div class="card">
+                <div class="row" style="justify-content:space-between"><span class="lbl">Administrador</span><span class="rb adm">A</span></div>
+                <div class="meta">Bearer JWT · role=admin · MFA</div>
+<pre class="code">{
+  "id": "centro-puebla",
+  ... <i>todo lo anterior</i> ...,
+  <b>"estado"</b>: "borrador",
+  <b>"completitud"</b>: 0.00,
+  <b>"campos_faltantes"</b>: ["seguridad"],
+  <b>"ingesta"</b>: { "ultima":"…",
+      "errores": 0 },
+  <b>"editado_por"</b>: "admin_0X"
+}<span class="mk">4</span></pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="dashed" style="margin-top:12px">
+            <span class="lbl">Lo que ningún rol recibe<span class="mk">2</span></span>
+            <div class="row tight" style="margin-top:6px">
+              <span class="chip deny">datos bancarios en claro</span>
+              <span class="chip deny">identidad del aportador de un dato</span>
+              <span class="chip deny">hash de contraseña</span>
+              <span class="chip deny">reporte de otro usuario</span>
+              <span class="chip deny">dirección exacta sin consentimiento</span>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+          <h3>ANOTACIONES</h3>
+          <ol>
+            <li>Un solo servicio de catálogo y una sola consulta; la proyección de campos ocurre después de resolver el scope. Duplicar endpoints por rol es el error que esta lámina existe para evitar.</li>
+            <li>La lista negra es parte del contrato: hay campos que no aparecen ni siquiera para el administrador, y eso sostiene lo que promete el aviso de privacidad.</li>
+            <li>El desarrollador gana trazabilidad de la fuente y pierde todo lo que huela a usuario. Su consumo es del dato urbano, no de la persona.</li>
+            <li>El administrador es el único que ve el estado interno del registro: si está en borrador, qué le falta y quién lo tocó.</li>
+          </ol>
+          <div class="kpi">El límite de tasa no es un caso de uso del Dev sino una respuesta del sistema: por eso viaja en <span class="mono">_meta</span> y no en una pantalla.</div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ══════════ B-04 ══════════ -->
+    <section class="screen" id="b04" data-title="Consola de administración" data-num="B-04">
+      <div class="screen-head">
+        <span class="code">B-04</span>
+        <h2>Consola de administración — cuentas, sesiones y bitácora</h2>
+        <div class="tags"><span class="tag">Actor: Administrador</span><span class="tag">UC-A3 · A3.1 · UC-AUTH-05 · UC-A7</span><span class="tag">Sprints 1, 8</span></div>
+      </div>
+      <div class="body">
+        <div class="canvas">
+          <div class="browser">
+            <div class="chrome"><i class="dot"></i><i class="dot"></i><i class="dot"></i><span class="url">admin.civitas.mx/cuentas</span></div>
+            <div class="view">
+              <div class="topbar"><span class="logo">CIVITAS · admin</span><span class="navlinks"><span>Catálogo</span><span>Cuentas</span><span>Credenciales</span><span>Cumplimiento</span><span>Bitácora</span></span><span class="spacer"></span><span class="chip on">MFA activa<span class="mk">1</span></span></div>
+
+              <div class="side">
+                <div class="card">
+                  <div class="lbl">Filtrar cuentas</div>
+                  <div class="field" style="margin-top:8px"><span class="cap">rol</span><span class="val"></span></div>
+                  <div class="field" style="margin-top:6px"><span class="cap">estado</span><span class="val"></span></div>
+                  <div class="row tight" style="margin-top:8px"><span class="chip">verificada</span><span class="chip">pendiente</span><span class="chip">suspendida</span></div>
+                </div>
+
+                <div class="stack">
+                  <div class="card">
+                    <div class="row" style="justify-content:space-between"><span class="lbl">Cuentas</span><span class="meta">0000 registradas</span></div>
+                    <table class="tbl" style="margin-top:8px">
+                      <thead><tr><th>Cuenta</th><th>Rol</th><th>KYC</th><th>Estado</th><th>Acciones</th></tr></thead>
+                      <tbody>
+                        <tr><td><span class="ph w85"></span></td><td>verificado</td><td>nivel 1</td><td>activa</td><td><span class="chip">Suspender</span></td></tr>
+                        <tr><td><span class="ph w70"></span></td><td>dev</td><td>—</td><td>activa</td><td><span class="chip">Credenciales</span></td></tr>
+                        <tr><td><span class="ph w55"></span></td><td>b2b</td><td>KYB</td><td>contrato vigente</td><td><span class="chip">Ver contrato</span></td></tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div class="cols c2">
+                    <div class="card">
+                      <div class="lbl">Sesiones de la cuenta seleccionada<span class="mk">2</span></div>
+                      <table class="tbl" style="margin-top:8px">
+                        <tbody>
+                          <tr><td>dispositivo · IP · último uso</td><td><span class="chip">Revocar</span></td></tr>
+                          <tr><td>dispositivo · IP · último uso</td><td><span class="chip">Revocar</span></td></tr>
+                        </tbody>
+                      </table>
+                      <div class="meta" style="margin-top:6px">exige motivo · queda en bitácora</div>
+                    </div>
+                    <div class="card">
+                      <div class="lbl">Credenciales API<span class="mk">3</span></div>
+                      <table class="tbl" style="margin-top:8px">
+                        <tbody>
+                          <tr><td class="mono">ck_live_••••</td><td>catalogo:read</td><td><span class="chip">Revocar</span></td></tr>
+                          <tr><td class="mono">ck_test_••••</td><td>sandbox</td><td><span class="chip">Revocar</span></td></tr>
+                        </tbody>
+                      </table>
+                      <div class="btn solid" style="margin-top:8px">Emitir credencial</div>
+                    </div>
+                  </div>
+
+                  <div class="card">
+                    <div class="row" style="justify-content:space-between"><span class="lbl">Bitácora de auditoría<span class="mk">4</span></span><span class="row tight"><span class="chip">Filtrar por actor</span><span class="btn ghost">Exportar</span></span></div>
+                    <table class="tbl" style="margin-top:8px">
+                      <thead><tr><th>Fecha</th><th>Actor</th><th>Acción</th><th>Recurso</th><th>Resultado</th></tr></thead>
+                      <tbody>
+                        <tr><td><span class="ph w70"></span></td><td>admin_0X</td><td class="mono">session_revoked</td><td><span class="ph w55"></span></td><td>204</td></tr>
+                        <tr><td><span class="ph w70"></span></td><td>admin_0X</td><td class="mono">colonia_published</td><td><span class="ph w70"></span></td><td>200</td></tr>
+                        <tr><td><span class="ph w70"></span></td><td>dev_0X</td><td class="mono">api_key_rotated</td><td><span class="ph w40"></span></td><td>201</td></tr>
+                      </tbody>
+                    </table>
+                    <div class="meta" style="margin-top:6px">solo lectura · sin borrado · retención declarada en el aviso</div>
+                  </div>
+
+                  <div class="dashed">
+                    <div class="meta mono">deshabilitado en Fase I y II<span class="mk">5</span></div>
+                    <div class="row tight" style="margin-top:6px"><span class="chip deny">Disputas DAO escaladas · UC-A2</span><span class="chip deny">Auditoría de circuitos ZK · UC-A5</span><span class="chip deny">Gate económico · UC-A6</span></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+          <h3>ANOTACIONES</h3>
+          <ol>
+            <li>La consola vive en un subdominio aparte y exige segundo factor. Es la única superficie con permisos de escritura sobre datos de otros.</li>
+            <li><span class="uc">UC-AUTH-05</span> Revocar sesión ajena. Pide motivo porque el motivo es lo que hace útil la bitácora después.</li>
+            <li><span class="uc">UC-A3.1</span> Emitir y revocar credenciales de Dev y de B2B. La llave completa se muestra una sola vez, al emitirla.</li>
+            <li>Toda acción de esta pantalla aterriza aquí. Un administrador puede hacer mucho, pero no puede hacerlo en silencio.</li>
+            <li>Los módulos de fases posteriores se ven deshabilitados en vez de ocultos: comunican el alcance del proyecto sin prometer una función que no existe.</li>
+          </ol>
+          <div class="kpi">Decisión abierta: si el rol admin se parte en dos (soporte, con lectura, y plataforma, con escritura) antes de que el equipo crezca.</div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ══════════ B-05 ══════════ -->
+    <section class="screen" id="b05" data-title="Portal del desarrollador" data-num="B-05">
+      <div class="screen-head">
+        <span class="code">B-05</span>
+        <h2>Portal del desarrollador</h2>
+        <div class="tags"><span class="tag">Actor: Desarrollador / Integrador</span><span class="tag">UC-Dv1 · Dv2 · Dv3 · Dv4 · Dv4.1 · Dv5</span></div>
+      </div>
+      <div class="body">
+        <div class="canvas">
+          <div class="browser">
+            <div class="chrome"><i class="dot"></i><i class="dot"></i><i class="dot"></i><span class="url">developers.civitas.mx/llaves</span></div>
+            <div class="view">
+              <div class="topbar"><span class="logo">CIVITAS · developers</span><span class="navlinks"><span>Documentación</span><span>Llaves</span><span>Webhooks</span><span>Sandbox</span><span>Uso</span></span><span class="spacer"></span><span class="chip">cuenta dev</span></div>
+
+              <div class="cols c2">
+                <div class="stack">
+                  <div class="card">
+                    <div class="lbl">Mis llaves<span class="mk">2</span></div>
+                    <table class="tbl" style="margin-top:8px">
+                      <thead><tr><th>Llave</th><th>Entorno</th><th>Creada</th><th></th></tr></thead>
+                      <tbody>
+                        <tr><td class="mono">ck_live_••••4f2a</td><td>producción</td><td><span class="ph w70"></span></td><td><span class="chip">Rotar</span></td></tr>
+                        <tr><td class="mono">ck_test_••••91c0</td><td>sandbox</td><td><span class="ph w70"></span></td><td><span class="chip">Rotar</span></td></tr>
+                      </tbody>
+                    </table>
+                    <div class="row tight" style="margin-top:8px"><span class="btn solid">Crear llave</span><span class="btn">Revocar</span></div>
+                    <div class="meta" style="margin-top:6px">el valor completo se muestra una sola vez</div>
+                  </div>
+
+                  <div class="card">
+                    <div class="lbl">Scopes de esta llave<span class="mk">3</span></div>
+                    <div class="row tight" style="margin-top:8px">
+                      <span class="chip on">catalogo:read</span><span class="chip on">indices:read</span>
+                      <span class="chip">inmuebles:read</span><span class="chip">webhooks:manage</span>
+                    </div>
+                    <div class="row tight" style="margin-top:8px">
+                      <span class="chip deny">reportes:read</span><span class="chip deny">usuarios:read</span><span class="chip deny">admin:*</span>
+                    </div>
+                    <div class="meta" style="margin-top:6px">punteados: no disponibles para el rol dev, ni pidiéndolos</div>
+                  </div>
+
+                  <div class="card">
+                    <div class="lbl">Uso y límite<span class="mk">4</span></div>
+                    <div class="cols c3" style="margin-top:8px">
+                      <div class="card" style="padding:8px"><div class="meta">hoy</div><div style="font-weight:600">0000</div></div>
+                      <div class="card" style="padding:8px"><div class="meta">límite</div><div style="font-weight:600">1000/h</div></div>
+                      <div class="card" style="padding:8px"><div class="meta">429 últimas 24h</div><div style="font-weight:600">00</div></div>
+                    </div>
+                    <div class="blk h-92" style="margin-top:8px">GRÁFICA — llamadas por hora</div>
+                  </div>
+                </div>
+
+                <div class="stack">
+                  <div class="card">
+                    <div class="lbl">Documentación<span class="mk">1</span></div>
+                    <div class="row tight" style="margin-top:8px"><span class="chip on">Colonias</span><span class="chip">Índices</span><span class="chip">Inmuebles</span><span class="chip">Eventos</span></div>
+<pre class="code" style="margin-top:8px">GET /api/v1/colonias/{id}
+X-API-Key: ck_live_…
+
+<i>200 OK</i>
+{ "id": "…", "indice_asequibilidad": 0.00,
+  "fuente": { "origen": "…" } }
+
+<i>401</i> llave inválida
+<i>403</i> scope insuficiente
+<i>429</i> límite de tasa excedido</pre>
+                    <div class="btn" style="margin-top:8px">Probar en el navegador</div>
+                  </div>
+
+                  <div class="card">
+                    <div class="lbl">Webhooks<span class="mk">5</span></div>
+                    <div class="field" style="margin-top:8px"><span class="cap">URL de destino</span><span class="val"></span></div>
+                    <div class="row tight" style="margin-top:8px"><span class="chip on">colonia.actualizada</span><span class="chip">anomalia.detectada</span><span class="chip">indice.recalculado</span></div>
+                    <div class="row tight" style="margin-top:8px"><span class="btn">Enviar evento de prueba</span><span class="chip">firma HMAC</span></div>
+                  </div>
+
+                  <div class="dashed">
+                    <div class="meta mono">Fase III<span class="mk">6</span></div>
+                    <div class="lbl" style="margin-top:4px">Sandbox de verificación ZK</div>
+                    <div class="blk h-92" style="margin-top:8px">UC-Dv4 · UC-Dv4.1<br>generar y verificar con datos sintéticos</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+          <h3>ANOTACIONES</h3>
+          <ol>
+            <li><span class="uc">UC-Dv1</span> La documentación es pública: se consulta antes de tener cuenta, y por eso no vive detrás del login.</li>
+            <li><span class="uc">UC-Dv2</span> El Dev crea, rota y revoca sus llaves. Diferencia clave con el B2B, que las recibe del Administrador.</li>
+            <li>Los scopes hacen visible el techo del rol: mostrar los denegados evita tickets preguntando por accesos que no existen.</li>
+            <li><span class="uc">UC-Dv3</span> El límite de tasa se muestra como información, no como una función que el Dev administre.</li>
+            <li><span class="uc">UC-Dv5</span> «extend» — webhooks en vez de consulta constante. Firma HMAC para que el receptor pueda verificar el origen.</li>
+            <li>El sandbox ZK se dibuja apagado: existe en el catálogo, no en estas dos fases.</li>
+          </ol>
+          <div class="kpi">Ninguna pantalla de este portal muestra un dato de usuario final. Es la garantía visible de que el Dev consume dato urbano, no personas.</div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ══════════ B-06 ══════════ -->
+    <section class="screen" id="b06" data-title="Ciclo de una credencial" data-num="B-06">
+      <div class="screen-head">
+        <span class="code">B-06</span>
+        <h2>Ciclo de vida de una credencial</h2>
+        <div class="tags"><span class="tag">Administrador · Dev · B2B</span><span class="tag">UC-A3.1 · UC-Dv2 · UC-B1.2</span></div>
+      </div>
+      <div class="body">
+        <div class="canvas">
+          <div class="steps">
+            <div class="step"><span class="n">01</span><span class="t">Solicitud</span><span class="d">El Dev se registra solo; el B2B llega por contrato y KYB firmado.</span><span class="who">Dev · B2B</span></div>
+            <div class="step"><span class="n">02</span><span class="t">Emisión</span><span class="d">Se crea la llave con un conjunto de scopes acotado al rol. El valor completo se muestra una vez.</span><span class="who">Dev (propias) · Admin (B2B)</span><span class="mk">1</span></div>
+            <div class="step"><span class="n">03</span><span class="t">Uso</span><span class="d">Cada llamada pasa por el gateway: límite de tasa, validez de la llave, scope contra el endpoint.</span><span class="who">Gateway</span></div>
+            <div class="step"><span class="n">04</span><span class="t">Rotación</span><span class="d">Se emite la nueva y la anterior sigue viva una ventana corta para no romper la integración.</span><span class="who">Dev · Admin</span><span class="mk">2</span></div>
+            <div class="step"><span class="n">05</span><span class="t">Revocación</span><span class="d">Por el dueño, o por el Administrador ante abuso o fin de contrato. Efecto inmediato.</span><span class="who">Admin · Dev</span><span class="mk">3</span></div>
+          </div>
+
+          <div class="cols c2" style="margin-top:12px">
+            <div class="card">
+              <div class="lbl">Quién puede hacer qué sobre una credencial</div>
+              <table class="tbl" style="margin-top:8px">
+                <thead><tr><th>Acción</th><th class="rot">Dev</th><th class="rot">B2B</th><th class="rot">Admin</th></tr></thead>
+                <tbody>
+                  <tr><td>Crear la propia</td><td class="c yes">sí</td><td class="c no">no</td><td class="c yes">sí</td></tr>
+                  <tr><td>Ver el valor completo</td><td class="c yes">al crear</td><td class="c yes">al recibir</td><td class="c no">no<span class="mk">4</span></td></tr>
+                  <tr><td>Rotar la propia</td><td class="c yes">sí</td><td class="c no">solicita</td><td class="c yes">sí</td></tr>
+                  <tr><td>Revocar la propia</td><td class="c yes">sí</td><td class="c yes">sí</td><td class="c yes">sí</td></tr>
+                  <tr><td>Revocar la de otro</td><td class="c no">no</td><td class="c no">no</td><td class="c yes">sí</td></tr>
+                  <tr><td>Ampliar sus scopes</td><td class="c no">no</td><td class="c no">no</td><td class="c yes">sí</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="card">
+              <div class="lbl">Lo que queda registrado<span class="mk">5</span></div>
+              <table class="tbl" style="margin-top:8px">
+                <tbody>
+                  <tr><td class="mono">api_key_issued</td><td>actor, dueño, scopes</td></tr>
+                  <tr><td class="mono">api_key_rotated</td><td>llave previa, ventana de gracia</td></tr>
+                  <tr><td class="mono">api_key_revoked</td><td>actor, motivo</td></tr>
+                  <tr><td class="mono">scope_granted</td><td>actor, scope, justificación</td></tr>
+                </tbody>
+              </table>
+              <div class="meta" style="margin-top:8px">Cuatro eventos bastan para reconstruir por qué una integración dejó de funcionar.</div>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+          <h3>ANOTACIONES</h3>
+          <ol>
+            <li>Aquí está la asimetría que el catálogo ya declaraba: <span class="uc">UC-Dv2</span> es autogestión, <span class="uc">UC-B1.2</span> es recepción, y <span class="uc">UC-A3.1</span> es la autoridad sobre ambas.</li>
+            <li>Sin ventana de gracia, cada rotación es una caída de servicio para quien integró. Es una decisión de producto, no un detalle técnico.</li>
+            <li>La revocación por abuso es el mecanismo de defensa real de la API; el límite de tasa solo amortigua.</li>
+            <li>Ni el administrador puede leer una llave ya emitida: solo revocarla y emitir otra. Guardar el valor en claro sería el punto débil de todo el modelo.</li>
+            <li>Los eventos son los mismos que alimentan la bitácora de B-04.</li>
+          </ol>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ══════════ B-07 ══════════ -->
+    <section class="screen" id="b07" data-title="Cuando el acceso se niega" data-num="B-07">
+      <div class="screen-head">
+        <span class="code">B-07</span>
+        <h2>Cuando el acceso se niega</h2>
+        <div class="tags"><span class="tag">Transversal</span><span class="tag">UC-AUTH-01 excepciones E1 a E4</span><span class="tag">Contrato de errores</span></div>
+      </div>
+      <div class="body">
+        <div class="canvas">
+          <div class="scroll-x">
+            <table class="tbl">
+              <thead><tr><th style="min-width:90px">Respuesta</th><th style="min-width:150px">Qué ocurrió</th><th>Qué ve el usuario en la web</th><th>Qué recibe el Dev en la API</th><th>Qué ve el Administrador</th></tr></thead>
+              <tbody>
+                <tr><td class="mono">401</td><td>Sin token o token vencido</td><td>Vuelve al inicio de sesión sin perder lo que estaba viendo</td><td class="mono">401 · credencial inválida<span class="mk">1</span></td><td>Evento <span class="mono">login_failed</span> con contador</td></tr>
+                <tr><td class="mono">403</td><td>Rol o scope insuficiente</td><td>El elemento no se muestra; no aparece y luego falla<span class="mk">2</span></td><td class="mono">403 · scope requerido: …</td><td>Evento con actor y recurso intentado</td></tr>
+                <tr><td class="mono">423</td><td>Cuenta bloqueada por intentos fallidos</td><td>Mensaje que sugiere recuperar contraseña</td><td>—</td><td>Cuenta marcada; puede desbloquear</td></tr>
+                <tr><td class="mono">403</td><td>Cuenta suspendida por el Administrador</td><td>Mensaje genérico, sin exponer la causa<span class="mk">3</span></td><td class="mono">403</td><td>Ve la causa y quién suspendió</td></tr>
+                <tr><td class="mono">429</td><td>Límite de tasa excedido</td><td>No aplica: la web no lo alcanza en uso normal</td><td class="mono">429 · reintentar en NN s</td><td>Pico visible en métricas de salud</td></tr>
+                <tr><td class="mono">503</td><td>Servicio de identidad caído</td><td>Aviso de intermitencia, sin sesión a medias</td><td class="mono">503 · reintento con backoff</td><td>Alerta operativa <span class="mono">UC-A7.1</span><span class="mk">4</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="cols c3" style="margin-top:12px">
+            <div class="card">
+              <div class="lbl">Regla 1 · No revelar de más</div>
+              <div class="meta" style="margin-top:6px">El mensaje de credenciales inválidas nunca dice si falló el correo o la contraseña, y el de cuenta suspendida no dice por qué.</div>
+            </div>
+            <div class="card">
+              <div class="lbl">Regla 2 · Ocultar antes que negar</div>
+              <div class="meta" style="margin-top:6px">Si un rol no puede hacer algo, el botón no se dibuja. El 403 es la última línea de defensa, no la primera experiencia.</div>
+            </div>
+            <div class="card">
+              <div class="lbl">Regla 3 · Fallar sin dejar mitades</div>
+              <div class="meta" style="margin-top:6px">Ante caída, ninguna sesión parcial ni cuenta a medias queda persistida. Se reintenta, no se improvisa.</div>
+            </div>
+          </div>
+        </div>
+        <aside class="notes">
+          <h3>ANOTACIONES</h3>
+          <ol>
+            <li>Misma causa, tres presentaciones. Esto es exactamente lo que la pregunta del profesor busca: el privilegio no cambia solo lo que puedes hacer, cambia lo que el sistema te cuenta.</li>
+            <li>La interfaz no ofrece lo que el rol no puede ejecutar. El 403 existe para la llamada directa a la API, no para el clic de un usuario.</li>
+            <li>El Administrador es el único que ve la causa real; el usuario afectado recibe un mensaje genérico.</li>
+            <li>La misma caída que el usuario percibe como intermitencia, el Administrador la recibe como alerta operativa.</li>
+          </ol>
+          <div class="kpi">Las excepciones vienen textualmente de las especificaciones atómicas E1 a E4 de <span class="mono">UC-AUTH-01</span>.</div>
+        </aside>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<footer class="sheet-foot">
+  <h3>CÓMO LEER ESTE PLIEGO</h3>
+  <div class="legend">
+    <div class="sw"><span class="rb on">V</span><span>Insignia de rol: marca qué actores alcanzan ese nodo o recurso.</span></div>
+    <div class="sw"><span class="chip deny" style="flex:none">denegado</span><span>Punteado: existe en el catálogo pero no para ese rol, o no en estas dos fases.</span></div>
+    <div class="sw"><span class="mk" style="margin-left:0">1</span><span>Marcador que liga la región con su anotación de la derecha.</span></div>
+    <div class="sw"><span class="chip mono" style="flex:none">UC-A3.1</span><span>Código del caso de uso que respalda esa decisión de acceso.</span></div>
+  </div>
+  <p class="closing">Tres cosas que este pliego deja decididas y conviene sostener al presentar: el rol abre la puerta pero el scope decide el campo, así que no hay un endpoint por rol sino una proyección por scope; el administrador puede mucho pero nada en silencio, porque la bitácora es de solo lectura incluso para él; y ninguna llave emitida se puede volver a leer, solo revocar. Lo que queda abierto: si el rol de administrador se parte en soporte y plataforma antes de que el equipo crezca.</p>
+</footer>
+
+</div>
+
+<script>
+(function(){
+  var screens = Array.prototype.slice.call(document.querySelectorAll('.screen'));
+  var list = document.getElementById('index');
+
+  screens.forEach(function(s){
+    var li = document.createElement('li');
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.setAttribute('data-target', s.id);
+    b.innerHTML = '<span class="num">' + s.dataset.num + '</span><span>' + s.dataset.title + '</span>';
+    b.setAttribute('aria-current', s.classList.contains('on') ? 'true' : 'false');
+    li.appendChild(b);
+    list.appendChild(li);
+  });
+
+  function show(id, remember){
+    var found = false;
+    screens.forEach(function(s){
+      var on = s.id === id;
+      s.classList.toggle('on', on);
+      if (on) found = true;
+    });
+    if (!found) return;
+    Array.prototype.forEach.call(list.querySelectorAll('button'), function(b){
+      b.setAttribute('aria-current', b.getAttribute('data-target') === id ? 'true' : 'false');
+    });
+    if (remember){
+      try { localStorage.setItem('civitas-be-screen', id); } catch (e) {}
+      window.scrollTo({ top: 0, behavior: 'auto' });
+    }
+  }
+
+  list.addEventListener('click', function(e){
+    var b = e.target.closest('button');
+    if (b) show(b.getAttribute('data-target'), true);
+  });
+
+  document.addEventListener('keydown', function(e){
+    if (e.target && /^(INPUT|TEXTAREA)$/.test(e.target.tagName)) return;
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    var i = screens.findIndex(function(s){ return s.classList.contains('on'); });
+    if (i < 0) return;
+    var n = e.key === 'ArrowRight' ? i + 1 : i - 1;
+    if (n >= 0 && n < screens.length) show(screens[n].id, true);
+  });
+
+  try { var saved = localStorage.getItem('civitas-be-screen'); if (saved) show(saved, false); } catch (e) {}
+})();
+</script>
+</body>
+</html>
