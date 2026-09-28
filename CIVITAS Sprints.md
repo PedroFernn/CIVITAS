@@ -73,6 +73,64 @@ eso el sprint se cuenta en 15 días naturales y no en 14 (2 semanas exactas)
 
 ---
 
+## 3. Calendario con fechas reales (inicio hipotético: jueves 1 oct 2026)
+
+**Convención de fechas.** Para que las ceremonias nunca caigan en fin de semana,
+esta sección usa **sprints de 14 días naturales (2 semanas, jueves a miércoles)
+con 10 días hábiles**, en línea con el "sprints de 2 semanas" de la Fase 0. La
+plantilla de la sección 1 sigue vigente; se aplica así: Planning el jueves de
+inicio, Mid-sprint check-in el jueves de la segunda semana, Review el martes
+(penúltimo día) y Retro + refinamiento el miércoles (último día). El día 13 de
+la plantilla (buffer) queda absorbido en los días previos al Review.
+
+Con este cálculo el proyecto dura **16 × 14 = 224 días (~7.4 meses)**, no 240;
+los "Días 1–240" de la sección 2 son la referencia original en días naturales
+de 15.
+
+| Sprint | Inicio (Planning) | Review | Retro / fin | Días hábiles | Festivos en el sprint |
+|---|---|---|---|---|---|
+| 1 | jue 1 oct 2026 | mar 13 oct | mié 14 oct 2026 | 10 | — |
+| 2 | jue 15 oct 2026 | mar 27 oct | mié 28 oct 2026 | 10 | — |
+| 3 | jue 29 oct 2026 | mar 10 nov | mié 11 nov 2026 | 10 | — |
+| 4 | jue 12 nov 2026 | mar 24 nov | mié 25 nov 2026 | 9 | lun 16 nov (Revolución) |
+| 5 | jue 26 nov 2026 | mar 8 dic | mié 9 dic 2026 | 10 | — |
+| 6 | jue 10 dic 2026 | mar 22 dic | mié 23 dic 2026 | 10 | — |
+| 7 | jue 24 dic 2026 | mar 5 ene | mié 6 ene 2027 | 8 | vie 25 dic (Navidad), vie 1 ene (Año Nuevo) |
+| 8 | jue 7 ene 2027 | mar 19 ene | mié 20 ene 2027 | 10 | — |
+| 9 | jue 21 ene 2027 | mar 2 feb | mié 3 feb 2027 | 9 | lun 1 feb (Constitución) |
+| 10 | jue 4 feb 2027 | mar 16 feb | mié 17 feb 2027 | 10 | — |
+| 11 | jue 18 feb 2027 | mar 2 mar | mié 3 mar 2027 | 10 | — |
+| 12 | jue 4 mar 2027 | mar 16 mar | mié 17 mar 2027 | 9 | lun 15 mar (Benito Juárez) |
+| 13 | jue 18 mar 2027 | mar 30 mar | mié 31 mar 2027 | 8 | jue 25 mar (Jueves Santo), vie 26 mar (Viernes Santo) |
+| 14 | jue 1 abr 2027 | mar 13 abr | mié 14 abr 2027 | 10 | — |
+| 15 | jue 15 abr 2027 | mar 27 abr | mié 28 abr 2027 | 10 | — |
+| 16 | jue 29 abr 2027 | mar 11 may | mié 12 may 2027 | 10 | — |
+
+**Hitos por fecha**
+
+| Hito | Sprint | Fecha |
+|---|---|---|
+| Catálogo en producción en zonas piloto (fin Fase I) | 8 | mié 20 ene 2027 |
+| Motor de anomalías y mapas de calor validados (fin Fase II) | 16 | mié 12 may 2027 |
+
+**Riesgos de calendario**
+
+- **Sprint 7 (24 dic – 6 ene):** cae en el receso decembrino, con solo 8 días
+  hábiles según la ley y probablemente menos en la práctica. El calendario
+  escolar de la BUAP no está incorporado aquí; hay que verificarlo. Si el equipo
+  no trabaja esas semanas, el Sprint 7 (segunda ciudad piloto) debe reducirse
+  o correrse, y con él todas las fechas posteriores.
+- **Sprint 13 (18–31 mar):** Semana Santa. Usa fechas de Jueves y Viernes Santo
+  (no son festivo oficial, pero sí inhábiles en la práctica escolar); si la
+  semana completa es de vacaciones, la capacidad baja más.
+- **Sprint 16:** termina el 12 may 2027. Si la materia cierra antes (fin de
+  semestre), las Fases I y II completas no caben.
+- Fechas de festivos: Ley Federal del Trabajo (1.º ene, 1.er lun feb, 3.er lun
+  mar, 3.er lun nov, 25 dic). No incluye días de descanso institucional ni
+  suspensiones de la universidad.
+
+---
+
 ## Nota
 
 A partir de Fase III (Web 3.0 / DAO) el proyecto cambia a desarrollo en
