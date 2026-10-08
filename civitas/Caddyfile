@@ -1,0 +1,10 @@
+# HTTPS automático (Let's Encrypt) si DOMAIN es un dominio; con DOMAIN=http://localhost sirve HTTP plano (local)
+{$DOMAIN} {
+	encode gzip
+	handle_path /api/* {
+		reverse_proxy api:4000
+	}
+	handle {
+		reverse_proxy web:3000
+	}
+}

@@ -1,0 +1,75 @@
+name: CI
+on:
+  push: { branches: [main] }
+  pull_request:
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgis/postgis:16-3.4
+        env: { POSTGRES_USER: civitas, POSTGRES_PASSWORD: civitas, POSTGRES_DB: civitas }
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U civitas" --health-interval 5s --health-retries 10
+    env:
+      DATABASE_URL: postgres://civitas:civitas@localhost:5432/civitas
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            api/package-lock.json
+            web/package-lock.json
+
+      - name: Secretos fuera del repositorio
+        run: |
+          if git ls-files | grep -E '(^|/)\.env($|\.)' | grep -v '\.env\.example$'; then
+            echo "Hay archivos .env versionados"; exit 1
+          fi
+
+      - name: Instalar dependencias
+        run: npm ci --prefix api && npm ci --prefix web
+
+      - name: Migraciones desde cero (BD vacía)
+        run: node scripts/migrate.mjs --seed
+
+      - name: API — build y tests
+        run: npm run build --prefix api && npm test --prefix api
+
+      - name: Web — build
+        run: npm run build --prefix web
+
+      - name: Smoke (criterios PARA PASAR)
+        run: |
+          PORT=4000 node api/dist/main.js & 
+          PORT=3000 npm start --prefix web &
+          npx --yes wait-on -t 60000 http://localhost:4000/health http://localhost:3000
+          WEB_URL=http://localhost:3000 API_URL=http://localhost:4000 scripts/smoke.sh
+
+  deploy:
+    needs: ci
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push' && vars.DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - name: Desplegar por SSH (docker compose)
+        env:
+          KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          HOST: ${{ secrets.DEPLOY_HOST }}
+          USER_: ${{ secrets.DEPLOY_USER }}
+        run: |
+          install -m 600 /dev/null key && printf '%s\n' "$KEY" > key
+          ssh -i key -o StrictHostKeyChecking=accept-new "$USER_@$HOST" \
+            "cd /opt/civitas && git fetch origin main && git reset --hard origin/main && docker compose up -d --build --remove-orphans"
+      - name: Smoke contra la URL pública (HTTPS)
+        run: |
+          for i in $(seq 1 12); do
+            WEB_URL='${{ secrets.PUBLIC_URL }}' REQUIRE_HTTPS=1 scripts/smoke.sh && exit 0
+            sleep 10
+          done
+          exit 1
