@@ -93,7 +93,7 @@ por un mensaje de estado al inicio de cada sesión.
 
 Las horas de cada fila son horas de equipo (suma de A y B).
 
-![Requerimientos y criterios para pasar de semana](diagramas/requisitos-por-semana.png)
+![Requerimientos y criterios para pasar de semana](diagramas/requerimientos-por-semana.jpg)
 
 La imagen lista, por semana, los requerimientos funcionales (RF), los no
 funcionales (RNF) y las casillas que deben cumplirse para pasar a la siguiente.
