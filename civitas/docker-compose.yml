@@ -1,3 +1,8 @@
+# Stack completo: db → migrate (una vez) → api → web → caddy.   Arranque:  docker compose up -d --build
+# Datos de demostración:  docker compose run --rm etl mvp2     (ver README.md)
+x-api-env: &api-env
+  DATABASE_URL: postgresql://civitas:${POSTGRES_PASSWORD:?define POSTGRES_PASSWORD en .env}@db:5432/civitas
+
 services:
   db:
     image: postgis/postgis:16-3.4
@@ -13,37 +18,57 @@ services:
       retries: 10
 
   migrate:
-    build: { context: ., dockerfile: api/Dockerfile }
-    command: ["node", "/app/scripts/migrate.mjs"]
-    environment:
-      DATABASE_URL: postgres://civitas:${POSTGRES_PASSWORD}@db:5432/civitas
+    build: { context: .., dockerfile: civitas/Dockerfile, target: api }
+    command: ["node", "dist/cli.js", "migrar"]
+    environment: *api-env
     depends_on: { db: { condition: service_healthy } }
     restart: "no"
 
   api:
-    build: { context: ., dockerfile: api/Dockerfile }
+    build: { context: .., dockerfile: civitas/Dockerfile, target: api }
     restart: unless-stopped
     environment:
-      DATABASE_URL: postgres://civitas:${POSTGRES_PASSWORD}@db:5432/civitas
+      <<: *api-env
       PORT: "4000"
       API_BASE_PATH: /api
+      WEB_ORIGIN: ${DOMAIN:-http://localhost}
     depends_on: { migrate: { condition: service_completed_successfully } }
 
   web:
-    build: { context: ./web }
+    build: { context: .., dockerfile: civitas/Dockerfile, target: web }
     restart: unless-stopped
+    environment:
+      API_URL: http://api:4000
     depends_on: [api]
 
   caddy:
     image: caddy:2
     restart: unless-stopped
-    ports: ["80:80", "443:443"]
+    ports: ["${HTTP_PORT:-80}:80", "443:443"]
     environment:
-      DOMAIN: ${DOMAIN:-http://localhost}  # local: HTTP plano, sin TLS
+      DOMAIN: ${DOMAIN:-http://localhost}   # local: HTTP plano, sin TLS. Con un dominio real Caddy emite HTTPS solo.
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
     depends_on: [web, api]
+
+  # ── herramientas (no arrancan con `up`) ──
+  etl:
+    profiles: ["tools"]
+    build: { context: .., dockerfile: civitas/Dockerfile, target: api }
+    entrypoint: ["node", "dist/cli.js"]
+    environment:
+      <<: *api-env
+      CIVITAS_ALLOW_RESET: "1"      # la BD del compose es desechable
+    volumes: ["./data/raw:/app/data/raw:ro"]
+    depends_on: { db: { condition: service_healthy } }
+
+  test:
+    profiles: ["test"]
+    build: { context: .., dockerfile: civitas/Dockerfile, target: test }
+    environment:
+      TEST_DATABASE_URL: postgresql://civitas:${POSTGRES_PASSWORD:?define POSTGRES_PASSWORD en .env}@db:5432/civitas_test
+    depends_on: { db: { condition: service_healthy } }
 
 volumes:
   dbdata:

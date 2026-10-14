@@ -9,3 +9,40 @@ h2 { color: var(--azul); margin-top: 1.8em; font-size: 1.15rem; }
 footer { border-top: 1px solid var(--borde); background: #f7f8fa; padding: 18px 24px; text-align: center; font-size: .9rem; color: var(--gris); }
 footer a { color: var(--azul); font-weight: 600; }
 .aviso-borrador { background: #fff8e1; border: 1px solid #f0d78c; border-radius: 8px; padding: 12px 16px; font-size: .92rem; }
+
+/* ── Layout (reconstruido) y MVP-2 ── */
+header { background: #11192c; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 4px 24px; }
+header .marca { display: flex; align-items: center; }
+header img { display: block; height: 44px; width: auto; }
+header nav { display: flex; gap: 20px; font-weight: 500; font-size: .95rem; }
+main { max-width: 1080px; }
+.prosa { max-width: 760px; }
+code { background: #f1f3f6; padding: 1px 5px; border-radius: 4px; font-size: .88em; }
+.nota { color: var(--gris); font-size: .88rem; }
+
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; margin: 20px 0; }
+.kpis div { border: 1px solid var(--borde); border-radius: 10px; padding: 14px 16px; background: #fff; }
+.kpis b { display: block; font-size: 1.7rem; color: var(--azul); }
+.kpis span { color: var(--gris); font-size: .88rem; }
+
+.sello { font-size: .72rem; letter-spacing: .5px; padding: 3px 9px; border-radius: 999px; vertical-align: middle; margin-left: 8px; }
+.sello.ok { background: #dcf5e4; color: #14693a; } .sello.fail { background: #fde2e2; color: #a12727; }
+
+.checklist { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+.checklist li { display: flex; gap: 12px; border: 1px solid var(--borde); border-left-width: 4px; border-radius: 8px; padding: 10px 14px; background: #fff; }
+.checklist li.ok { border-left-color: #1c9c52; } .checklist li.fail { border-left-color: #c93a3a; } .checklist li.warn { border-left-color: #d48a00; background: #fff8e1; }
+.checklist .ico { font-weight: 700; width: 1.2em; text-align: center; }
+.checklist li.ok .ico { color: #1c9c52; } .checklist li.fail .ico { color: #c93a3a; } .checklist li.warn .ico { color: #d48a00; }
+.checklist small { display: block; color: var(--gris); margin-top: 2px; }
+
+.mapa { margin: 0; max-width: 680px; }
+.mapa svg { width: 100%; height: auto; border: 1px solid var(--borde); border-radius: 10px; background: #fafbfc; display: block; }
+.mapa path:hover { stroke: #d48a00; stroke-width: 2; }
+.mapa figcaption { display: flex; align-items: center; gap: 10px; font-size: .85rem; color: var(--gris); margin-top: 6px; }
+.leyenda { display: inline-flex; } .leyenda i { width: 22px; height: 10px; display: inline-block; }
+
+.tabla-scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: .9rem; }
+th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--borde); white-space: nowrap; }
+th { background: #f7f8fa; color: var(--azul); font-weight: 600; }
+.n { text-align: right; font-variant-numeric: tabular-nums; }

@@ -1,0 +1,14 @@
+**/node_modules
+**/.next
+**/dist
+**/*.log
+**/.env
+**/.env.*
+!**/.env.example
+.git
+civitas/data/raw
+civitas/data/reports
+docs/diagramas
+docs/*.html
+docs/*.md
+!docs/mvp2

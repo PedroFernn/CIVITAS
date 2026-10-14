@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Criterios "PARA PASAR" del MVP-1. Uso:
+# Criterios "PARA PASAR" de MVP-1 y MVP-2 (requiere el ETL ya corrido). Uso:
 #   WEB_URL=https://tu-dominio.mx scripts/smoke.sh
-#   WEB_URL=http://localhost:3000 API_URL=http://localhost:4000 scripts/smoke.sh   (local/CI)
+#   WEB_URL=http://localhost scripts/smoke.sh   (stack local con Docker Compose)
 set -euo pipefail
 WEB_URL="${WEB_URL:?Falta WEB_URL}"; WEB_URL="${WEB_URL%/}"
 API_URL="${API_URL:-$WEB_URL/api}"; API_URL="${API_URL%/}"
@@ -25,9 +25,19 @@ for p in / /aviso-privacidad /ruta-que-no-existe; do
 done
 [ "$(code "$WEB_URL/aviso-privacidad")" = "200" ] && ok "GET /aviso-privacidad → 200" || fail "aviso no responde 200"
 
-# RF-1.1: endpoint /zonas operativo
-body="$(curl -s --max-time 15 -w '\n%{http_code}' "$API_URL/zonas")"
-[ "${body##*$'\n'}" = "200" ] && echo "$body" | grep -q '"nombre"' \
-  && ok "GET /zonas → 200 con datos" || fail "GET /zonas falló"
+# API operativa
+[ "$(code "$API_URL/health")" = "200" ] && ok "GET /health → 200" || fail "GET /health falló"
+[ "$(code "$API_URL/docs-json")" = "200" ] && ok "contrato OpenAPI publicado" || fail "falta /docs-json"
+
+# Datos de MVP-2 (requiere el ETL: `docker compose run --rm etl mvp2`). SMOKE_DATA=0 los omite (p. ej. un servidor sin cargar).
+if [ "${SMOKE_DATA:-1}" = "1" ]; then
+  body="$(curl -s --max-time 15 -w '\n%{http_code}' "$API_URL/colonias?limit=200")"
+  [ "${body##*$'\n'}" = "200" ] && echo "$body" | grep -q '"nombre"' \
+    && ok "GET /colonias → 200 con datos" || fail "GET /colonias falló o no hay datos (¿corriste el ETL?)"
+  curl -s --max-time 15 "$API_URL/datos-abiertos/validacion" | grep -q '"aprobada":true' \
+    && ok "checklist de MVP-2 aprobado" || fail "el checklist de MVP-2 no está aprobado"
+  curl -s --max-time 15 "$WEB_URL/zonas" | grep -q 'zonas piloto' \
+    && ok "GET /zonas (web) muestra las zonas piloto" || fail "la página /zonas no muestra datos"
+fi
 
 echo "Smoke OK"

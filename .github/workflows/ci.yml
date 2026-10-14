@@ -1,0 +1,71 @@
+name: ci
+on:
+  push: { branches: [main] }
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: civitas } }
+    services:
+      db:
+        image: postgis/postgis:16-3.4
+        env: { POSTGRES_USER: civitas, POSTGRES_PASSWORD: civitas, POSTGRES_DB: postgres }
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U civitas" --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      TEST_DATABASE_URL: postgresql://civitas:civitas@localhost:5432/civitas_test
+      REQUIRE_DB: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Secretos fuera del repositorio
+        working-directory: .
+        run: |
+          if git ls-files | grep -E '(^|/)\.env($|\.)' | grep -v '\.env\.example$'; then
+            echo "Hay archivos .env versionados"; exit 1
+          fi
+      - uses: pnpm/action-setup@v4        # versión tomada de "packageManager" en civitas/package.json
+        with: { package_json_file: civitas/package.json }
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: pnpm, cache-dependency-path: civitas/pnpm-lock.yaml }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - run: pnpm test
+
+  stack:   # el stack real: construye las imágenes, carga datos y corre el smoke (lo que NO cubren las pruebas unitarias)
+    runs-on: ubuntu-latest
+    needs: test
+    defaults: { run: { working-directory: civitas } }
+    steps:
+      - uses: actions/checkout@v4
+      - run: echo "POSTGRES_PASSWORD=$(openssl rand -hex 16)" > .env
+      - run: docker compose up -d --build --wait
+      - run: docker compose run --rm etl mvp2 --fuente fixture --desde-cero
+      - run: WEB_URL=http://localhost scripts/smoke.sh
+      - if: failure()
+        run: docker compose logs --no-color
+
+  deploy:
+    needs: [test, stack]
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push' && vars.DEPLOY_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - name: Desplegar por SSH (docker compose)
+        env:
+          KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          HOST: ${{ secrets.DEPLOY_HOST }}
+          USER_: ${{ secrets.DEPLOY_USER }}
+        run: |
+          install -m 600 /dev/null key && printf '%s\n' "$KEY" > key
+          ssh -i key -o StrictHostKeyChecking=accept-new "$USER_@$HOST" \
+            "cd /opt/civitas && git fetch origin main && git reset --hard origin/main && cd civitas && docker compose up -d --build --remove-orphans"
+      - name: Smoke contra la URL pública (HTTPS)
+        run: |
+          for i in $(seq 1 12); do
+            WEB_URL='${{ secrets.PUBLIC_URL }}' REQUIRE_HTTPS=1 SMOKE_DATA=0 civitas/scripts/smoke.sh && exit 0
+            sleep 10
+          done
+          exit 1

@@ -1,0 +1,6 @@
+packages:
+  - api
+  - web
+onlyBuiltDependencies:
+  - '@nestjs/core'
+  - sharp

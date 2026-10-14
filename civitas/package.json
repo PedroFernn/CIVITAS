@@ -1,0 +1,13 @@
+{
+  "name": "civitas",
+  "private": true,
+  "packageManager": "pnpm@10.34.7",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "build": "pnpm -r build",
+    "test": "pnpm --filter civitas-api test",
+    "dev:api": "pnpm --filter civitas-api start:dev",
+    "dev:web": "pnpm --filter civitas-web dev",
+    "etl": "pnpm --filter civitas-api etl"
+  }
+}

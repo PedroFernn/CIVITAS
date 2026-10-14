@@ -1,7 +1,12 @@
 node_modules/
-dist/
 .next/
+dist/
+next-env.d.ts
+*.tsbuildinfo
 .env
 .env.*
 !.env.example
 *.log
+data/reports/
+data/raw/*
+!data/raw/README.md

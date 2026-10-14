@@ -592,3 +592,17 @@ de forma ad hoc a mitad de proyecto:
   métricas de Prometheus (`bull_queue_waiting`, `bull_queue_failed`) y una alerta cuando el
   tamaño de la cola de `calcular-anomalia` crece de forma sostenida — señal temprana de que el
   microservicio de ML está degradado (ver circuit breaker en 4.2).
+---
+
+## 8. Addendum MVP-2 — Datos abiertos y zonas piloto
+
+Resumen de cambios respecto a las secciones 3 y 4 (detalle en `docs/mvp2/`):
+
+* **Unidad de zona = AGEB urbana de INEGI** (ADR-001). La tabla `colonias` se conserva como catálogo de zonas y suma
+  `tipo_unidad`, `clave_geo`, `es_piloto`, `carga_id`; `geom` pasa a `MULTIPOLYGON` con `CHECK` de validez.
+* **Ingesta**: la primera versión de `ingesta-fuentes-abiertas` (§4.2) es un ETL en TypeScript dentro del paquete de la API (`civitas/api/src/etl`, CLI `node dist/cli.js`) ejecutable con un solo comando
+  (`docker compose run --rm etl mvp2`). Se integrará a BullMQ/cron en un sprint posterior sin cambiar el esquema.
+* **Trazabilidad**: `cargas_datos` / `cargas_descartes` y `carga_id` por fila alimentan `fuentes_datos` (P-10).
+* **Nuevas tablas**: `unidades_economicas` (DENUE), `paradas_transporte`, `zona_atributos`, `mvp2_validaciones`.
+* **Nuevos endpoints**: `GET /colonias`, `GET /colonias/:id`, `GET /tiles/colonias/{z}/{x}/{y}.mvt`, `GET /datos-abiertos/{fuentes,cargas,validacion}`.
+* **Migraciones**: SQL puro versionado (`db/migrations`) con checksum, coherente con la recomendación de §7 de no usar Prisma Migrate.

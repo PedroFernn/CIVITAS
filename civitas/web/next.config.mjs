@@ -1,6 +1,11 @@
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
 /** @type {import('next').NextConfig} */
 export default {
   output: 'standalone',
+  // Monorepo: el trazado de archivos parte de la raíz del workspace (si no, el standalone omite node_modules hoistados).
+  outputFileTracingRoot: path.join(path.dirname(fileURLToPath(import.meta.url)), '..'),
   poweredByHeader: false,
   async headers() {
     return [{

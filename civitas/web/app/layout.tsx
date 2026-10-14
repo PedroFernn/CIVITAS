@@ -3,19 +3,21 @@ import Link from 'next/link';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'CIVITAS — Transparencia del mercado inmobiliario',
-  description: 'Plataforma de transparencia de precios de renta por zona.',
+  title: 'CIVITAS · Observatorio urbano',
+  description: 'Asequibilidad inmobiliaria y datos abiertos de zonas urbanas',
 };
 
-// El pie vive en el layout raíz: aparece en TODAS las páginas (incluida 404 y el propio aviso).
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es-MX">
+    <html lang="es">
       <body>
-        <header><Link href="/">CIVITAS</Link></header>
+        <header>
+          <Link href="/" className="marca"><img src="/civitas_logo.svg" alt="CIVITAS" height={44} /></Link>
+          <nav><Link href="/zonas">Zonas piloto</Link><Link href="/aviso-privacidad">Aviso de privacidad</Link></nav>
+        </header>
         <main>{children}</main>
-        <footer id="pie">
-          © {new Date().getFullYear()} CIVITAS · <Link href="/aviso-privacidad">Aviso de Privacidad</Link>
+        <footer>
+          CIVITAS · Observatorio urbano · <Link href="/aviso-privacidad">Aviso de privacidad</Link>
         </footer>
       </body>
     </html>
