@@ -13,7 +13,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <header>
           <Link href="/" className="marca"><img src="/civitas_logo.svg" alt="CIVITAS" height={44} /></Link>
-          <nav><Link href="/zonas">Zonas piloto</Link><Link href="/aviso-privacidad">Aviso de privacidad</Link></nav>
+          <nav><Link href="/zonas">Zonas piloto</Link><Link href="/rentas">Rentas</Link><Link href="/aviso-privacidad">Aviso de privacidad</Link></nav>
         </header>
         <main>{children}</main>
         <footer>

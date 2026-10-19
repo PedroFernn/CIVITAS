@@ -9,8 +9,8 @@ export function configureApp(app: INestApplication, opts: { swagger?: boolean } 
   if (opts.swagger) {
     const doc = new DocumentBuilder()
       .setTitle('CIVITAS API')
-      .setDescription('Observatorio urbano · MVP-2: datos abiertos y zonas piloto (solo lectura)')
-      .setVersion('0.2.0')
+      .setDescription('Observatorio urbano · MVP-2: datos abiertos y zonas piloto · MVP-3: precios de renta (solo lectura)')
+      .setVersion('0.3.0')
       // Prefijo público con el que Caddy expone la API (p. ej. /api): hace que "Try it out" funcione detrás del proxy.
       .addServer(process.env.API_BASE_PATH ?? '/')
       .build();

@@ -13,7 +13,7 @@ export interface FiltrosColonias {
 
 type Q = Record<string, string | undefined>;
 
-const entero = (v: string | undefined, nombre: string, min: number, max: number): number | undefined => {
+export const entero = (v: string | undefined, nombre: string, min: number, max: number): number | undefined => {
   if (v === undefined || v === '') return undefined;
   const n = Number(v);
   if (!Number.isInteger(n) || n < min || n > max) throw new BadRequestException(`${nombre} debe ser entero entre ${min} y ${max}`);

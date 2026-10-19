@@ -35,7 +35,7 @@ export default async function Zonas() {
       <h1>MVP-2 · Datos abiertos y zonas piloto</h1>
       {sintetico && (
         <p className="aviso-borrador"><strong>Datos sintéticos.</strong> Estas zonas, comercios y paradas son datos de prueba generados
-          para validar el pipeline, no información real de INEGI. Carga archivos reales con <code>docker compose run --rm etl mvp2 --fuente real --desde-cero</code>.</p>
+          para validar el pipeline, no información real de INEGI por razones de seguridad.</p>
       )}
 
       <section className="kpis">

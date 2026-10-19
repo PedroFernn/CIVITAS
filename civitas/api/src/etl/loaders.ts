@@ -148,7 +148,7 @@ export async function cargarParadas(conn: Conn, cfg: Config, c: Carga): Promise<
 export async function asignarYCalcularAtributos(conn: Conn, cargaId: number | null = null): Promise<void> {
   await conn.tx(async () => {
     // Punto → zona. ST_Covers incluye puntos sobre el borde; ORDER BY id hace determinista el empate.
-    for (const tabla of ['unidades_economicas', 'paradas_transporte']) {
+    for (const tabla of ['unidades_economicas', 'paradas_transporte', 'listados_renta']) {
       await conn.query(`
         UPDATE ${tabla} t SET zona_id =
           (SELECT z.id FROM colonias z WHERE ST_Covers(z.geom, t.geom) ORDER BY z.id LIMIT 1)`);
@@ -203,7 +203,7 @@ export async function seleccionarPilotos(conn: Conn, cfg: Config): Promise<numbe
 /** Evita mezclar datos sintéticos con reales: borra lo cargado por corridas de otro modo. */
 export async function limpiarOtroModo(conn: Conn, modo: string): Promise<void> {
   await conn.tx(async () => {
-    for (const tabla of ['unidades_economicas', 'paradas_transporte', 'colonias']) {
+    for (const tabla of ['listados_renta', 'unidades_economicas', 'paradas_transporte', 'colonias']) {
       await conn.query(`DELETE FROM ${tabla} WHERE carga_id IN (SELECT id FROM cargas_datos WHERE modo <> $1)`, [modo]);
     }
   });

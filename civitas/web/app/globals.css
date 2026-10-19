@@ -46,3 +46,9 @@ table { border-collapse: collapse; width: 100%; font-size: .9rem; }
 th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--borde); white-space: nowrap; }
 th { background: #f7f8fa; color: var(--azul); font-weight: 600; }
 .n { text-align: right; font-variant-numeric: tabular-nums; }
+
+/* ── MVP-3 · rentas ── */
+.barra { display: inline-block; height: 8px; border-radius: 4px; background: #3f6cae; vertical-align: middle; min-width: 2px; }
+.barra.umbral { background: #c93a3a; }
+.dos-col { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
+.suprimida { color: var(--gris); font-style: italic; }

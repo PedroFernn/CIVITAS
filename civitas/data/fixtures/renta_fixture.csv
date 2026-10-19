@@ -1,0 +1,392 @@
+id_anuncio,url,tipo,precio,moneda,superficie_m2,recamaras,latitud,longitud,fecha_publicacion
+SX-100354,https://ejemplo.invalid/anuncios/SX-100354,casa,10600,,78 m2,2,19.049480,-98.198380,2026-10-09
+SX-100280,https://ejemplo.invalid/anuncios/SX-100280,departamento,16250,,96,3,19.054276,-98.211689,2026-10-01
+SX-100152,https://ejemplo.invalid/anuncios/SX-100152,departamento,23100,MXN,101 m2,3 rec,19.054211,-98.198331,2026-10-11
+SX-100157,https://ejemplo.invalid/anuncios/SX-100157,departamento,"$13,300",MXN,62,2 recámaras,19.055060,-98.192322,2026-10-03
+SX-100182,https://ejemplo.invalid/anuncios/SX-100182,casa,"24,100",,207 m2,4,19.038228,-98.205399,2026-10-13
+SX-100034,https://ejemplo.invalid/anuncios/SX-100034,departamento,10850,MXN,53,2,19.037339,-98.193785,2026-10-11
+SX-100240,https://ejemplo.invalid/anuncios/SX-100240,cuarto,3050,,20,1,19.029015,-98.210075,2026-10-12
+SX-100079,https://ejemplo.invalid/anuncios/SX-100079,departamento,19850,,112 m2,3,19.048657,-98.216213,2026-10-07
+SX-100301,https://ejemplo.invalid/anuncios/SX-100301,departamento,14700,MXN,78.0,3,19.029455,-98.198924,2026-10-10
+SX-100109,https://ejemplo.invalid/anuncios/SX-100109,departamento,"$ 10,550.00 MXN",MXN,53 m2,1,19.045623,-98.204647,2026-10-07
+SX-100219,https://ejemplo.invalid/anuncios/SX-100219,departamento,14450,MXN,90,3 rec,19.032935,-98.218124,2026-10-16
+SX-100154,https://ejemplo.invalid/anuncios/SX-100154,departamento,17200,MXN,91.0,3 rec,19.044817,-98.209894,2026-10-03
+SX-100365,https://ejemplo.invalid/anuncios/SX-100365,casa,20150 mensuales,MXN,191m²,4,19.095557,-98.253022,2026-10-07
+SX-100367,https://ejemplo.invalid/anuncios/SX-100367,casa,23250,MXN,200.0,4 rec,19.002006,-98.190039,2026-10-04
+SX-100165,https://ejemplo.invalid/anuncios/SX-100165,departamento,15850,,,3,19.038773,-98.215475,2026-10-08
+SX-100026,https://ejemplo.invalid/anuncios/SX-100026,departamento,"16,900",MXN,103 m2,3,19.039952,-98.211725,2026-10-03
+SX-100267,https://ejemplo.invalid/anuncios/SX-100267,cuarto,"$3,850",,14m²,1 recámaras,19.044586,-98.200134,2026-10-02
+SX-100110,https://ejemplo.invalid/anuncios/SX-100110,departamento,7950,MXN,49 m2,2 recámaras,19.054004,-98.222776,2026-10-07
+SX-100269,https://ejemplo.invalid/anuncios/SX-100269,casa,9350,,83,2,19.032711,-98.206712,2026-10-11
+SX-100058,https://ejemplo.invalid/anuncios/SX-100058,departamento,11900,,84m²,2,19.034039,-98.221492,2026-10-13
+SX-100379,https://ejemplo.invalid/anuncios/SX-100379,departamento,900,USD,61 m2,1 recámaras,19.049179,-98.205995,2026-10-12
+SX-100338,https://ejemplo.invalid/anuncios/SX-100338,cuarto,"3,700",,18,1 recámaras,19.032562,-98.200207,2026-10-07
+SX-100036,https://ejemplo.invalid/anuncios/SX-100036,departamento,"8,600",,44,2,19.044958,-98.210361,2026-10-07
+SX-100186,https://ejemplo.invalid/anuncios/SX-100186,departamento,"19,850",MXN,98,3,19.037981,-98.198850,2026-10-02
+SX-100160,https://ejemplo.invalid/anuncios/SX-100160,cuarto,"2,750",,19,1,19.049996,-98.222576,2026-10-11
+SX-100191,https://ejemplo.invalid/anuncios/SX-100191,departamento,6750,,37,1,19.040600,-98.192451,2026-10-04
+SX-100277,https://ejemplo.invalid/anuncios/SX-100277,cuarto,4450,,14 m2,1 rec,19.053963,-98.202907,2026-10-09
+SX-100209,https://ejemplo.invalid/anuncios/SX-100209,departamento,9350,,47.0,2,19.039108,-98.205975,2026-10-06
+SX-100202,https://ejemplo.invalid/anuncios/SX-100202,departamento,10100,,69m²,2,19.042661,-98.218254,2026-10-10
+SX-100234,https://ejemplo.invalid/anuncios/SX-100234,casa,20650,,149,3,19.053997,-98.209173,2026-10-15
+SX-100302,https://ejemplo.invalid/anuncios/SX-100302,casa,17450,,130 m2,3,19.048223,-98.205248,2026-10-02
+SX-100130,https://ejemplo.invalid/anuncios/SX-100130,cuarto,3750,MXN,13,1,19.038372,-98.211754,2026-10-10
+SX-100193,https://ejemplo.invalid/anuncios/SX-100193,departamento,7750,MXN,51,2,19.033177,-98.211535,2026-10-09
+SX-100358,https://ejemplo.invalid/anuncios/SX-100358,departamento,"$6,300",MXN,34,1,19.039233,-98.204561,2026-10-14
+SX-100304,https://ejemplo.invalid/anuncios/SX-100304,departamento,"11,550",MXN,73,2,19.029376,-98.204298,2026-10-04
+SX-100108,https://ejemplo.invalid/anuncios/SX-100108,departamento,"16,850",MXN,97,3 recámaras,19.032450,-98.198810,2026-10-16
+SX-100040,https://ejemplo.invalid/anuncios/SX-100040,casa,26550,,186m²,4,19.043003,-98.204074,2026-10-15
+SX-100054,https://ejemplo.invalid/anuncios/SX-100054,cuarto,3350,,13,1 rec,19.055307,-98.216589,2026-10-16
+SX-100325,https://ejemplo.invalid/anuncios/SX-100325,departamento,"8,750",MXN,48 m2,2,19.053989,-98.197684,2026-10-10
+SX-100063,https://ejemplo.invalid/anuncios/SX-100063,cuarto,3100,,16,1 recámaras,19.049404,-98.210513,2026-10-08
+SX-100004,https://ejemplo.invalid/anuncios/SX-100004,cuarto,"2,550",,17,1,19.033089,-98.217866,2026-10-02
+SX-100083,https://ejemplo.invalid/anuncios/SX-100083,departamento,"8,800",MXN,49,1 rec,19.055642,-98.215298,2026-10-12
+SX-100122,https://ejemplo.invalid/anuncios/SX-100122,casa,13250,,92,2 rec,19.056404,-98.205545,2026-10-14
+SX-100072,https://ejemplo.invalid/anuncios/SX-100072,casa,"8,900",MXN,88.0,2,19.027833,-98.205794,2026-10-04
+SX-100057,https://ejemplo.invalid/anuncios/SX-100057,departamento,"$ 6,500.00 MXN",,37,1,19.049145,-98.203678,2026-10-02
+SX-100213,https://ejemplo.invalid/anuncios/SX-100213,departamento,"$ 8,500.00 MXN",MXN,48 m2,2,19.026389,-98.197210,2026-10-09
+SX-100140,https://ejemplo.invalid/anuncios/SX-100140,departamento,"7,700",,41,1,19.046231,-98.193338,2026-10-07
+SX-100257,https://ejemplo.invalid/anuncios/SX-100257,departamento,11200,,71,2,19.056094,-98.220417,2026-10-01
+SX-100316,https://ejemplo.invalid/anuncios/SX-100316,departamento,8450,MXN,56 m2,2,19.033843,-98.211124,2026-10-01
+SX-100368,https://ejemplo.invalid/anuncios/SX-100368,departamento,17750,MXN,98 m2,3,19.004499,-98.205276,2026-10-13
+SX-100136,https://ejemplo.invalid/anuncios/SX-100136,cuarto,4250,,17.0,1 rec,19.049158,-98.193625,2026-10-11
+SX-100017,https://ejemplo.invalid/anuncios/SX-100017,departamento,15400,MXN,107,3 rec,19.028694,-98.217713,2026-10-05
+SX-100167,https://ejemplo.invalid/anuncios/SX-100167,departamento,"8,750",,57.0,1 recámaras,19.053899,-98.223082,2026-10-13
+SX-100053,https://ejemplo.invalid/anuncios/SX-100053,departamento,"$16,200",MXN,84,3,19.048666,-98.194557,2026-10-12
+SX-100175,https://ejemplo.invalid/anuncios/SX-100175,departamento,13350,MXN,63m²,2,19.056000,-98.194147,2026-10-04
+SX-100287,https://ejemplo.invalid/anuncios/SX-100287,cuarto,3900,MXN,20,1,19.044040,-98.209913,2026-10-12
+SX-100307,https://ejemplo.invalid/anuncios/SX-100307,departamento,"8,600",,50,2,19.055035,-98.210079,2026-10-12
+SX-100373,https://ejemplo.invalid/anuncios/SX-100373,departamento,,MXN,86,2,19.053553,-98.202951,2026-10-12
+SX-100046,https://ejemplo.invalid/anuncios/SX-100046,casa,23200,MXN,,4 rec,19.043091,-98.210083,2026-10-14
+SX-100119,https://ejemplo.invalid/anuncios/SX-100119,departamento,7700,,40,1,19.056895,-98.197760,2026-10-12
+SX-100090,https://ejemplo.invalid/anuncios/SX-100090,departamento,12450,,78,3,19.029714,-98.205437,2026-10-01
+SX-100115,https://ejemplo.invalid/anuncios/SX-100115,departamento,21050,MXN,94,3,19.054789,-98.193852,2026-10-03
+SX-100374,https://ejemplo.invalid/anuncios/SX-100374,casa,,MXN,214,4 rec,19.056304,-98.192651,2026-10-07
+SX-100121,https://ejemplo.invalid/anuncios/SX-100121,casa,23250,,154,3,19.043021,-98.198180,2026-10-07
+SX-100250,https://ejemplo.invalid/anuncios/SX-100250,departamento,6300,,46,2,19.027398,-98.210063,2026-10-05
+,,cuarto,"3,850",,22 m2,1,19.033105,-98.199101,2026-10-13
+SX-100337,https://ejemplo.invalid/anuncios/SX-100337,departamento,8200,MXN,57 m2,2,19.045295,-98.222542,2026-10-12
+SX-100183,https://ejemplo.invalid/anuncios/SX-100183,cuarto,"$2,700",MXN,10,1 recámaras,19.044423,-98.216676,2026-10-07
+SX-100245,https://ejemplo.invalid/anuncios/SX-100245,departamento,"22,950",,,3,19.054051,-98.192287,2026-10-16
+SX-100172,https://ejemplo.invalid/anuncios/SX-100172,casa,"7,550",MXN,76m²,2 rec,19.032520,-98.222787,2026-10-07
+SX-100194,https://ejemplo.invalid/anuncios/SX-100194,departamento,16400,,81 m2,3,19.048458,-98.211166,2026-10-15
+SX-100233,https://ejemplo.invalid/anuncios/SX-100233,departamento,"8,300",,39,1,19.039421,-98.197760,2026-10-12
+SX-100095,https://ejemplo.invalid/anuncios/SX-100095,cuarto,4150,,19,1,19.033454,-98.198620,2026-10-08
+SX-100024,https://ejemplo.invalid/anuncios/SX-100024,casa,23350,,187,4,19.032965,-98.200463,2026-10-11
+SX-100229,https://ejemplo.invalid/anuncios/SX-100229,cuarto,2800,MXN,18m²,1,19.033073,-98.222145,2026-10-15
+SX-100371,https://ejemplo.invalid/anuncios/SX-100371,departamento,10900,,68 m2,1,19.139810,-98.247427,2026-10-05
+SX-100249,https://ejemplo.invalid/anuncios/SX-100249,casa,"11,600",MXN,105m²,2,19.037921,-98.221879,2026-10-10
+SX-100244,https://ejemplo.invalid/anuncios/SX-100244,casa,21300,MXN,215,4,19.039809,-98.221658,2026-10-10
+SX-100124,https://ejemplo.invalid/anuncios/SX-100124,departamento,"$9,350",,52,,19.033115,-98.199956,2026-10-13
+SX-100085,https://ejemplo.invalid/anuncios/SX-100085,departamento,16650,,111,3,19.045532,-98.222277,2026-10-03
+SX-100065,https://ejemplo.invalid/anuncios/SX-100065,departamento,"$5,300",MXN,39,1,19.032934,-98.221736,2026-10-02
+SX-100211,https://ejemplo.invalid/anuncios/SX-100211,departamento,12800,,100,3,19.039144,-98.221511,2026-10-04
+SX-100274,https://ejemplo.invalid/anuncios/SX-100274,departamento,7400,MXN,49 m2,2,19.037440,-98.221500,2026-10-11
+SX-100104,https://ejemplo.invalid/anuncios/SX-100104,casa,"$ 27,850.00 MXN",,208.0,4,19.033740,-98.192417,2026-10-16
+SX-100384,https://ejemplo.invalid/anuncios/SX-100384,casa,13000,,109,2,abc,-98.220079,2026-10-16
+SX-100178,https://ejemplo.invalid/anuncios/SX-100178,departamento,16000,MXN,78,3,19.044627,-98.192776,2026-10-07
+SX-100215,https://ejemplo.invalid/anuncios/SX-100215,cuarto,3500,,11,1 rec,19.032206,-98.191433,2026-10-13
+SX-100021,https://ejemplo.invalid/anuncios/SX-100021,departamento,17200,MXN,104m²,3,19.038283,-98.205497,2026-10-03
+SX-100344,https://ejemplo.invalid/anuncios/SX-100344,departamento,9950 mensuales,,51,2 recámaras,19.050252,-98.206645,2026-10-14
+SX-100098,https://ejemplo.invalid/anuncios/SX-100098,departamento,7450,MXN,45,1,19.038866,-98.205433,2026-10-11
+SX-100069,https://ejemplo.invalid/anuncios/SX-100069,cuarto,"3,900",,11 m2,1,19.049753,-98.204910,2026-10-12
+SX-100010,https://ejemplo.invalid/anuncios/SX-100010,cuarto,"$3,500",,16,1,19.044555,-98.204933,2026-10-13
+SX-100292,https://ejemplo.invalid/anuncios/SX-100292,casa,13200,,109,2 rec,19.037536,-98.192483,2026-10-04
+SX-100153,https://ejemplo.invalid/anuncios/SX-100153,departamento,"$ 5,700.00 MXN",MXN,39,estudio,19.027371,-98.204632,2026-10-16
+SX-100298,https://ejemplo.invalid/anuncios/SX-100298,cuarto,"3,450",,18m²,1 recámaras,19.038843,-98.212488,2026-10-08
+SX-100259,https://ejemplo.invalid/anuncios/SX-100259,departamento,"6,900",MXN,34 m2,1 recámaras,19.049705,-98.211197,2026-10-16
+SX-100133,https://ejemplo.invalid/anuncios/SX-100133,casa,25200,,210m²,4,19.039190,-98.210266,2026-10-15
+SX-100137,https://ejemplo.invalid/anuncios/SX-100137,departamento,12950,MXN,81m²,2,19.033999,-98.194273,2026-10-16
+SX-100003,https://ejemplo.invalid/anuncios/SX-100003,casa,"8,100",MXN,75m²,2,19.039281,-98.223609,2026-10-11
+SX-100048,https://ejemplo.invalid/anuncios/SX-100048,departamento,12550,MXN,75m²,3,19.039128,-98.192792,2026-10-16
+SX-100364,https://ejemplo.invalid/anuncios/SX-100364,departamento,9700,,63 m2,1,19.033297,-98.158643,2026-10-08
+SX-100184,https://ejemplo.invalid/anuncios/SX-100184,departamento,"9,150",MXN,42m²,1 rec,19.054291,-98.192725,2026-10-16
+SX-100087,https://ejemplo.invalid/anuncios/SX-100087,cuarto,"2,700",,16,1,19.039592,-98.222351,2026-10-11
+SX-100362,https://ejemplo.invalid/anuncios/SX-100362,casa,"$ 11,650.00 MXN",,107.0,2,19.038094,-98.159931,2026-10-09
+SX-100156,https://ejemplo.invalid/anuncios/SX-100156,departamento,13200,MXN,83,2,19.053919,-98.222861,2026-10-03
+SX-100291,https://ejemplo.invalid/anuncios/SX-100291,departamento,16050 mensuales,,96 m2,3,19.049711,-98.212102,2026-10-03
+SX-100275,https://ejemplo.invalid/anuncios/SX-100275,cuarto,5650,,15,1,19.054558,-98.193191,2026-10-08
+SX-100027,https://ejemplo.invalid/anuncios/SX-100027,departamento,7550,MXN,40 m2,1,19.055173,-98.204238,2026-10-16
+SX-100324,https://ejemplo.invalid/anuncios/SX-100324,departamento,8050,MXN,44,2 rec,19.033723,-98.194971,2026-10-13
+SX-100043,https://ejemplo.invalid/anuncios/SX-100043,departamento,"12,600",MXN,67.0,2,19.032200,-98.192201,2026-10-03
+SX-100251,https://ejemplo.invalid/anuncios/SX-100251,departamento,15150,MXN,81,,19.054736,-98.209855,2026-10-03
+SX-100208,https://ejemplo.invalid/anuncios/SX-100208,departamento,"14,750",MXN,105m²,3,19.034259,-98.217518,2026-10-12
+SX-100261,https://ejemplo.invalid/anuncios/SX-100261,departamento,"13,450",,70 m2,2,19.053831,-98.198531,2026-10-10
+SX-100158,https://ejemplo.invalid/anuncios/SX-100158,casa,"15,850",,140,3,19.043812,-98.216877,2026-10-16
+SX-100092,https://ejemplo.invalid/anuncios/SX-100092,departamento,"$ 15,800.00 MXN",,105.0,3,19.026118,-98.217034,2026-10-03
+SX-100123,https://ejemplo.invalid/anuncios/SX-100123,departamento,18300,MXN,100 m2,3,19.043764,-98.194110,2026-10-05
+SX-100081,https://ejemplo.invalid/anuncios/SX-100081,casa,12250,MXN,97 m2,2,19.032669,-98.204761,2026-10-07
+SX-100313,https://ejemplo.invalid/anuncios/SX-100313,departamento,"$15,950",,,3,19.029492,-98.205399,2026-10-01
+SX-100078,https://ejemplo.invalid/anuncios/SX-100078,casa,9800,MXN,71,2,19.048696,-98.210006,2026-10-09
+SX-100037,https://ejemplo.invalid/anuncios/SX-100037,cuarto,"3,250",,11m²,1,19.050461,-98.200178,2026-10-07
+SX-100293,https://ejemplo.invalid/anuncios/SX-100293,departamento,6750,MXN,38,1,19.033488,-98.205142,2026-10-15
+SX-100357,https://ejemplo.invalid/anuncios/SX-100357,departamento,"$ 14,100.00 MXN",,75 m2,2,19.050403,-98.210511,2026-10-14
+SX-100352,https://ejemplo.invalid/anuncios/SX-100352,casa,25900,MXN,206 m2,4,19.055481,-98.216269,2026-10-08
+SX-100252,https://ejemplo.invalid/anuncios/SX-100252,departamento,9600,MXN,70m²,2 rec,19.044933,-98.222356,2026-10-16
+SX-100238,https://ejemplo.invalid/anuncios/SX-100238,departamento,6900,MXN,41,estudio,19.039842,-98.217081,2026-10-13
+SX-100148,https://ejemplo.invalid/anuncios/SX-100148,cuarto,3900,MXN,13,1 recámaras,19.043204,-98.204117,2026-10-02
+SX-100270,https://ejemplo.invalid/anuncios/SX-100270,departamento,8800,,56m²,1,19.034310,-98.204825,2026-10-09
+SX-100323,https://ejemplo.invalid/anuncios/SX-100323,cuarto,3500,,21,1 recámaras,19.033240,-98.222019,2026-10-09
+SX-100103,https://ejemplo.invalid/anuncios/SX-100103,departamento,7000,MXN,49,1,19.037115,-98.217141,2026-10-15
+SX-100198,https://ejemplo.invalid/anuncios/SX-100198,departamento,7750,,35 m2,1,19.043466,-98.194976,2026-10-05
+SX-100013,https://ejemplo.invalid/anuncios/SX-100013,departamento,"9,450",,50,2 rec,19.053670,-98.205523,2026-10-01
+SX-100378,https://ejemplo.invalid/anuncios/SX-100378,departamento,"1,200 USD",,56 m2,2,19.037311,-98.217989,2026-10-10
+SX-100366,https://ejemplo.invalid/anuncios/SX-100366,departamento,"16,850",,86,2,19.002255,-98.193425,2026-10-15
+SX-100380,https://ejemplo.invalid/anuncios/SX-100380,departamento,120,MXN,103m²,3,19.053028,-98.200036,2026-10-15
+SX-100327,https://ejemplo.invalid/anuncios/SX-100327,departamento,12050,,61,2,19.055582,-98.191665,2026-10-08
+SX-100335,https://ejemplo.invalid/anuncios/SX-100335,departamento,13450,,98,3 rec,19.034980,-98.210948,2026-10-14
+SX-100170,https://ejemplo.invalid/anuncios/SX-100170,casa,"$ 13,450.00 MXN",MXN,135,3 recámaras,19.038339,-98.215945,2026-10-09
+SX-100286,https://ejemplo.invalid/anuncios/SX-100286,departamento,10950,,74.0,3 rec,19.026736,-98.203894,2026-10-14
+SX-100329,https://ejemplo.invalid/anuncios/SX-100329,departamento,"17,300",MXN,87m²,2,19.050555,-98.194832,2026-10-11
+SX-100117,https://ejemplo.invalid/anuncios/SX-100117,cuarto,3750,MXN,22,1,19.039549,-98.221768,2026-10-05
+SX-100369,https://ejemplo.invalid/anuncios/SX-100369,casa,9350,,73 m2,2 rec,19.044239,-98.160477,2026-10-07
+SX-100231,https://ejemplo.invalid/anuncios/SX-100231,departamento,12050,MXN,76m²,3 rec,19.055817,-98.215600,2026-10-16
+SX-100142,https://ejemplo.invalid/anuncios/SX-100142,cuarto,"3,450",MXN,10m²,1,19.053846,-98.199636,2026-10-04
+SX-100305,https://ejemplo.invalid/anuncios/SX-100305,departamento,19700,MXN,99,3,19.039654,-98.206001,2026-10-01
+SX-100059,https://ejemplo.invalid/anuncios/SX-100059,departamento,"$9,400",MXN,55 m2,2,19.039364,-98.193092,2026-10-01
+SX-100345,https://ejemplo.invalid/anuncios/SX-100345,casa,"$22,500",,166,4,19.053260,-98.199447,2026-10-12
+SX-100375,https://ejemplo.invalid/anuncios/SX-100375,departamento,,MXN,78,2,19.032762,-98.198565,2026-10-09
+SX-100099,https://ejemplo.invalid/anuncios/SX-100099,casa,12350,MXN,111,3,19.049313,-98.223266,2026-10-08
+SX-100322,https://ejemplo.invalid/anuncios/SX-100322,departamento,12250,,59,2,19.038409,-98.198147,2026-10-06
+SX-100139,https://ejemplo.invalid/anuncios/SX-100139,casa,"$ 25,500.00 MXN",MXN,197,4 recámaras,19.044223,-98.199340,2026-10-02
+SX-100222,https://ejemplo.invalid/anuncios/SX-100222,departamento,"18,300",MXN,104,3,19.055007,-98.204054,2026-10-11
+SX-100067,https://ejemplo.invalid/anuncios/SX-100067,departamento,"8,950",,55 m2,2 rec,19.043725,-98.216548,2026-10-03
+SX-100042,https://ejemplo.invalid/anuncios/SX-100042,cuarto,"$2,500",,19,1,19.038601,-98.223317,2026-10-04
+SX-100064,https://ejemplo.invalid/anuncios/SX-100064,cuarto,"$3,950",MXN,14,1 rec,19.048530,-98.210123,2026-10-08
+SX-100020,https://ejemplo.invalid/anuncios/SX-100020,casa,"11,750",,98,2,19.043895,-98.211166,2026-10-12
+SX-100045,https://ejemplo.invalid/anuncios/SX-100045,departamento,10350,,63.0,2,19.038392,-98.212142,2026-10-07
+SX-100221,https://ejemplo.invalid/anuncios/SX-100221,casa,"20,150",MXN,144,3,19.054022,-98.210096,2026-10-11
+SX-100197,https://ejemplo.invalid/anuncios/SX-100197,departamento,"10,500",,61,2,19.055095,-98.222595,2026-10-02
+SX-100336,https://ejemplo.invalid/anuncios/SX-100336,departamento,12500,MXN,88,3,19.044079,-98.217110,2026-10-02
+SX-100278,https://ejemplo.invalid/anuncios/SX-100278,cuarto,3500,,9.0,1,19.043492,-98.216681,2026-10-06
+SX-100074,https://ejemplo.invalid/anuncios/SX-100074,casa,"$20,250",MXN,208m²,4,19.037874,-98.221839,2026-10-07
+SX-100066,https://ejemplo.invalid/anuncios/SX-100066,cuarto,"$2,650",,12,1 recámaras,19.028789,-98.204372,2026-10-05
+SX-100185,https://ejemplo.invalid/anuncios/SX-100185,departamento,"9,300",MXN,42 m2,1,19.049012,-98.192454,2026-10-08
+SX-100056,https://ejemplo.invalid/anuncios/SX-100056,departamento,12600,,85,2,19.049313,-98.221986,2026-10-10
+SX-100030,https://ejemplo.invalid/anuncios/SX-100030,cuarto,3900,MXN,17,1,19.056130,-98.216431,2026-10-08
+SX-100075,https://ejemplo.invalid/anuncios/SX-100075,casa,17300,,157,3 recámaras,19.048225,-98.214477,2026-10-13
+SX-100309,https://ejemplo.invalid/anuncios/SX-100309,casa,"$ 15,700.00 MXN",MXN,104,2,19.048470,-98.193447,2026-10-07
+SX-100350,https://ejemplo.invalid/anuncios/SX-100350,departamento,23200,,112,3 rec,19.056019,-98.197904,2026-10-12
+SX-100326,https://ejemplo.invalid/anuncios/SX-100326,departamento,18700,,86.0,3 recámaras,19.053476,-98.205695,2026-10-14
+SX-100134,https://ejemplo.invalid/anuncios/SX-100134,cuarto,4300,MXN,15,1 recámaras,19.049424,-98.210841,2026-10-13
+SX-100173,https://ejemplo.invalid/anuncios/SX-100173,departamento,"15,800",,83m²,3,19.045643,-98.209203,2026-10-11
+SX-100360,https://ejemplo.invalid/anuncios/SX-100360,cuarto,"3,550",MXN,12,1,19.037503,-98.222128,2026-10-05
+SX-100011,https://ejemplo.invalid/anuncios/SX-100011,departamento,12450,,98 m2,3,19.028009,-98.216919,2026-10-01
+SX-100086,https://ejemplo.invalid/anuncios/SX-100086,departamento,9500,MXN,,2,19.031936,-98.191952,2026-10-16
+SX-100205,https://ejemplo.invalid/anuncios/SX-100205,casa,"$17,850",,118m²,3,19.050032,-98.204525,2026-10-01
+SX-100294,https://ejemplo.invalid/anuncios/SX-100294,casa,"13,950",,146,3,19.034212,-98.217046,2026-10-04
+SX-100060,https://ejemplo.invalid/anuncios/SX-100060,casa,14600,MXN,136m²,3,19.027366,-98.198778,2026-10-01
+SX-100135,https://ejemplo.invalid/anuncios/SX-100135,departamento,"$13,850",MXN,75.0,2,19.054279,-98.211416,2026-10-12
+SX-100188,https://ejemplo.invalid/anuncios/SX-100188,departamento,17800,,109,3,19.044532,-98.217368,2026-10-01
+SX-100227,https://ejemplo.invalid/anuncios/SX-100227,departamento,9200,,63,2,19.032858,-98.222604,2026-10-03
+SX-100289,https://ejemplo.invalid/anuncios/SX-100289,casa,15950,,105,2 rec,19.044220,-98.192790,2026-10-08
+SX-100062,https://ejemplo.invalid/anuncios/SX-100062,departamento,7800,,50,2,19.038620,-98.211467,2026-10-03
+SX-100192,https://ejemplo.invalid/anuncios/SX-100192,departamento,"12,950",MXN,102m²,3,19.027527,-98.215495,2026-10-04
+SX-100180,https://ejemplo.invalid/anuncios/SX-100180,departamento,"$12,550",MXN,75 m2,2,19.042911,-98.216759,2026-10-16
+SX-100129,https://ejemplo.invalid/anuncios/SX-100129,departamento,"18,350",MXN,97m²,3,19.044974,-98.205546,2026-10-05
+SX-100224,https://ejemplo.invalid/anuncios/SX-100224,departamento,17500,MXN,79,2 rec,19.043748,-98.194285,2026-10-03
+SX-100091,https://ejemplo.invalid/anuncios/SX-100091,departamento,14800,,97 m2,3 rec,19.050671,-98.222046,2026-10-04
+SX-100118,https://ejemplo.invalid/anuncios/SX-100118,departamento,11200,MXN,71,3,19.028579,-98.205665,2026-10-10
+SX-100174,https://ejemplo.invalid/anuncios/SX-100174,departamento,"7,450",,38m²,estudio,19.045136,-98.194001,2026-10-14
+SX-100159,https://ejemplo.invalid/anuncios/SX-100159,departamento,12800,MXN,68m²,2,19.043845,-98.211645,2026-10-16
+SX-100200,https://ejemplo.invalid/anuncios/SX-100200,departamento,"$ 11,550.00 MXN",,74,2,19.040096,-98.209772,2026-10-13
+SX-100022,https://ejemplo.invalid/anuncios/SX-100022,departamento,5950,MXN,38 m2,1,19.034110,-98.204799,2026-10-14
+SX-100297,https://ejemplo.invalid/anuncios/SX-100297,cuarto,"3,650",MXN,13,1,19.043816,-98.192841,2026-10-08
+SX-100332,https://ejemplo.invalid/anuncios/SX-100332,departamento,"$ 12,950.00 MXN",,80,2,19.038938,-98.217816,2026-10-11
+SX-100353,https://ejemplo.invalid/anuncios/SX-100353,departamento,"$10,900",,58,1,19.048941,-98.216600,2026-10-05
+SX-100382,https://ejemplo.invalid/anuncios/SX-100382,casa,21250,MXN,185,4,,,2026-10-03
+SX-100347,https://ejemplo.invalid/anuncios/SX-100347,departamento,11750,MXN,69,2 rec,19.049042,-98.209351,2026-10-16
+SX-100080,https://ejemplo.invalid/anuncios/SX-100080,departamento,12300,,89.0,3,19.028613,-98.205531,2026-10-04
+SX-100225,https://ejemplo.invalid/anuncios/SX-100225,departamento,15350,,90.0,3,19.055445,-98.215245,2026-10-01
+SX-100132,https://ejemplo.invalid/anuncios/SX-100132,departamento,16850,,102 m2,3,19.027826,-98.209972,2026-10-12
+SX-100029,https://ejemplo.invalid/anuncios/SX-100029,departamento,"$7,050",,48m²,2,19.039632,-98.211503,2026-10-09
+SX-100177,https://ejemplo.invalid/anuncios/SX-100177,casa,21150 mensuales,MXN,,4,19.050803,-98.206558,2026-10-16
+SX-100216,https://ejemplo.invalid/anuncios/SX-100216,departamento,"15,500",MXN,85,2,19.027808,-98.200472,2026-10-04
+SX-100009,https://ejemplo.invalid/anuncios/SX-100009,departamento,16750,,99 m2,3,19.034361,-98.206339,2026-10-05
+SX-100266,https://ejemplo.invalid/anuncios/SX-100266,departamento,23350,MXN,104,3,19.055342,-98.203903,2026-10-02
+SX-100102,https://ejemplo.invalid/anuncios/SX-100102,casa,"$ 17,100.00 MXN",MXN,162,4,19.032889,-98.209980,2026-10-14
+SX-100195,https://ejemplo.invalid/anuncios/SX-100195,departamento,"22,350",MXN,90,3,19.053637,-98.195020,2026-10-12
+SX-100105,https://ejemplo.invalid/anuncios/SX-100105,casa,"$19,000",,,4,19.048825,-98.210347,2026-10-13
+SX-100279,https://ejemplo.invalid/anuncios/SX-100279,departamento,"$16,650",MXN,94 m2,3 rec,19.033330,-98.197903,2026-10-16
+SX-100265,https://ejemplo.invalid/anuncios/SX-100265,departamento,7600,MXN,36m²,1,19.038851,-98.198252,2026-10-15
+SX-100070,https://ejemplo.invalid/anuncios/SX-100070,departamento,"12,700",MXN,87 m2,2,19.033692,-98.222141,2026-10-03
+SX-100141,https://ejemplo.invalid/anuncios/SX-100141,casa,"$26,700",,191,4,19.055928,-98.209742,2026-10-12
+SX-100320,https://ejemplo.invalid/anuncios/SX-100320,cuarto,4450,MXN,18,1 rec,19.055028,-98.210068,2026-10-13
+SX-100006,https://ejemplo.invalid/anuncios/SX-100006,casa,"$ 11,050.00 MXN",MXN,97 m2,2,19.026077,-98.197713,2026-10-02
+SX-100077,https://ejemplo.invalid/anuncios/SX-100077,departamento,"10,900",MXN,72m²,3,19.033641,-98.204866,2026-10-04
+SX-100255,https://ejemplo.invalid/anuncios/SX-100255,departamento,"8,000",MXN,54m²,2,19.032858,-98.211527,2026-10-03
+SX-100385,https://ejemplo.invalid/anuncios/SX-100385,departamento,"$18,950",,93.0,3 recámaras,0,0,2026-10-10
+SX-100317,https://ejemplo.invalid/anuncios/SX-100317,casa,"$26,200",MXN,187 m2,4,19.045349,-98.199892,2026-10-04
+SX-100272,https://ejemplo.invalid/anuncios/SX-100272,casa,"28,850",MXN,196m²,4,19.049875,-98.193695,2026-10-12
+SX-100138,https://ejemplo.invalid/anuncios/SX-100138,departamento,"23,950",MXN,112,3 rec,19.049607,-98.199069,2026-10-14
+SX-100025,https://ejemplo.invalid/anuncios/SX-100025,departamento,13950,MXN,69,2,19.049756,-98.211236,2026-10-02
+SX-100328,https://ejemplo.invalid/anuncios/SX-100328,departamento,18850,MXN,79,2,19.055050,-98.192042,2026-10-06
+SX-100128,https://ejemplo.invalid/anuncios/SX-100128,casa,"$ 15,650.00 MXN",MXN,159m²,3,19.044791,-98.222495,2026-10-11
+SX-100145,https://ejemplo.invalid/anuncios/SX-100145,departamento,18500,MXN,103m²,3 rec,19.039674,-98.210514,2026-10-02
+SX-100032,https://ejemplo.invalid/anuncios/SX-100032,casa,20000,MXN,164m²,4 rec,19.048876,-98.216192,2026-10-03
+SX-100207,https://ejemplo.invalid/anuncios/SX-100207,departamento,7100,MXN,43m²,1,19.033080,-98.199484,2026-10-05
+SX-100101,https://ejemplo.invalid/anuncios/SX-100101,casa,23250,MXN,203,4,19.039509,-98.203614,2026-10-15
+SX-100126,https://ejemplo.invalid/anuncios/SX-100126,departamento,"15,250",,84.0,2,19.044880,-98.209954,2026-10-07
+SX-100242,https://ejemplo.invalid/anuncios/SX-100242,cuarto,3100,MXN,16,1,19.056277,-98.219940,2026-10-16
+SX-100308,https://ejemplo.invalid/anuncios/SX-100308,cuarto,3350,MXN,19m²,1 rec,19.026375,-98.199160,2026-10-12
+SX-100061,https://ejemplo.invalid/anuncios/SX-100061,departamento,14450,MXN,89m²,2 rec,19.051186,-98.215511,2026-10-05
+SX-100120,https://ejemplo.invalid/anuncios/SX-100120,departamento,20200,MXN,109.0,3,19.048193,-98.217639,2026-10-13
+SX-100363,https://ejemplo.invalid/anuncios/SX-100363,casa,21900,MXN,196,4,19.001183,-98.198148,2026-10-01
+SX-100162,https://ejemplo.invalid/anuncios/SX-100162,departamento,7300 mensuales,,47m²,2 rec,19.032420,-98.210799,2026-10-09
+SX-100381,https://ejemplo.invalid/anuncios/SX-100381,cuarto,9999999,MXN,12 m2,1,19.033733,-98.205621,2026-10-02
+SX-100068,https://ejemplo.invalid/anuncios/SX-100068,departamento,5800,MXN,47,2,19.028777,-98.216351,2026-10-08
+SX-100093,https://ejemplo.invalid/anuncios/SX-100093,departamento,"10,000",MXN,52m²,2,19.032132,-98.193903,2026-10-15
+SX-100181,https://ejemplo.invalid/anuncios/SX-100181,departamento,10900,,72,2,19.034361,-98.217227,2026-10-14
+SX-100161,https://ejemplo.invalid/anuncios/SX-100161,departamento,18600,MXN,75,2,19.053997,-98.192655,2026-10-13
+SX-100031,https://ejemplo.invalid/anuncios/SX-100031,departamento,10400 mensuales,MXN,70 m2,2,19.034502,-98.222983,2026-10-10
+SX-100330,https://ejemplo.invalid/anuncios/SX-100330,departamento,12200,,59,2 rec,19.049550,-98.206521,2026-10-14
+SX-100383,https://ejemplo.invalid/anuncios/SX-100383,departamento,"19,850",MXN,97.0,3,,,2026-10-04
+SX-100262,https://ejemplo.invalid/anuncios/SX-100262,cuarto,"4,150",,12 m2,1 recámaras,19.044914,-98.192940,2026-10-04
+SX-100319,https://ejemplo.invalid/anuncios/SX-100319,departamento,8450,,52m²,2,19.033193,-98.205536,2026-10-09
+SX-100256,https://ejemplo.invalid/anuncios/SX-100256,departamento,"9,550",MXN,58,2,19.048456,-98.216279,2026-10-12
+SX-100150,https://ejemplo.invalid/anuncios/SX-100150,departamento,16900,,102.0,,19.055045,-98.221240,2026-10-09
+SX-100264,https://ejemplo.invalid/anuncios/SX-100264,cuarto,2800,MXN,11,1 recámaras,19.034023,-98.216530,2026-10-05
+SX-100271,https://ejemplo.invalid/anuncios/SX-100271,casa,9200,,,2,19.033992,-98.203566,2026-10-09
+SX-100281,https://ejemplo.invalid/anuncios/SX-100281,departamento,"$17,700",MXN,104m²,3,19.038256,-98.205375,2026-10-10
+SX-100189,https://ejemplo.invalid/anuncios/SX-100189,departamento,"9,100",MXN,74,2,19.033571,-98.223217,2026-10-06
+SX-100201,https://ejemplo.invalid/anuncios/SX-100201,departamento,"9,300",,62,2,19.026977,-98.216262,2026-10-03
+SX-100310,https://ejemplo.invalid/anuncios/SX-100310,casa,27150 mensuales,MXN,212m²,4,19.051249,-98.216678,2026-10-09
+SX-100331,https://ejemplo.invalid/anuncios/SX-100331,casa,17500,,120,3,19.043387,-98.205288,2026-10-06
+SX-100232,https://ejemplo.invalid/anuncios/SX-100232,departamento,18300,,103 m2,3,19.033093,-98.198151,2026-10-04
+SX-100254,https://ejemplo.invalid/anuncios/SX-100254,departamento,11450,MXN,65 m2,2,19.040200,-98.198751,2026-10-03
+SX-100116,https://ejemplo.invalid/anuncios/SX-100116,departamento,18700 mensuales,,112,3,19.045234,-98.209653,2026-10-01
+SX-100356,https://ejemplo.invalid/anuncios/SX-100356,departamento,11800,,67,1,19.056316,-98.222444,2026-10-15
+SX-100203,https://ejemplo.invalid/anuncios/SX-100203,departamento,8600,MXN,55m²,2,19.033871,-98.215556,2026-10-10
+SX-100047,https://ejemplo.invalid/anuncios/SX-100047,departamento,12950 mensuales,,78,2 rec,19.039688,-98.193880,2026-10-16
+SX-100361,https://ejemplo.invalid/anuncios/SX-100361,casa,"$ 31,500.00 MXN",,201.0,4,19.038190,-98.157382,2026-10-06
+SX-100299,https://ejemplo.invalid/anuncios/SX-100299,cuarto,2850,MXN,20,1 rec,19.037157,-98.222946,2026-10-07
+SX-100247,https://ejemplo.invalid/anuncios/SX-100247,departamento,16700,,96,3,19.048865,-98.216765,2026-10-04
+SX-100112,https://ejemplo.invalid/anuncios/SX-100112,departamento,20900,MXN,103m²,3 rec,19.055652,-98.194524,2026-10-03
+SX-100204,https://ejemplo.invalid/anuncios/SX-100204,departamento,7000,MXN,42,1,19.033382,-98.193170,2026-10-07
+SX-100143,https://ejemplo.invalid/anuncios/SX-100143,cuarto,3250,MXN,13,1 recámaras,19.032225,-98.222850,2026-10-12
+SX-100276,https://ejemplo.invalid/anuncios/SX-100276,departamento,14950,,90,2 recámaras,19.054539,-98.214932,2026-10-10
+SX-100176,https://ejemplo.invalid/anuncios/SX-100176,casa,11950,,117,3,19.027628,-98.205703,2026-10-11
+SX-100285,https://ejemplo.invalid/anuncios/SX-100285,departamento,"13,300",,83m²,2,19.043888,-98.223598,2026-10-15
+SX-100094,https://ejemplo.invalid/anuncios/SX-100094,departamento,"11,350",,59,1 rec,19.049409,-98.214861,2026-10-01
+SX-100050,https://ejemplo.invalid/anuncios/SX-100050,departamento,12400,MXN,65,2 recámaras,19.045324,-98.208940,2026-10-06
+SX-100223,https://ejemplo.invalid/anuncios/SX-100223,departamento,"20,800",MXN,94,3,19.054638,-98.199889,2026-10-09
+SX-100144,https://ejemplo.invalid/anuncios/SX-100144,casa,"$13,750",,127m²,,19.055157,-98.216543,2026-10-10
+SX-100114,https://ejemplo.invalid/anuncios/SX-100114,departamento,"$12,150",MXN,76m²,2,19.045544,-98.211328,2026-10-06
+SX-100284,https://ejemplo.invalid/anuncios/SX-100284,departamento,"$ 9,350.00 MXN",MXN,53,,19.048560,-98.210355,2026-10-02
+SX-100038,https://ejemplo.invalid/anuncios/SX-100038,departamento,"$9,150",MXN,53m²,2,19.044106,-98.221502,2026-10-10
+SX-100302,https://ejemplo.invalid/anuncios/SX-100302,casa,7150,,72,2,19.038532,-98.222980,2026-10-15
+SX-100210,https://ejemplo.invalid/anuncios/SX-100210,casa,13700,,115,3,19.037025,-98.199412,2026-10-05
+SX-100088,https://ejemplo.invalid/anuncios/SX-100088,departamento,8500,,61,2,19.027203,-98.209995,2026-10-13
+SX-100321,https://ejemplo.invalid/anuncios/SX-100321,departamento,"5,950",,36,1,19.029568,-98.204043,2026-10-01
+SX-100237,https://ejemplo.invalid/anuncios/SX-100237,casa,32100,,220m²,4,19.044026,-98.205010,2026-10-07
+SX-100100,https://ejemplo.invalid/anuncios/SX-100100,departamento,"$8,050",,59 m2,2,19.032739,-98.212133,2026-10-11
+SX-100179,https://ejemplo.invalid/anuncios/SX-100179,cuarto,3500,MXN,17.0,1 rec,19.056189,-98.219829,2026-10-09
+SX-100314,https://ejemplo.invalid/anuncios/SX-100314,casa,26000,,190m²,4,19.043448,-98.206117,2026-10-10
+SX-100312,https://ejemplo.invalid/anuncios/SX-100312,casa,"$12,550",MXN,114,3 rec,19.039607,-98.216436,2026-10-02
+SX-100290,https://ejemplo.invalid/anuncios/SX-100290,departamento,15050 mensuales,MXN,107,3 recámaras,19.054729,-98.219554,2026-10-12
+SX-100235,https://ejemplo.invalid/anuncios/SX-100235,casa,14700,MXN,116,3,19.033484,-98.193299,2026-10-11
+SX-100127,https://ejemplo.invalid/anuncios/SX-100127,casa,18650,,122,3,19.050002,-98.193868,2026-10-01
+SX-100023,https://ejemplo.invalid/anuncios/SX-100023,departamento,"16,950",MXN,93 m2,2,19.033865,-98.206501,2026-10-07
+SX-100001,https://ejemplo.invalid/anuncios/SX-100001,cuarto,3400,,19,1,19.032251,-98.215288,2026-10-11
+SX-100236,https://ejemplo.invalid/anuncios/SX-100236,casa,"12,800",MXN,92,2,19.050223,-98.211868,2026-10-12
+SX-100318,https://ejemplo.invalid/anuncios/SX-100318,departamento,8350,,50m²,2,19.029942,-98.212133,2026-10-03
+SX-100187,https://ejemplo.invalid/anuncios/SX-100187,cuarto,"$4,350",,19m²,1,19.033136,-98.206310,2026-10-12
+SX-100258,https://ejemplo.invalid/anuncios/SX-100258,cuarto,"2,250",MXN,10,1 rec,19.026161,-98.217398,2026-10-14
+SX-100206,https://ejemplo.invalid/anuncios/SX-100206,casa,26350,MXN,211,4 recámaras,19.038856,-98.217092,2026-10-15
+SX-100168,https://ejemplo.invalid/anuncios/SX-100168,departamento,"13,750",,71,3 rec,19.032479,-98.192954,2026-10-12
+SX-100248,https://ejemplo.invalid/anuncios/SX-100248,departamento,20000,MXN,96,3,19.054741,-98.192824,2026-10-04
+SX-100230,https://ejemplo.invalid/anuncios/SX-100230,casa,"$15,600",MXN,131,3,19.040558,-98.211595,2026-10-08
+SX-100341,https://ejemplo.invalid/anuncios/SX-100341,casa,"17,500",MXN,168,4,19.028038,-98.217826,2026-10-14
+SX-100339,https://ejemplo.invalid/anuncios/SX-100339,departamento,16750,,102.0,3 recámaras,19.039654,-98.205332,2026-10-12
+SX-100243,https://ejemplo.invalid/anuncios/SX-100243,casa,11550,MXN,94 m2,2,19.037864,-98.197926,2026-10-14
+SX-100218,https://ejemplo.invalid/anuncios/SX-100218,cuarto,"2,650",,15,1 rec,19.032452,-98.215658,2026-10-03
+SX-100342,https://ejemplo.invalid/anuncios/SX-100342,departamento,9400,MXN,49 m2,2,19.043190,-98.211086,2026-10-10
+SX-100015,https://ejemplo.invalid/anuncios/SX-100015,departamento,"19,500",,110 m2,3 rec,19.049325,-98.221626,2026-10-05
+SX-100041,https://ejemplo.invalid/anuncios/SX-100041,casa,"$9,300",MXN,75,2 rec,19.040092,-98.216088,2026-10-05
+SX-100147,https://ejemplo.invalid/anuncios/SX-100147,departamento,"16,600",,97m²,3,19.055944,-98.214960,2026-10-08
+SX-100082,https://ejemplo.invalid/anuncios/SX-100082,cuarto,2450,MXN,14m²,1,19.029262,-98.209840,2026-10-15
+SX-100212,https://ejemplo.invalid/anuncios/SX-100212,departamento,"$10,600",MXN,53m²,2 rec,19.032430,-98.191990,2026-10-09
+SX-100171,https://ejemplo.invalid/anuncios/SX-100171,casa,24350,,215,4,19.057134,-98.215392,2026-10-15
+SX-100096,https://ejemplo.invalid/anuncios/SX-100096,departamento,12100,MXN,61.0,1 recámaras,19.050454,-98.197739,2026-10-04
+SX-100018,https://ejemplo.invalid/anuncios/SX-100018,departamento,8650,MXN,50,2,19.039223,-98.205811,2026-10-10
+SX-100125,https://ejemplo.invalid/anuncios/SX-100125,cuarto,"3,100",,13,1,19.029417,-98.205343,2026-10-11
+SX-100019,https://ejemplo.invalid/anuncios/SX-100019,casa,17300,,144 m2,3,19.044488,-98.206249,2026-10-09
+SX-100296,https://ejemplo.invalid/anuncios/SX-100296,casa,22350,,168 m2,4,19.039226,-98.204748,2026-10-16
+SX-100260,https://ejemplo.invalid/anuncios/SX-100260,departamento,10650,,48.0,2,19.054996,-98.204061,2026-10-10
+SX-100376,https://ejemplo.invalid/anuncios/SX-100376,departamento,consultar,MXN,78.0,2 rec,19.039066,-98.204992,2026-10-12
+SX-100282,https://ejemplo.invalid/anuncios/SX-100282,casa,30600,MXN,211 m2,4 recámaras,19.044019,-98.194312,2026-10-13
+SX-100055,https://ejemplo.invalid/anuncios/SX-100055,departamento,8500,MXN,51,2,19.028743,-98.206502,2026-10-06
+SX-100051,https://ejemplo.invalid/anuncios/SX-100051,casa,"22,500",MXN,154,3 rec,19.045858,-98.200050,2026-10-03
+SX-100073,https://ejemplo.invalid/anuncios/SX-100073,casa,10800,MXN,93,2 rec,19.033577,-98.203871,2026-10-01
+SX-100052,https://ejemplo.invalid/anuncios/SX-100052,casa,"16,150",,131,3,19.054501,-98.215502,2026-10-05
+SX-100033,https://ejemplo.invalid/anuncios/SX-100033,departamento,"$17,700",,106,3,19.037506,-98.192664,2026-10-13
+SX-100214,https://ejemplo.invalid/anuncios/SX-100214,departamento,17750,,99,3,19.044525,-98.205808,2026-10-14
+SX-100155,https://ejemplo.invalid/anuncios/SX-100155,departamento,"16,450",,83 m2,3,19.031944,-98.192864,2026-10-05
+SX-100111,https://ejemplo.invalid/anuncios/SX-100111,cuarto,3600,,12 m2,1 rec,19.045066,-98.205411,2026-10-07
+SX-100113,https://ejemplo.invalid/anuncios/SX-100113,departamento,20900,,101,3,19.054292,-98.203479,2026-10-15
+SX-100076,https://ejemplo.invalid/anuncios/SX-100076,casa,"11,200",,92,2,19.044909,-98.205748,2026-10-04
+SX-100220,https://ejemplo.invalid/anuncios/SX-100220,departamento,15250,,71.0,2,19.043083,-98.194832,2026-10-11
+SX-100388,https://ejemplo.invalid/anuncios/SX-R100388,cuarto,4450,MXN,18,1 rec,19.055028,-98.210068,2026-10-13
+SX-100343,https://ejemplo.invalid/anuncios/SX-100343,departamento,8800,MXN,73m²,2,19.029509,-98.218380,2026-10-12
+SX-100002,https://ejemplo.invalid/anuncios/SX-100002,cuarto,"3,350",,14.0,1 rec,19.034361,-98.216112,2026-10-15
+SX-100166,https://ejemplo.invalid/anuncios/SX-100166,departamento,"7,600",,45m²,2,19.049167,-98.210339,2026-10-06
+SX-100071,https://ejemplo.invalid/anuncios/SX-100071,departamento,"$15,800",MXN,97 m2,3,19.048714,-98.220931,2026-10-07
+SX-100311,https://ejemplo.invalid/anuncios/SX-100311,casa,20800,MXN,181,4,19.033343,-98.204038,2026-10-12
+SX-100387,https://ejemplo.invalid/anuncios/SX-R100387,departamento,"$8,050",,59 m2,2,19.032739,-98.212133,2026-10-11
+SX-100149,https://ejemplo.invalid/anuncios/SX-100149,departamento,"5,950",,40 m2,1,19.039680,-98.209570,2026-10-16
+SX-100241,https://ejemplo.invalid/anuncios/SX-100241,departamento,12750,,66,2,19.038506,-98.193306,2026-10-08
+SX-100377,https://ejemplo.invalid/anuncios/SX-100377,cuarto,a tratar,,10.0,1,19.027092,-98.216869,2026-10-12
+SX-100283,https://ejemplo.invalid/anuncios/SX-100283,casa,"13,050",,125 m2,3,19.027367,-98.205798,2026-10-06
+SX-100008,https://ejemplo.invalid/anuncios/SX-100008,cuarto,3700,MXN,19,1,19.034683,-98.214260,2026-10-05
+SX-100239,https://ejemplo.invalid/anuncios/SX-100239,casa,"$7,650",,72,2,19.026547,-98.199499,2026-10-07
+SX-100228,https://ejemplo.invalid/anuncios/SX-100228,cuarto,"3,200",,21m²,1,19.055020,-98.221757,2026-10-14
+SX-100246,https://ejemplo.invalid/anuncios/SX-100246,departamento,"5,950",,46.0,1,19.038678,-98.221308,2026-10-08
+SX-100333,https://ejemplo.invalid/anuncios/SX-100333,departamento,"$18,700",MXN,80 m2,2 recámaras,19.055671,-98.193659,2026-10-14
+SX-100273,https://ejemplo.invalid/anuncios/SX-100273,departamento,"$16,250",MXN,103 m2,3 rec,19.043329,-98.216667,2026-10-06
+SX-100348,https://ejemplo.invalid/anuncios/SX-100348,cuarto,"3,500",,10m²,1 rec,19.050082,-98.211589,2026-10-08
+SX-100389,https://ejemplo.invalid/anuncios/SX-R100389,casa,9350,,83,2,19.032711,-98.206712,2026-10-11
+SX-100288,https://ejemplo.invalid/anuncios/SX-100288,departamento,"$24,300",MXN,98,3 rec,19.055797,-98.191981,2026-10-11
+SX-100007,https://ejemplo.invalid/anuncios/SX-100007,departamento,"15,000",MXN,80m²,2,19.033181,-98.199794,2026-10-12
+SX-100014,https://ejemplo.invalid/anuncios/SX-100014,departamento,"$6,300",,47m²,2,19.033532,-98.222907,2026-10-14
+SX-100351,https://ejemplo.invalid/anuncios/SX-100351,departamento,"10,150",,69,2 recámaras,19.038084,-98.223092,2026-10-14
+SX-100039,https://ejemplo.invalid/anuncios/SX-100039,departamento,13600,,96m²,3,19.037991,-98.215995,2026-10-10
+SX-100106,https://ejemplo.invalid/anuncios/SX-100106,casa,"26,300",MXN,213,4,19.038764,-98.205677,2026-10-03
+SX-100295,https://ejemplo.invalid/anuncios/SX-100295,departamento,"13,950",,78,2,19.045478,-98.204759,2026-10-13
+SX-100028,https://ejemplo.invalid/anuncios/SX-100028,casa,"23,100",MXN,210.0,4 rec,19.033783,-98.217306,2026-10-13
+SX-100164,https://ejemplo.invalid/anuncios/SX-100164,departamento,"$7,050",,40 m2,1 rec,19.036485,-98.198284,2026-10-03
+SX-100370,https://ejemplo.invalid/anuncios/SX-100370,departamento,7650,,56 m2,2,19.092503,-98.264229,2026-10-09
+SX-100334,https://ejemplo.invalid/anuncios/SX-100334,departamento,7150,MXN,47 m2,2,19.056518,-98.215199,2026-10-03
+SX-100005,https://ejemplo.invalid/anuncios/SX-100005,cuarto,"3,800",,16.0,1,19.043860,-98.204568,2026-10-04
+SX-100199,https://ejemplo.invalid/anuncios/SX-100199,casa,"15,200",,128 m2,3 rec,19.032212,-98.194405,2026-10-11
+SX-100190,https://ejemplo.invalid/anuncios/SX-100190,departamento,"$7,750",,45 m2,2,19.037194,-98.218426,2026-10-04
+SX-100346,https://ejemplo.invalid/anuncios/SX-100346,casa,17600,,173,4,19.044399,-98.222102,2026-10-09
+SX-100035,https://ejemplo.invalid/anuncios/SX-100035,departamento,18750,,101,3,19.037503,-98.198959,2026-10-09
+SX-100097,https://ejemplo.invalid/anuncios/SX-100097,departamento,"11,650",,63.0,1 rec,19.038908,-98.192276,2026-10-13
+SX-100169,https://ejemplo.invalid/anuncios/SX-100169,casa,"14,500",MXN,131,3 rec,19.039812,-98.216477,2026-10-11
+SX-100084,https://ejemplo.invalid/anuncios/SX-100084,casa,12250 mensuales,MXN,108 m2,2,19.025978,-98.203790,2026-10-02
+SX-100217,https://ejemplo.invalid/anuncios/SX-100217,cuarto,3400,,20,1 rec,19.038154,-98.193403,2026-10-06
+SX-100268,https://ejemplo.invalid/anuncios/SX-100268,departamento,8900,MXN,59,2 rec,19.027082,-98.216046,2026-10-02
+SX-100196,https://ejemplo.invalid/anuncios/SX-100196,departamento,7600,,40,1,19.043599,-98.193928,2026-10-07
+SX-100263,https://ejemplo.invalid/anuncios/SX-100263,departamento,"14,950",,99,3,19.056399,-98.220093,2026-10-13
+SX-100315,https://ejemplo.invalid/anuncios/SX-100315,departamento,"$ 12,550.00 MXN",,60 m2,2 rec,19.056383,-98.202843,2026-10-05
+SX-100151,https://ejemplo.invalid/anuncios/SX-100151,departamento,"$ 8,500.00 MXN",MXN,54m²,2,19.032808,-98.210136,2026-10-11
+SX-100151,https://ejemplo.invalid/anuncios/SX-100151,casa,"18,550",,106m²,3,19.033477,-98.204233,2026-10-14
+SX-100359,https://ejemplo.invalid/anuncios/SX-100359,departamento,10200,,63 m2,1,19.055019,-98.210514,2026-10-05
+SX-100303,https://ejemplo.invalid/anuncios/SX-100303,departamento,"$14,250",MXN,92,2,19.038724,-98.222183,2026-10-04
+SX-100372,https://ejemplo.invalid/anuncios/SX-100372,departamento,7550,MXN,51.0,2,19.076969,-98.296843,2026-10-14
+SX-100340,https://ejemplo.invalid/anuncios/SX-100340,departamento,9850,MXN,40,1,19.055765,-98.193757,2026-10-07
+SX-100107,https://ejemplo.invalid/anuncios/SX-100107,casa,"$23,600",,188 m2,4,19.049831,-98.199549,2026-10-06
+SX-100253,https://ejemplo.invalid/anuncios/SX-100253,departamento,"21,650",,102,3,19.050311,-98.203359,2026-10-15
+SX-100016,https://ejemplo.invalid/anuncios/SX-100016,departamento,"19,000",,105,3,19.055254,-98.206809,2026-10-12
+SX-100163,https://ejemplo.invalid/anuncios/SX-100163,departamento,"5,850",,37,estudio,19.044102,-98.217704,2026-10-10
+SX-100044,https://ejemplo.invalid/anuncios/SX-100044,casa,"$12,450",,120.0,3,19.038795,-98.218128,2026-10-06
+SX-100146,https://ejemplo.invalid/anuncios/SX-100146,departamento,21900,,104,3,19.050236,-98.201079,2026-10-08
+SX-100089,https://ejemplo.invalid/anuncios/SX-100089,departamento,"9,400",MXN,61,2,19.043569,-98.217291,2026-10-15
+SX-100226,https://ejemplo.invalid/anuncios/SX-100226,departamento,19150,MXN,102,3,19.034035,-98.193394,2026-10-11
+SX-100306,https://ejemplo.invalid/anuncios/SX-100306,departamento,19400 mensuales,MXN,100.0,3,19.042829,-98.206239,2026-10-05
+SX-100300,https://ejemplo.invalid/anuncios/SX-100300,cuarto,"3,300",MXN,21,1,19.049603,-98.215945,2026-10-12
+SX-100355,https://ejemplo.invalid/anuncios/SX-100355,departamento,11850,MXN,56,2 rec,19.049113,-98.204723,2026-10-12
+SX-100012,https://ejemplo.invalid/anuncios/SX-100012,casa,10850,,78 m2,2 rec,19.048677,-98.193686,2026-10-10
+SX-100349,https://ejemplo.invalid/anuncios/SX-100349,casa,16850,,142 m2,3,19.033750,-98.198507,2026-10-01
+SX-100049,https://ejemplo.invalid/anuncios/SX-100049,departamento,20350,MXN,109m²,3 recámaras,19.031831,-98.200794,2026-10-06
+SX-100131,https://ejemplo.invalid/anuncios/SX-100131,departamento,14600,,95,3 recámaras,19.027442,-98.210113,2026-10-08

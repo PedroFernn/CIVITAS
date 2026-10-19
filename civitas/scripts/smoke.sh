@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Criterios "PARA PASAR" de MVP-1 y MVP-2 (requiere el ETL ya corrido). Uso:
+# Criterios "PARA PASAR" de MVP-1, MVP-2 y MVP-3 (requiere el ETL ya corrido: mvp2 y mvp3). Uso:
 #   WEB_URL=https://tu-dominio.mx scripts/smoke.sh
 #   WEB_URL=http://localhost scripts/smoke.sh   (stack local con Docker Compose)
 set -euo pipefail
@@ -38,6 +38,20 @@ if [ "${SMOKE_DATA:-1}" = "1" ]; then
     && ok "checklist de MVP-2 aprobado" || fail "el checklist de MVP-2 no está aprobado"
   curl -s --max-time 15 "$WEB_URL/zonas" | grep -q 'zonas piloto' \
     && ok "GET /zonas (web) muestra las zonas piloto" || fail "la página /zonas no muestra datos"
+fi
+
+# Datos de MVP-3 (requiere `docker compose run --rm etl mvp3`). SMOKE_MVP3=0 los omite (p. ej. un servidor que aún no carga rentas).
+if [ "${SMOKE_DATA:-1}" = "1" ] && [ "${SMOKE_MVP3:-1}" = "1" ]; then
+  body="$(curl -s --max-time 15 -w '\n%{http_code}' "$API_URL/listados-renta?limit=5")"
+  [ "${body##*$'\n'}" = "200" ] && echo "$body" | grep -q '"precio_mxn"' \
+    && ok "GET /listados-renta → 200 con datos" || fail "GET /listados-renta falló o no hay datos (¿corriste etl mvp3?)"
+  echo "$body" | grep -qiE 'telefono|anunciante' && fail "los listados exponen datos de contacto" || ok "los listados no exponen teléfono ni anunciante"
+  curl -s --max-time 15 "$API_URL/listados-renta/validacion" | grep -q '"aprobada":true' \
+    && ok "checklist de MVP-3 aprobado" || fail "el checklist de MVP-3 no está aprobado"
+  curl -s --max-time 15 "$API_URL/listados-renta/calidad" | grep -q '"tasa_nulos"' \
+    && ok "reporte de calidad de listados publicado" || fail "falta el reporte de calidad"
+  curl -s --max-time 15 "$WEB_URL/rentas" | grep -q 'listados de renta' \
+    && ok "GET /rentas (web) muestra los listados de renta" || fail "la página /rentas no muestra datos"
 fi
 
 echo "Smoke OK"

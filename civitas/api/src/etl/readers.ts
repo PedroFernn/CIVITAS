@@ -98,7 +98,7 @@ export async function* leerZonas(file: string): AsyncGenerator<ZonaRaw> {
 }
 
 // ───────────────────────── Texto delimitado (DENUE, GTFS) ─────────────────────────
-type Fila = Record<string, string | undefined>;
+export type Fila = Record<string, string | undefined>;
 
 /** Bytes del archivo, o del miembro CSV/TXT de un .zip (excluye diccionarios y catálogos). */
 async function abrirBytes(file: string, preferido?: string): Promise<() => Readable> {
@@ -133,7 +133,12 @@ async function detectarCodificacion(abrir: () => Readable): Promise<'utf8' | 'la
 
 const norm = (h: string) => h.trim().toLowerCase().replace(/ /g, '_');
 
-async function* filasCsv(file: string, preferido?: string): AsyncGenerator<{ fila: number; row: Fila }> {
+/** `alEncabezado` recibe los nombres de columna normalizados (MVP-3 lo usa para avisar de columnas con datos personales). */
+export async function* filasCsv(
+  file: string,
+  preferido?: string,
+  alEncabezado?: (columnas: string[]) => void,
+): AsyncGenerator<{ fila: number; row: Fila }> {
   const abrir = await abrirBytes(file, preferido);
   const enc = await detectarCodificacion(abrir);
   const dec = new StringDecoder(enc);
@@ -150,13 +155,16 @@ async function* filasCsv(file: string, preferido?: string): AsyncGenerator<{ fil
     }),
   );
   const parser = texto.pipe(
-    parse({ columns: (h: string[]) => h.map(norm), skip_empty_lines: true, relax_column_count: true, bom: false }),
+    parse({
+      columns: (h: string[]) => { const n = h.map(norm); alEncabezado?.(n); return n; },
+      skip_empty_lines: true, relax_column_count: true, bom: false,
+    }),
   );
   let fila = 1;
   for await (const row of parser) yield { fila: ++fila, row };
 }
 
-function get(row: Fila, ...alias: string[]): string | null {
+export function get(row: Fila, ...alias: string[]): string | null {
   for (const a of alias) {
     const v = row[a];
     if (v !== undefined && v !== '') return v.trim();

@@ -13,6 +13,12 @@ export const ADR_UNIDAD_ZONA =
     .map((d) => path.join(d, 'ADR-001-unidad-de-zona.md'))
     .find(existsSync) ?? path.join(ROOT, 'docs', 'mvp2', 'ADR-001-unidad-de-zona.md');
 
+// ADR-002 (MVP-3): decisión scraping vs. captura manual y revisión de términos de uso de la fuente de rentas.
+export const ADR_FUENTE_RENTA =
+  [path.join(ROOT, 'docs', 'mvp3'), path.join(ROOT, '..', 'docs', 'mvp3')]
+    .map((d) => path.join(d, 'ADR-002-fuente-renta.md'))
+    .find(existsSync) ?? path.join(ROOT, 'docs', 'mvp3', 'ADR-002-fuente-renta.md');
+
 export const DEFAULT_DB = 'postgresql://civitas:civitas@localhost:5432/civitas';
 
 /** Unidad de zona decidida en ADR-001 */
@@ -34,6 +40,20 @@ export interface Config {
   comando: string;
   /** Directorio base de data/raw (inyectable para pruebas) */
   rawDir: string;
+
+  // ── MVP-3 · precios de renta ──
+  /** Clave de la fuente (= parser registrado = fuentes_datos.clave) */
+  fuenteRenta: string;
+  rutaListados?: string;
+  /** PARA PASAR: ≥ N listados con zona asignada */
+  minListados: number;
+  /** PARA PASAR: fracción máxima (exclusiva) de listados leídos con algún campo clave nulo. Umbral propuesto: 10 % */
+  umbralNulos: number;
+  /** Rango plausible de renta mensual en MXN; fuera de él el listado se descarta (error de captura) */
+  precioMin: number;
+  precioMax: number;
+  /** ADR-002 (inyectable para pruebas) */
+  adrRenta: string;
 }
 
 export function nuevaConfig(parcial: Partial<Config> = {}): Config {
@@ -48,6 +68,12 @@ export function nuevaConfig(parcial: Partial<Config> = {}): Config {
     sistemaTransporte: 'GTFS',
     comando: '',
     rawDir: RAW_DIR,
+    fuenteRenta: 'renta_captura_manual',
+    minListados: 300, // RF-1.2 / MVP-3: ≥300 listados con zona asignada
+    umbralNulos: 0.1, // MVP-3: <10 % con campos clave nulos (umbral propuesto)
+    precioMin: 1_000,
+    precioMax: 250_000,
+    adrRenta: ADR_FUENTE_RENTA,
     ...parcial,
   };
 }
@@ -78,6 +104,21 @@ export function resolverRutas(cfg: Config): void {
     throw new Error(
       `Modo real: faltan archivos de ${faltan.join(', ')}. Colócalos en data/raw/{mgn,denue,transporte}/ ` +
         'o pásalos con --zonas/--denue/--transporte (ver data/raw/README.md).',
+    );
+  }
+}
+
+/** MVP-3: ubica el archivo de listados de renta (fixture sintético o data/raw/rentas). */
+export function resolverRutasRenta(cfg: Config): void {
+  if (cfg.modo === 'fixture') {
+    cfg.rutaListados ??= path.join(FIXTURES, 'renta_fixture.csv');
+    return;
+  }
+  cfg.rutaListados ??= envPath('CIVITAS_RENTAS_PATH') ?? descubrir(path.join(cfg.rawDir, 'rentas'), ['.csv', '.zip']);
+  if (!cfg.rutaListados) {
+    throw new Error(
+      'Modo real: falta el archivo de listados de renta. Colócalo en data/raw/rentas/ o pásalo con --listados ' +
+        '(ver data/raw/README.md y data/plantillas/renta_captura_manual.csv).',
     );
   }
 }
