@@ -21,7 +21,7 @@ docker compose up -d --build               # db → migraciones → api → web 
 docker compose run --rm etl mvp2           # carga datos sintéticos, calcula atributos y valida
 docker compose run --rm etl mvp3           # MVP-3: listados de renta sintéticos → normaliza, deduplica, asigna zona y valida
 ```
-- Web: http://localhost · zonas piloto: http://localhost/zonas · rentas: http://localhost/rentas
+- Web: http://localhost · zonas piloto: http://localhost/zonas · rentas: http://localhost/rentas · cuentas: http://localhost/iniciar-sesion
 - API: http://localhost/api · Swagger: http://localhost/api/docs · contrato: http://localhost/api/docs-json
 - Si el puerto 80 está ocupado: `HTTP_PORT=8080` y `DOMAIN=http://localhost:8080` en `.env`.
 
@@ -48,8 +48,14 @@ MVP-3 (precios de renta): [`../docs/mvp3/MVP3.md`](../docs/mvp3/MVP3.md) · deci
 2. En GitHub → Settings: secrets `DEPLOY_HOST`, `DEPLOY_USER`, `DEPLOY_SSH_KEY`, `PUBLIC_URL` y la variable `DEPLOY_ENABLED=true`.
 3. Cada push a `main` con CI en verde (pruebas + stack completo con smoke) despliega y corre el smoke público. El workflow vive en `.github/workflows/ci.yml` (raíz del repo: GitHub no ejecuta workflows anidados).
 
+## Cuentas y roles
+Registro (`/crear-cuenta`), inicio de sesión (`/iniciar-sesion`), `/mi-cuenta` y panel `/admin` (solo administrador). Detalle en [`../docs/auth/AUTH.md`](../docs/auth/AUTH.md).
+
+**Cuentas de ejemplo (solo local):** `usr1` / `123` (usuario) · `adm` / `456` (administrador). Se crean solas con `docker compose up` en local; con un `DOMAIN` real **no** se crean salvo `DEMO_USERS=1`. En un servidor público pon `DEMO_USERS=0` y reinicia la API: **elimina** las cuentas de ejemplo que ya existan. `SMOKE_PROD=1 scripts/smoke.sh` falla si siguen activas.
+
 ## Pendiente antes de cargar rentas reales
 - Elegir el portal, revisar sus términos de uso y completar/aceptar `docs/mvp3/ADR-002-fuente-renta.md`. Con datos reales el validador no aprueba sin eso.
 
 ## Pendiente antes de capturar datos personales
+- **El registro ya guarda correo electrónico:** el aviso de privacidad debe estar completo antes de abrir el registro al público.
 - Completar y validar legalmente `web/app/aviso-privacidad/page.tsx` (responsable, domicilio, correo ARCO).

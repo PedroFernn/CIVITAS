@@ -52,3 +52,26 @@ th { background: #f7f8fa; color: var(--azul); font-weight: 600; }
 .barra.umbral { background: #c93a3a; }
 .dos-col { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; }
 .suprimida { color: var(--gris); font-style: italic; }
+
+/* ── Cuentas: registro, inicio de sesión, mi cuenta, admin ── */
+header nav { align-items: center; }
+header nav form { margin: 0; }
+header .sesion { background: rgba(255,255,255,.12); padding: 4px 12px; border-radius: 999px; }
+header .boton-nav { border: 1px solid rgba(255,255,255,.6); padding: 4px 12px; border-radius: 999px; }
+button.enlace { background: none; border: 0; color: inherit; font: inherit; cursor: pointer; padding: 0; text-decoration: underline; }
+.tarjeta-form { max-width: 440px; margin: 0 auto; }
+.form { display: grid; gap: 14px; margin-top: 16px; }
+.form label { display: grid; gap: 4px; font-weight: 600; font-size: .92rem; color: var(--azul); }
+.form input:not([type=checkbox]):not([type=radio]) { font: inherit; font-weight: 400; color: #1b2430; padding: 9px 11px; border: 1px solid #c9d1dc; border-radius: 8px; background: #fff; }
+.form input:focus-visible, .form button:focus-visible, button.secundario:focus-visible { outline: 3px solid #2b6cb0; outline-offset: 1px; }
+.form small { font-weight: 400; color: var(--gris); }
+.form label.check { display: flex; align-items: flex-start; gap: 8px; font-weight: 400; color: #1b2430; }
+.form fieldset { border: 1px solid var(--borde); border-radius: 8px; padding: 10px 14px; display: grid; gap: 6px; }
+.form legend { font-weight: 600; color: var(--azul); font-size: .92rem; padding: 0 6px; }
+.form button, button.secundario { font: inherit; font-weight: 600; padding: 10px 16px; border-radius: 8px; border: 1px solid var(--azul); background: var(--azul); color: #fff; cursor: pointer; }
+.form button:disabled { opacity: .6; cursor: wait; }
+button.secundario { background: #fff; color: var(--azul); }
+.error { background: #fde2e2; border: 1px solid #f0b4b4; color: #8a1f1f; border-radius: 8px; padding: 10px 14px; margin: 0; font-size: .92rem; }
+.ficha { display: grid; grid-template-columns: max-content 1fr; gap: 6px 18px; }
+.ficha dt { color: var(--gris); } .ficha dd { margin: 0; }
+.sello.warn { background: #fff1cc; color: #8a5a00; }

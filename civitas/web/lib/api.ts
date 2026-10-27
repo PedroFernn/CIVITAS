@@ -40,8 +40,8 @@ export interface ReporteCalidad {
   zonas: { con_listados: number; piloto_con_listados: number; total_piloto: number };
 }
 
-export async function api<T>(path: string): Promise<T> {
-  const r = await fetch(`${API_URL}${path}`, { cache: 'no-store' });
+export async function api<T>(path: string, token?: string): Promise<T> {
+  const r = await fetch(`${API_URL}${path}`, { cache: 'no-store', headers: token ? { Authorization: `Bearer ${token}` } : undefined });
   if (!r.ok) throw new Error(`${path} → HTTP ${r.status}`);
   return r.json() as Promise<T>;
 }

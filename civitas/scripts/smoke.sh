@@ -54,4 +54,22 @@ if [ "${SMOKE_DATA:-1}" = "1" ] && [ "${SMOKE_MVP3:-1}" = "1" ]; then
     && ok "GET /rentas (web) muestra los listados de renta" || fail "la página /rentas no muestra datos"
 fi
 
+# Cuentas y sesiones (no necesitan datos del ETL). SMOKE_PROD=1 además exige que NO haya cuentas de demostración (servidor público).
+status() { curl -s -o /dev/null -w '%{http_code}' --max-time 15 "$@"; }
+[ "$(status -X POST -H 'content-type: application/json' -d '{"identificador":"nadie","contrasena":"x"}' "$API_URL/auth/login")" = "401" ] \
+  && ok "POST /auth/login con credenciales falsas → 401" || fail "el login no rechaza credenciales falsas"
+[ "$(status "$API_URL/admin/resumen")" = "401" ] && ok "GET /admin/resumen sin sesión → 401" || fail "/admin/resumen debe exigir sesión"
+[ "$(status "$API_URL/auth/me")" = "401" ] && ok "GET /auth/me sin sesión → 401" || fail "/auth/me debe exigir sesión"
+for p in /iniciar-sesion /crear-cuenta; do
+  [ "$(code "$WEB_URL$p")" = "200" ] && ok "GET $p → 200" || fail "$p no responde 200"
+done
+curl -s --max-time 15 "$WEB_URL/crear-cuenta" | grep -q 'aviso de privacidad' \
+  && ok "el registro enlaza el aviso de privacidad" || fail "el registro no muestra el aviso de privacidad"
+loc="$(curl -s -o /dev/null -w '%{http_code} %{redirect_url}' --max-time 15 "$WEB_URL/admin")"
+case "$loc" in 30[1278]\ *iniciar-sesion*) ok "/admin sin sesión redirige a iniciar sesión";; *) fail "/admin sin sesión debe redirigir a /iniciar-sesion (obtuvo: $loc)";; esac
+if [ "${SMOKE_PROD:-0}" = "1" ]; then
+  curl -s --max-time 15 "$API_URL/auth/estado" | grep -q '"demo":false' \
+    && ok "sin cuentas de demostración (producción)" || fail "hay cuentas de demostración activas: pon DEMO_USERS=0 y reinicia la API (las elimina; ver docs/auth/AUTH.md)"
+fi
+
 echo "Smoke OK"

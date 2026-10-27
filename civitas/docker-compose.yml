@@ -32,6 +32,8 @@ services:
       PORT: "4000"
       API_BASE_PATH: /api
       WEB_ORIGIN: ${DOMAIN:-http://localhost}
+      # Cuentas de ejemplo usr1/adm (contraseñas triviales). Vacío = solo en local (DOMAIN sin definir); 1 = forzar; 0 = apagar (y eliminar las que existan). En producción: 0.
+      DEMO_USERS: ${DEMO_USERS:-}
     depends_on: { migrate: { condition: service_completed_successfully } }
 
   web:
