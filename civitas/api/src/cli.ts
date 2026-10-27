@@ -2,6 +2,7 @@
  * CLI de datos de CIVITAS (mismo paquete y mismas dependencias que la API).
  *   node dist/cli.js mvp2 [--fuente fixture|real] [--desde-cero] [...]
  *   node dist/cli.js mvp3 [--fuente fixture|real] [--listados <archivo>]   (requiere haber corrido mvp2)
+ *   node dist/cli.js recaptura [--cada-dias 7] | mvp4 | validar-mvp4
  *   node dist/cli.js migrar | validar | validar-mvp3
  */
 import 'reflect-metadata';
@@ -10,10 +11,12 @@ import { conectar, migrar } from './etl/db';
 import { nuevaConfig } from './etl/config';
 import { correrMvp2 } from './etl/pipeline';
 import { correrMvp3 } from './etl/renta/pipeline';
+import { programar, recapturar } from './etl/mvp4/recaptura';
+import * as validacionMvp4 from './etl/mvp4/validacion';
 import * as validacionMvp3 from './etl/renta/validacion';
 import * as validacion from './etl/validacion';
 
-const AYUDA = `Uso: civitas-etl <mvp2|mvp3|migrar|validar|validar-mvp3> [opciones]
+const AYUDA = `Uso: civitas-etl <mvp2|mvp3|recaptura|mvp4|migrar|validar|validar-mvp3|validar-mvp4> [opciones]
 
   mvp2      Importa INEGI (MGN, DENUE) + transporte, calcula atributos y valida
     --fuente fixture|real      (por defecto fixture)
@@ -32,9 +35,14 @@ const AYUDA = `Uso: civitas-etl <mvp2|mvp3|migrar|validar|validar-mvp3> [opcione
     --fuente-renta <clave>     Parser a usar (por defecto renta_captura_manual)
     --min-listados 300         Listados con zona para aprobar
     --umbral-nulos 0.10        Fracción máxima de listados con campos clave nulos (umbral propuesto)
+  recaptura Recaptura de precios (MVP-4): vuelve a ingerir los archivos de renta, de forma idempotente, y registra cada ejecución o fallo.
+            Acepta las opciones de mvp3 (--fuente, --listados, ...).
+    --cada-dias N              Se queda corriendo y repite cada N días (servicio \`recaptura\` del compose); sin esto corre una vez
+  mvp4      Una recaptura (si aún no hay ninguna) y el checklist «Para pasar» de MVP-4
   migrar        Aplica db/migrations
   validar       Ejecuta solo el checklist de MVP-2 sobre lo ya cargado
   validar-mvp3  Ejecuta solo el checklist de MVP-3 sobre lo ya cargado
+  validar-mvp4  Ejecuta solo el checklist de MVP-4 sobre lo ya cargado
 `;
 
 export async function main(argv: string[]): Promise<number> {
@@ -50,6 +58,7 @@ export async function main(argv: string[]): Promise<number> {
       'lista-piloto': { type: 'string' }, 'desde-cero': { type: 'boolean', default: false },
       listados: { type: 'string' }, 'fuente-renta': { type: 'string', default: 'renta_captura_manual' },
       'min-listados': { type: 'string', default: '300' }, 'umbral-nulos': { type: 'string', default: '0.1' },
+      'cada-dias': { type: 'string' },
     },
   });
   const cfg = nuevaConfig();
@@ -76,6 +85,53 @@ export async function main(argv: string[]): Promise<number> {
       validacion.imprimir(checks);
       return ok ? 0 : 1;
     } finally { await conn.close(); }
+  }
+  if (cmd === 'validar-mvp4') {
+    const conn = await conectar(cfg.databaseUrl);
+    try {
+      const checks = await validacionMvp4.ejecutar(conn, cfg);
+      const ok = await validacionMvp4.guardar(conn, checks, await validacionMvp4.modoDeDatos(conn));
+      validacion.imprimir(checks);
+      return ok ? 0 : 1;
+    } finally { await conn.close(); }
+  }
+  if (cmd === 'recaptura' || cmd === 'mvp4') {
+    if (a.fuente !== 'fixture' && a.fuente !== 'real') { console.error("--fuente debe ser 'fixture' o 'real'"); return 2; }
+    const cada = a['cada-dias'] === undefined ? undefined : Number(a['cada-dias']);
+    if (cada !== undefined && !(cada > 0 && cada <= 24)) { console.error('--cada-dias debe estar entre 0 (exclusivo) y 24'); return 2; }
+    const [minListados, umbralNulos] = [Number(a['min-listados']), Number(a['umbral-nulos'])];
+    Object.assign(cfg, {
+      modo: a.fuente, fuenteRenta: a['fuente-renta'], rutaListados: a.listados, minListados, umbralNulos,
+      comando: 'civitas_etl ' + argv.map((x) => (/^[\w@%+=:,./-]+$/.test(x) ? x : `'${x}'`)).join(' ') + (cada !== undefined ? ' [programada]' : ''),
+    });
+    try {
+      if (cada !== undefined) {
+        const ctl = new AbortController();
+        for (const sig of ['SIGINT', 'SIGTERM'] as const) process.once(sig, () => ctl.abort());
+        await programar(cfg, cada, ctl.signal);
+        return 0;
+      }
+      if (cmd === 'recaptura') return (await recapturar(cfg)) ? 0 : 1;
+      // mvp4: asegura al menos una recaptura y evalúa el checklist
+      const conn = await conectar(cfg.databaseUrl);
+      try {
+        await migrar(conn);
+        const hay = Number((await conn.one("SELECT count(*) AS n FROM cargas_datos WHERE comando LIKE '%recaptura%' AND estado = 'ok'")).n);
+        if (!hay) await recapturar({ ...cfg, comando: cfg.comando.replace(/^civitas_etl mvp4/, 'civitas_etl recaptura (desde mvp4)') });
+        const checks = await validacionMvp4.ejecutar(conn, cfg);
+        const ok = await validacionMvp4.guardar(conn, checks, await validacionMvp4.modoDeDatos(conn));
+        console.log(`\nMVP-4 · validación — ${ok ? 'APROBADO' : 'NO APROBADO'}`);
+        validacion.imprimir(checks);
+        return ok ? 0 : 1;
+      } finally { await conn.close(); }
+    } catch (e) {
+      const err = e as NodeJS.ErrnoException;
+      if (err.code === 'ENOENT' || err.code === 'EACCES' || err.message?.startsWith('Modo real:') || err.message?.startsWith('MVP-3:')) {
+        console.error(`ERROR: ${err.message}`);
+        return 2;
+      }
+      throw e;
+    }
   }
   if (cmd === 'mvp3') {
     if (a.fuente !== 'fixture' && a.fuente !== 'real') { console.error("--fuente debe ser 'fixture' o 'real'"); return 2; }

@@ -24,11 +24,12 @@ export default async function Admin() {
       </div>
     );
   }
-  const [r, fuentes, v2, v3] = await Promise.all([
+  const [r, fuentes, v2, v3, v4] = await Promise.all([
     api<Resumen>('/admin/resumen', sesion.token),
     opcional(api<Fuente[]>('/datos-abiertos/fuentes')),
     opcional(api<Validacion>('/datos-abiertos/validacion')),
     opcional(api<Validacion>('/listados-renta/validacion')),
+    opcional(api<Validacion>('/zonas/validacion')),
   ]);
   return (
     <div>
@@ -41,7 +42,7 @@ export default async function Admin() {
       <section className="kpis">
         <div><b>{num(r.usuarios_total)}</b><span>cuentas ({num(r.administradores)} {r.administradores === 1 ? 'administradora' : 'administradoras'})</span></div>
         <div><b>{num(r.sesiones_activas)}</b><span>sesiones activas</span></div>
-        <div><b>{v2 ? (v2.aprobada ? 'APROBADO' : 'NO') : '—'} / {v3 ? (v3.aprobada ? 'APROBADO' : 'NO') : '—'}</b><span>validación MVP-2 / MVP-3</span></div>
+        <div><b>{[v2, v3, v4].map((v) => (v ? (v.aprobada ? 'OK' : 'NO') : '—')).join(' · ')}</b><span>validación MVP-2 · MVP-3 · MVP-4</span></div>
       </section>
 
       <h2>Fuentes de datos</h2>
@@ -58,6 +59,19 @@ export default async function Admin() {
         </table>
       </div>
       <p className="nota"><Link href="/zonas">Detalle MVP-2</Link> · <Link href="/rentas">Detalle MVP-3</Link></p>
+
+      <h2>Checklist de MVP-4 (catálogo y recaptura) {v4 && <span className={`sello ${v4.aprobada ? 'ok' : 'fail'}`}>{v4.aprobada ? 'APROBADO' : 'NO APROBADO'}</span>}</h2>
+      {v4 ? (
+        <>
+          <ul className="checklist">
+            {v4.resultados.map((c) => (
+              <li key={c.id} className={c.estado}><span className="ico">{{ ok: '✔', fail: '✘', warn: '!' }[c.estado]}</span>
+                <div><strong>{c.requisito}</strong> {c.descripcion}<small>{c.detalle}</small></div></li>
+            ))}
+          </ul>
+          <p className="nota">Validado el {fechaMX(v4.ejecutada_en)}. Se actualiza con <code>docker compose run --rm etl mvp4</code>.</p>
+        </>
+      ) : <p className="nota">Aún no hay validación de MVP-4 (ejecuta <code>docker compose run --rm etl mvp4</code>).</p>}
 
       <h2>Cuentas</h2>
       <p className="nota">Por privacidad el panel no muestra correos ni contraseñas.</p>

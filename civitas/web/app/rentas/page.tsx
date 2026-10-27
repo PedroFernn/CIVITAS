@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import {
   api, fechaMX, mxn, num, pct,
   type ListaListados, type ReporteCalidad, type ResumenZonasRenta, type Validacion,
@@ -96,7 +97,7 @@ export default async function Rentas() {
           <thead><tr><th>Zona</th><th className="n">Listados</th><th className="n">Renta mediana</th><th className="n">p25</th><th className="n">p75</th><th className="n">MXN/m² mediano</th></tr></thead>
           <tbody>
             {zonas.items.map((z) => (
-              <tr key={z.zona_id}><td>{z.nombre}</td><td className="n">{num(z.n_listados)}</td>
+              <tr key={z.zona_id}><td><Link href={`/colonias/${z.zona_id}`}>{z.nombre}</Link></td><td className="n">{num(z.n_listados)}</td>
                 {z.estadistica_suprimida
                   ? <td colSpan={4} className="suprimida">menos de {zonas.min_listados_estadistica} listados</td>
                   : <><td className="n">{mxn(z.renta_mediana)}</td><td className="n">{mxn(z.renta_p25)}</td><td className="n">{mxn(z.renta_p75)}</td><td className="n">{mxn(z.precio_m2_mediano)}</td></>}
@@ -115,7 +116,7 @@ export default async function Rentas() {
             {muestra.items.map((l) => (
               <tr key={l.id}><td><code>{l.id_fuente}</code></td><td>{l.tipo_inmueble}</td><td className="n">{mxn(l.precio_mxn)}</td>
                 <td className="n">{num(l.superficie_m2, 0)}</td><td className="n">{l.recamaras ?? '—'}</td>
-                <td>{l.zona_nombre ?? <span className="suprimida">sin zona</span>}</td><td>{l.publicado_en ?? '—'}</td></tr>
+                <td>{l.zona_id ? <Link href={`/colonias/${l.zona_id}`}>{l.zona_nombre}</Link> : <span className="suprimida">sin zona</span>}</td><td>{l.publicado_en ?? '—'}</td></tr>
             ))}
           </tbody>
         </table>

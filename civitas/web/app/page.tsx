@@ -15,6 +15,10 @@ export default function Inicio() {
         deduplicados y asignados a su zona, con reporte de calidad. No se guardan teléfonos ni nombres de anunciantes.{' '}
         <Link href="/rentas">Ver rentas →</Link>
       </p>
+      <p>
+        <strong>MVP-4 · Catálogo de zonas:</strong> mapa, lista y ficha de cada zona con la renta mediana y la renta por m², comparadas con la ciudad.
+        Se actualiza con una recaptura semanal de precios. <Link href="/colonias">Explorar el catálogo →</Link>
+      </p>
     </div>
   );
 }

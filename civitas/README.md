@@ -12,7 +12,7 @@ civitas/
 ├─ Caddyfile       Proxy: /api/* → API, el resto → web (HTTPS automático si DOMAIN es un dominio real)
 └─ docker-compose.yml
 ```
-La documentación del proyecto está en [`../docs`](../docs) (arquitectura, casos de uso, MVP-2, MVP-3).
+La documentación del proyecto está en [`../docs`](../docs) (arquitectura, casos de uso, MVP-2, MVP-3, MVP-4, cuentas).
 
 ## Levantarlo (local, sin dominio)
 ```bash
@@ -20,8 +20,10 @@ cp .env.example .env                       # pon una POSTGRES_PASSWORD (DOMAIN=h
 docker compose up -d --build               # db → migraciones → api → web → caddy
 docker compose run --rm etl mvp2           # carga datos sintéticos, calcula atributos y valida
 docker compose run --rm etl mvp3           # MVP-3: listados de renta sintéticos → normaliza, deduplica, asigna zona y valida
+docker compose run --rm etl mvp4           # MVP-4: una recaptura de precios (si no hay) y el checklist del catálogo
+docker compose --profile cron up -d recaptura   # MVP-4: recaptura de precios cada 7 días (servicio aparte, no arranca con `up`)
 ```
-- Web: http://localhost · zonas piloto: http://localhost/zonas · rentas: http://localhost/rentas · cuentas: http://localhost/iniciar-sesion
+- Web: http://localhost · zonas piloto: http://localhost/zonas · rentas: http://localhost/rentas · catálogo: http://localhost/colonias · cuentas: http://localhost/iniciar-sesion
 - API: http://localhost/api · Swagger: http://localhost/api/docs · contrato: http://localhost/api/docs-json
 - Si el puerto 80 está ocupado: `HTTP_PORT=8080` y `DOMAIN=http://localhost:8080` en `.env`.
 

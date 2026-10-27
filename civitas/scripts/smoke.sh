@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Criterios "PARA PASAR" de MVP-1, MVP-2 y MVP-3 (requiere el ETL ya corrido: mvp2 y mvp3). Uso:
+# Criterios "PARA PASAR" de MVP-1 a MVP-4 (requiere el ETL ya corrido: mvp2, mvp3 y mvp4). Uso:
 #   WEB_URL=https://tu-dominio.mx scripts/smoke.sh
 #   WEB_URL=http://localhost scripts/smoke.sh   (stack local con Docker Compose)
 set -euo pipefail
@@ -52,6 +52,31 @@ if [ "${SMOKE_DATA:-1}" = "1" ] && [ "${SMOKE_MVP3:-1}" = "1" ]; then
     && ok "reporte de calidad de listados publicado" || fail "falta el reporte de calidad"
   curl -s --max-time 15 "$WEB_URL/rentas" | grep -q 'listados de renta' \
     && ok "GET /rentas (web) muestra los listados de renta" || fail "la página /rentas no muestra datos"
+fi
+
+# Datos de MVP-4 (catálogo: requiere `docker compose run --rm etl mvp4`). SMOKE_MVP4=0 los omite.
+if [ "${SMOKE_DATA:-1}" = "1" ] && [ "${SMOKE_MVP4:-1}" = "1" ]; then
+  body="$(curl -s --max-time 15 -w '\n%{http_code}' "$API_URL/zonas?limit=50&orden=precio_m2")"
+  [ "${body##*$'\n'}" = "200" ] && echo "$body" | grep -q '"precio_m2_mediano"' \
+    && ok "GET /zonas → 200 con mediana por m²" || fail "GET /zonas falló o no hay datos (¿corriste etl mvp3?)"
+  zid="$(echo "$body" | grep -o '"id":"[0-9a-f-]\{36\}"' | head -1 | cut -d'"' -f4)"
+  [ -n "$zid" ] || fail "no se pudo obtener el id de una zona"
+  ficha="$(curl -s --max-time 15 -w '\n%{http_code}' "$API_URL/zonas/$zid")"
+  [ "${ficha##*$'\n'}" = "200" ] && echo "$ficha" | grep -q '"ciudad_referencia"' && echo "$ficha" | grep -q '"trazabilidad"' \
+    && ok "GET /zonas/:id → ficha con referencia de la ciudad y trazabilidad" || fail "la ficha de zona no responde como se espera"
+  echo "$ficha" | grep -qiE 'telefono|anunciante' && fail "la ficha expone datos de contacto" || ok "la ficha no expone teléfono ni anunciante"
+  [ "$(code "$API_URL/zonas/00000000-0000-0000-0000-000000000000")" = "404" ] && ok "zona inexistente → 404" || fail "una zona inexistente debe dar 404"
+  curl -s --max-time 15 "$API_URL/zonas/buscar?q=sintetico&limit=3" | grep -q '"sugeridas":false' \
+    && ok "GET /zonas/buscar encuentra zonas sin acentos" || fail "la búsqueda de zonas no responde"
+  [ "$(code "$API_URL/zonas/buscar?limit=999")" = "400" ] && ok "la búsqueda valida sus parámetros (400)" || fail "buscar debe rechazar limit=999"
+  curl -s --max-time 15 "$API_URL/zonas/validacion" | grep -q '"aprobada":true' \
+    && ok "checklist de MVP-4 aprobado" || fail "el checklist de MVP-4 no está aprobado"
+  curl -s --max-time 15 "$WEB_URL/" | grep -q 'role="search"' \
+    && ok "la barra de búsqueda de zonas está en la navbar" || fail "falta el buscador en la navbar"
+  curl -s --max-time 15 "$WEB_URL/colonias" | grep -q 'Catálogo de zonas' \
+    && ok "GET /colonias (web) muestra el catálogo" || fail "la página /colonias no muestra el catálogo"
+  [ "$(code "$WEB_URL/colonias/$zid")" = "200" ] && ok "GET /colonias/:id (web) → ficha" || fail "la ficha de zona no responde 200"
+  [ "$(code "$WEB_URL/colonias/no-es-una-zona")" = "404" ] && ok "ficha con id inválido → 404" || fail "un id inválido debe dar 404"
 fi
 
 # Cuentas y sesiones (no necesitan datos del ETL). SMOKE_PROD=1 además exige que NO haya cuentas de demostración (servidor público).

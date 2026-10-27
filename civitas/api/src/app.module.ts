@@ -10,10 +10,12 @@ import { AuthService } from './auth/auth.service';
 import { SesionGuard } from './auth/sesion.guard';
 import { RentaController } from './renta/renta.controller';
 import { RentaService } from './renta/renta.service';
+import { ZonasController } from './zonas/zonas.controller';
+import { ZonasService } from './zonas/zonas.service';
 
 @Module({
   imports: [DatabaseModule],
-  controllers: [HealthController, ColoniasController, TilesController, DatosAbiertosController, RentaController, AuthController, AdminController],
-  providers: [ColoniasService, RentaService, AuthService, SesionGuard],
+  controllers: [HealthController, ColoniasController, TilesController, DatosAbiertosController, RentaController, ZonasController, AuthController, AdminController],
+  providers: [ColoniasService, RentaService, ZonasService, AuthService, SesionGuard],
 })
 export class AppModule {}

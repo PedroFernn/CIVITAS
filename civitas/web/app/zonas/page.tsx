@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import MapaZonas from '@/components/MapaZonas';
 import { api, fechaMX, num, type FeatureZona, type Fuente, type ListaZonas, type Validacion } from '@/lib/api';
 
@@ -61,13 +62,14 @@ export default async function Zonas() {
       <MapaZonas zonas={geo.features} />
 
       <h2>Zonas</h2>
+      <p className="nota">Cada zona enlaza a su ficha en el <Link href="/colonias">catálogo</Link>.</p>
       <div className="tabla-scroll">
         <table>
           <thead><tr><th>Zona</th><th>CVEGEO</th><th className="n">Comercios</th><th className="n">Mayoreo</th><th className="n">Menudeo</th>
             <th className="n">Paradas</th><th className="n">Área km²</th><th className="n">Comercios/km²</th></tr></thead>
           <tbody>
             {zonas.map((z) => (
-              <tr key={z.id}><td>{z.nombre}</td><td><code>{z.clave_geo}</code></td><td className="n">{num(z.num_comercios)}</td>
+              <tr key={z.id}><td><Link href={`/colonias/${z.id}`}>{z.nombre}</Link></td><td><code>{z.clave_geo}</code></td><td className="n">{num(z.num_comercios)}</td>
                 <td className="n">{num(z.num_comercios_mayoreo)}</td><td className="n">{num(z.num_comercios_menudeo)}</td>
                 <td className="n">{num(z.num_paradas)}</td><td className="n">{num(z.area_km2, 2)}</td>
                 <td className="n">{num(z.densidad_comercios_km2, 0)}</td></tr>
