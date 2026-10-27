@@ -39,7 +39,7 @@ export default async function Admin() {
       )}
 
       <section className="kpis">
-        <div><b>{num(r.usuarios_total)}</b><span>cuentas ({num(r.administradores)} administradoras)</span></div>
+        <div><b>{num(r.usuarios_total)}</b><span>cuentas ({num(r.administradores)} {r.administradores === 1 ? 'administradora' : 'administradoras'})</span></div>
         <div><b>{num(r.sesiones_activas)}</b><span>sesiones activas</span></div>
         <div><b>{v2 ? (v2.aprobada ? 'APROBADO' : 'NO') : '—'} / {v3 ? (v3.aprobada ? 'APROBADO' : 'NO') : '—'}</b><span>validación MVP-2 / MVP-3</span></div>
       </section>

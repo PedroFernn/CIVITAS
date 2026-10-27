@@ -42,6 +42,7 @@ jobs:
       - run: echo "POSTGRES_PASSWORD=$(openssl rand -hex 16)" > .env
       - run: docker compose up -d --build --wait
       - run: docker compose run --rm etl mvp2 --fuente fixture --desde-cero
+      - run: docker compose run --rm etl mvp3
       - run: WEB_URL=http://localhost scripts/smoke.sh
       - if: failure()
         run: docker compose logs --no-color
