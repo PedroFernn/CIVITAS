@@ -157,6 +157,25 @@ header { flex-wrap: wrap; gap: 6px 18px; }
 .inmuebles li { display: grid; gap: 2px; border: 1px dashed #c9d1dc; border-radius: 10px; padding: 10px 12px; background: #fff; font-size: .9rem; }
 .inmuebles b { font-size: 1.1rem; color: var(--azul); } .inm-tipo { font-size: .75rem; text-transform: uppercase; letter-spacing: .5px; color: var(--gris); }
 
+/* ── Tablas con búsqueda y orden (zonas piloto y rentas) ── */
+.tabla-datos { margin-top: 6px; }
+.tabla-datos .tabla-barra { grid-template-columns: minmax(220px, 2fr) minmax(200px, 1fr) auto; margin: 10px 0 6px; }
+.tabla-datos tbody tr:hover { background: #f7f9fc; }
+.th-orden { font: inherit; font-weight: 600; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+.th-orden:hover { text-decoration: underline; }
+.th-orden:focus-visible { outline: 3px solid #2b6cb0; outline-offset: 2px; border-radius: 3px; }
+.th-flecha { font-size: .68rem; color: #9aa4b2; }
+th[aria-sort=ascending] .th-flecha, th[aria-sort=descending] .th-flecha { color: var(--azul); }
+.filtros button.secundario-fil { background: #fff; color: var(--azul); }
+.paginacion button { font: inherit; background: none; border: 0; padding: 0; color: var(--azul); cursor: pointer; }
+.paginacion button:disabled { color: #a6afbc; cursor: default; }
+.paginacion button:focus-visible { outline: 3px solid #2b6cb0; outline-offset: 2px; border-radius: 3px; }
+@media (max-width: 760px) {
+  .tabla-datos .tabla-barra { grid-template-columns: 1fr; }
+  .tabla-datos .tabla-barra label:nth-child(1) { grid-column: auto; }
+  .filtros-listados label:nth-child(4) { grid-column: auto; }
+}
+
 /* ── Adaptable: móvil desde 360 px ── */
 @media (max-width: 900px) {
   .explorador, .ficha-cols { grid-template-columns: minmax(0, 1fr); }
@@ -182,3 +201,5 @@ header { flex-wrap: wrap; gap: 6px 18px; }
 @media (max-width: 760px) { .filtros label:nth-child(1), .filtros label:nth-child(4), .filtros label.check, .filtros-acciones { grid-column: 1 / -1; } }
 @media (max-width: 420px) { .inmuebles { grid-template-columns: 1fr; } }
 @media (prefers-reduced-motion: reduce) { .tarjeta { transition: none; } }
+
+

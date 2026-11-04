@@ -1,11 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
-import { FiltrosListados, MIN_LISTADOS_ESTADISTICA } from './filtros-renta';
+import { esNumeroCorto, escaparLike } from '../zonas/busqueda';
+import { FiltrosListados, MIN_LISTADOS_ESTADISTICA, OrdenListados } from './filtros-renta';
 
-const ORDEN_SQL: Record<FiltrosListados['orden'], string> = {
+const ORDEN_SQL: Record<OrdenListados, string> = {
   reciente: 'l.publicado_en DESC NULLS LAST, l.id DESC',
+  antiguo: 'l.publicado_en ASC NULLS LAST, l.id',
   precio: 'l.precio_mxn DESC, l.id',
+  barato: 'l.precio_mxn ASC, l.id',
   precio_m2: 'l.precio_m2 DESC NULLS LAST, l.id',
+  superficie: 'l.superficie_m2 DESC NULLS LAST, l.id',
+  recamaras: 'l.recamaras DESC NULLS LAST, l.id',
 };
 
 // Solo datos del inmueble y su procedencia: la tabla no tiene teléfono, anunciante ni texto libre (RNF Privacidad).
@@ -29,6 +34,17 @@ function where(f: FiltrosListados, params: unknown[]): string {
   if (f.recamaras !== undefined) w.push(`l.recamaras = ${p(f.recamaras)}`);
   if (f.minPrecio !== undefined) w.push(`l.precio_mxn >= ${p(f.minPrecio)}`);
   if (f.maxPrecio !== undefined) w.push(`l.precio_mxn <= ${p(f.maxPrecio)}`);
+  if (f.q.length) {
+    // Mismo criterio que la búsqueda de zonas: sin acentos ni mayúsculas, y todos los términos deben coincidir.
+    // Un número de 1–3 dígitos solo se busca en el nombre de la zona (en el id del anuncio coincidiría con casi todo).
+    const sinAcentos = (x: string) => `translate(lower(${x}), 'áéíóúüñÁÉÍÓÚÜÑ', 'aeiouunaeiouun')`;
+    const patrones = (ts: string[]) => p(ts.map((t) => `%${escaparLike(t)}%`));
+    const generales = f.q.filter((t) => !esNumeroCorto(t)), numeros = f.q.filter(esNumeroCorto);
+    if (generales.length) {
+      w.push(`${sinAcentos(`COALESCE(z.nombre,'') || ' ' || COALESCE(z.clave_geo,'') || ' ' || COALESCE(l.id_fuente,'') || ' ' || l.tipo_inmueble`)} LIKE ALL (${patrones(generales)}::text[])`);
+    }
+    if (numeros.length) w.push(`${sinAcentos(`COALESCE(z.nombre,'')`)} LIKE ALL (${patrones(numeros)}::text[])`);
+  }
   return w.length ? `WHERE ${w.join(' AND ')}` : '';
 }
 
@@ -69,3 +85,5 @@ export class RentaService {
     return r ?? null;
   }
 }
+
+

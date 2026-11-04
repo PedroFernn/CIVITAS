@@ -1,126 +1,158 @@
 import Link from 'next/link';
-import {
-  api, fechaMX, mxn, num, pct,
-  type ListaListados, type ReporteCalidad, type ResumenZonasRenta, type Validacion,
-} from '@/lib/api';
+import TablaDatos, { type Columna, type Fila, type OpcionOrden } from '@/components/TablaDatos';
+import { api, mxn, num, type ListaListados, type ReporteCalidad, type ResumenZonasRenta } from '@/lib/api';
 
 export const dynamic = 'force-dynamic';
-export const metadata = { title: 'Rentas · CIVITAS' };
+export const metadata = { title: 'Precios de renta · CIVITAS' };
 
-const ICONO = { ok: '✔', fail: '✘', warn: '!' } as const;
-const CAMPOS = { precio: 'Precio', superficie_m2: 'Superficie (m²)', recamaras: 'Recámaras', coordenadas: 'Coordenadas' } as const;
+const POR_PAGINA = 15;
+const ORDENES: [string, string][] = [
+  ['reciente', 'Más recientes'], ['antiguo', 'Más antiguos'], ['precio', 'Renta más alta'], ['barato', 'Renta más baja'],
+  ['precio_m2', 'Mayor renta por m²'], ['superficie', 'Más metros cuadrados'], ['recamaras', 'Más recámaras'],
+];
+const TIPOS: [string, string][] = [['departamento', 'Departamento'], ['casa', 'Casa'], ['cuarto', 'Cuarto'], ['otro', 'Otro']];
+const RECAMARAS: [string, string][] = [['0', 'Estudio'], ['1', '1'], ['2', '2'], ['3', '3'], ['4', '4'], ['5', '5']];
+const NOMBRE_TIPO = Object.fromEntries(TIPOS);
 
-export default async function Rentas() {
-  let rep: ReporteCalidad, val: Validacion, zonas: ResumenZonasRenta, muestra: ListaListados;
+const COLUMNAS_ZONAS: Columna[] = [
+  { clave: 'nombre', etiqueta: 'Zona', tipo: 'enlace', href: 'href' },
+  { clave: 'n_listados', etiqueta: 'Listados', tipo: 'entero' },
+  { clave: 'renta_mediana', etiqueta: 'Renta mediana', tipo: 'mxn', vacio: 'Sin estadística' },
+  { clave: 'renta_p25', etiqueta: 'Renta baja (p25)', tipo: 'mxn' },
+  { clave: 'renta_p75', etiqueta: 'Renta alta (p75)', tipo: 'mxn' },
+  { clave: 'precio_m2_mediano', etiqueta: 'Renta por m² (mediana)', tipo: 'mxn' },
+];
+const OPCIONES_ZONAS: OpcionOrden[] = [
+  { clave: 'listados', etiqueta: 'Más listados', columna: 'n_listados', dir: 'desc' },
+  { clave: 'renta', etiqueta: 'Renta mediana más alta', columna: 'renta_mediana', dir: 'desc' },
+  { clave: 'renta_baja', etiqueta: 'Renta mediana más baja', columna: 'renta_mediana', dir: 'asc' },
+  { clave: 'precio_m2', etiqueta: 'Mayor renta por m²', columna: 'precio_m2_mediano', dir: 'desc' },
+  { clave: 'precio_m2_bajo', etiqueta: 'Menor renta por m²', columna: 'precio_m2_mediano', dir: 'asc' },
+  { clave: 'nombre', etiqueta: 'Nombre (A–Z)', columna: 'nombre', dir: 'asc' },
+];
+
+type SP = Record<string, string | string[] | undefined>;
+const uno = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v)?.trim() || undefined;
+const fechaCorta = (d: string | null) => (d ? new Date(`${d}T00:00:00Z`).toLocaleDateString('es-MX', { timeZone: 'UTC', dateStyle: 'medium' }) : '—');
+
+export default async function Rentas({ searchParams }: { searchParams: Promise<SP> }) {
+  const sp = await searchParams;
+  const q = uno(sp.q), minPrecio = uno(sp.min_precio), maxPrecio = uno(sp.max_precio);
+  const tipo = TIPOS.some(([k]) => k === uno(sp.tipo)) ? uno(sp.tipo) : undefined;
+  const recamaras = RECAMARAS.some(([k]) => k === uno(sp.recamaras)) ? uno(sp.recamaras) : undefined;
+  const orden = ORDENES.some(([k]) => k === uno(sp.orden)) ? uno(sp.orden)! : 'reciente';
+  const pagina = Math.min(10_000, Math.max(1, Math.floor(Number(uno(sp.pagina))) || 1));
+
+  // Los filtros del servidor solo afectan a «Listados de renta»; las tablas por zona se filtran en el navegador.
+  const filtros = new URLSearchParams();
+  if (q) filtros.set('q', q);
+  if (tipo) filtros.set('tipo', tipo);
+  if (recamaras) filtros.set('recamaras', recamaras);
+  if (minPrecio) filtros.set('min_precio', minPrecio);
+  if (maxPrecio) filtros.set('max_precio', maxPrecio);
+  filtros.set('orden', orden);
+  const hayFiltros = !!(q || tipo || recamaras || minPrecio || maxPrecio);
+
+  let zonas: ResumenZonasRenta, lista: ListaListados, rep: ReporteCalidad | null;
   try {
-    [rep, val, zonas, muestra] = await Promise.all([
-      api<ReporteCalidad>('/listados-renta/calidad'),
-      api<Validacion>('/listados-renta/validacion'),
-      api<ResumenZonasRenta>('/listados-renta/resumen-zonas?limit=60'),
-      api<ListaListados>('/listados-renta?limit=15&orden=reciente'),
+    [zonas, lista] = await Promise.all([
+      api<ResumenZonasRenta>('/listados-renta/resumen-zonas?limit=500'),
+      api<ListaListados>(`/listados-renta?${filtros}&limit=${POR_PAGINA}&offset=${(pagina - 1) * POR_PAGINA}`),
     ]);
+    rep = await api<ReporteCalidad>('/listados-renta/calidad').catch(() => null);
   } catch (e) {
+    const msg = (e as Error).message;
     return (
       <div>
-        <h1>Rentas</h1>
-        <p className="aviso-borrador">No hay datos de rentas todavía o la API no responde ({(e as Error).message}). Carga las zonas
-          (<code>docker compose run --rm etl mvp2</code>) y luego los listados (<code>docker compose run --rm etl mvp3</code>).</p>
+        <h1>Precios de renta</h1>
+        {msg.includes('HTTP 400')
+          ? <p className="aviso-borrador">Alguno de los filtros no es válido. <Link href="/rentas#listados">Quitar filtros</Link></p>
+          : <p className="aviso-borrador">No se pudo cargar la información de rentas en este momento. Inténtalo de nuevo en unos minutos.</p>}
       </div>
     );
   }
 
-  const sintetico = rep.modo === 'fixture';
-  const c = rep.campos_clave;
-  const umbral = rep.umbrales.max_tasa_nulos;
+  const sintetico = (rep?.modo ?? lista.items[0]?.modo_datos) === 'fixture';
+  const conPrecio = zonas.items.filter((z) => !z.estadistica_suprimida && z.renta_mediana !== null);
+  const medianas = conPrecio.map((z) => z.renta_mediana as number);
+  const totalListados = rep?.totales.acumulado.listados ?? zonas.items.reduce((s, z) => s + z.n_listados, 0);
+
+  const filasZonas: Fila[] = zonas.items.map((z) => ({
+    zona_id: z.zona_id, href: `/colonias/${z.zona_id}`, nombre: z.nombre, clave_geo: z.clave_geo, n_listados: z.n_listados,
+    renta_mediana: z.renta_mediana, renta_p25: z.renta_p25, renta_p75: z.renta_p75, precio_m2_mediano: z.precio_m2_mediano,
+  }));
+
+  const paginas = Math.max(1, Math.ceil(lista.total / POR_PAGINA));
+  const enlace = (p: number) => { const u = new URLSearchParams(filtros); u.set('pagina', String(p)); return `/rentas?${u}#listados`; };
 
   return (
     <div className="ancho">
-      <h1>MVP-3 · Precios de renta</h1>
+      <h1>Precios de renta</h1>
+      <p className="nota">Renta mensual de departamentos, casas y cuartos por zona. Cada zona enlaza a su ficha en el <Link href="/colonias">catálogo</Link>.</p>
       {sintetico && (
-        <p className="aviso-borrador"><strong>Datos sintéticos.</strong> Estos listados de renta son datos de prueba generados para validar
-          el pipeline; no son precios reales ni provienen de ningún portal.</p>
+        <p className="aviso-borrador"><strong>Datos sintéticos.</strong> Estos listados de renta son datos de prueba; no son precios reales ni provienen de ningún portal.</p>
       )}
 
       <section className="kpis">
-        <div><b>{num(rep.totales.acumulado.con_zona)}</b><span>listados de renta con zona asignada (mínimo {num(rep.umbrales.min_listados_con_zona)})</span></div>
-        <div><b>{pct(c.tasa_nulos)}</b><span>con algún campo clave nulo (umbral &lt; {pct(umbral, 0)}, propuesto)</span></div>
-        <div><b>{num(rep.totales.descartados)}</b><span>filas descartadas de {num(rep.totales.leidos)} leídas</span></div>
+        <div><b>{num(totalListados)}</b><span>listados de renta</span></div>
+        <div><b>{num(conPrecio.length)}</b><span>zonas con renta publicada (de {num(zonas.items.length)} con listados)</span></div>
+        {medianas.length > 0 && (
+          <div><b>{mxn(Math.min(...medianas))} – {mxn(Math.max(...medianas))}</b><span>renta mediana mensual entre zonas</span></div>
+        )}
       </section>
 
-      <h2>Para pasar <span className={`sello ${val.aprobada ? 'ok' : 'fail'}`}>{val.aprobada ? 'APROBADO' : 'NO APROBADO'}</span></h2>
-      <ul className="checklist">
-        {val.resultados.map((r) => (
-          <li key={r.id} className={r.estado}><span className="ico">{ICONO[r.estado]}</span>
-            <div><strong>{r.requisito}</strong> {r.descripcion}<small>{r.detalle}</small></div></li>
-        ))}
-      </ul>
-      <p className="nota">Validado el {fechaMX(val.ejecutada_en)}.</p>
+      <h2>Renta por zona</h2>
+      <p className="nota">Busca una zona y elige cómo ordenar. Las zonas con menos de {zonas.min_listados_estadistica} listados se muestran sin estadísticas: con tan pocos anuncios la mediana no es fiable.</p>
+      <TablaDatos columnas={COLUMNAS_ZONAS} filas={filasZonas} idFila="zona_id" buscar={['nombre', 'clave_geo']} opciones={OPCIONES_ZONAS} ordenInicial="listados"
+        unidad={['zona', 'zonas']} placeholder="nombre, número o clave INEGI" />
 
-      <h2>Reporte de calidad</h2>
-      <p className="nota">Carga #{rep.carga_id} · archivo {rep.archivo_origen ?? 'n/d'} · generado el {fechaMX(rep.generado_en)}. Se evalúan todas las
-        filas leídas, también las descartadas.</p>
-      <div className="dos-col">
-        <div className="tabla-scroll">
+      <h2 id="listados">Listados de renta</h2>
+      <p className="nota">Cada fila es un inmueble: no hay teléfonos ni nombres de anunciantes.</p>
+      <form className="filtros filtros-listados" method="get" action="/rentas#listados">
+        <label>Buscar<input name="q" defaultValue={q ?? ''} placeholder="zona, clave INEGI o anuncio" maxLength={60} /></label>
+        <label>Tipo
+          <select name="tipo" defaultValue={tipo ?? ''}><option value="">Todos</option>{TIPOS.map(([k, t]) => <option key={k} value={k}>{t}</option>)}</select></label>
+        <label>Recámaras
+          <select name="recamaras" defaultValue={recamaras ?? ''}><option value="">Cualquiera</option>{RECAMARAS.map(([k, t]) => <option key={k} value={k}>{t}</option>)}</select></label>
+        <label>Renta mínima<input name="min_precio" type="number" min={0} step={500} inputMode="numeric" defaultValue={minPrecio ?? ''} placeholder="$" /></label>
+        <label>Renta máxima<input name="max_precio" type="number" min={0} step={500} inputMode="numeric" defaultValue={maxPrecio ?? ''} placeholder="$" /></label>
+        <label>Ordenar por
+          <select name="orden" defaultValue={orden}>{ORDENES.map(([k, t]) => <option key={k} value={k}>{t}</option>)}</select></label>
+        <div className="filtros-acciones">
+          <button type="submit">Aplicar</button>
+          {hayFiltros && <Link href="/rentas#listados" className="enlace-sec">Limpiar</Link>}
+        </div>
+      </form>
+
+      <p className="resumen-resultados" role="status">
+        <strong>{num(lista.total)}</strong> {lista.total === 1 ? 'listado' : 'listados'}
+        {lista.total > 0 && <> · mostrando {num((pagina - 1) * POR_PAGINA + 1)}–{num(Math.min(pagina * POR_PAGINA, lista.total))}</>}
+      </p>
+
+      {lista.items.length === 0 ? (
+        <p className="vacio">Ningún listado coincide con estos filtros. <Link href="/rentas#listados">Quitar filtros</Link></p>
+      ) : (
+        <div className="tabla-scroll tabla-datos">
           <table>
-            <thead><tr><th>Campo clave</th><th className="n">Nulos o inválidos</th><th>% de leídas</th></tr></thead>
+            <thead><tr><th>Anuncio</th><th>Tipo</th><th className="n">Renta</th><th className="n">m²</th><th className="n">Recámaras</th><th className="n">Renta por m²</th><th>Zona</th><th>Publicado</th></tr></thead>
             <tbody>
-              {(Object.keys(CAMPOS) as (keyof typeof CAMPOS)[]).map((k) => (
-                <tr key={k}><td>{CAMPOS[k]}</td><td className="n">{num(c.por_campo[k].nulos)}</td>
-                  <td><span className="barra" style={{ width: `${Math.min(100, c.por_campo[k].tasa * 100 * 8)}px` }} /> {pct(c.por_campo[k].tasa)}</td></tr>
+              {lista.items.map((l) => (
+                <tr key={l.id}><td><code>{l.id_fuente}</code></td><td>{NOMBRE_TIPO[l.tipo_inmueble] ?? l.tipo_inmueble}</td><td className="n">{mxn(l.precio_mxn)}</td>
+                  <td className="n">{num(l.superficie_m2, 0)}</td><td className="n">{l.recamaras === 0 ? 'Estudio' : l.recamaras ?? '—'}</td><td className="n">{mxn(l.precio_m2)}</td>
+                  <td>{l.zona_id ? <Link href={`/colonias/${l.zona_id}`}>{l.zona_nombre}</Link> : <span className="suprimida">sin zona</span>}</td><td>{fechaCorta(l.publicado_en)}</td></tr>
               ))}
             </tbody>
           </table>
         </div>
-        <div className="tabla-scroll">
-          <table>
-            <thead><tr><th>Motivo de descarte</th><th className="n">Filas</th></tr></thead>
-            <tbody>
-              {Object.entries(rep.descartes_por_motivo).map(([m, n]) => <tr key={m}><td>{m}</td><td className="n">{num(n)}</td></tr>)}
-              {!Object.keys(rep.descartes_por_motivo).length && <tr><td colSpan={2}>Ninguno</td></tr>}
-            </tbody>
-          </table>
-        </div>
-      </div>
-      {rep.columnas_sensibles_ignoradas.length > 0 && (
-        <p className="aviso-borrador"><strong>Privacidad:</strong> el archivo de origen trae columnas que no se leyeron ni se guardaron
-          ({rep.columnas_sensibles_ignoradas.join(', ')}). Elimínalas del archivo.</p>
       )}
-      <p className="nota">
-        {rep.distribucion.precio_mxn && <>Renta mensual: mediana {mxn(rep.distribucion.precio_mxn.mediana)} (p25 {mxn(rep.distribucion.precio_mxn.p25)} – p75 {mxn(rep.distribucion.precio_mxn.p75)}). </>}
-        {num(rep.zonas.con_listados)} zonas con listados ({num(rep.zonas.piloto_con_listados)} de {num(rep.zonas.total_piloto)} zonas piloto).
-      </p>
 
-      <h2>Renta por zona</h2>
-      <p className="nota">Las zonas con menos de {zonas.min_listados_estadistica} listados se muestran sin estadísticas: con tan pocos anuncios la mediana no es fiable.</p>
-      <div className="tabla-scroll">
-        <table>
-          <thead><tr><th>Zona</th><th className="n">Listados</th><th className="n">Renta mediana</th><th className="n">p25</th><th className="n">p75</th><th className="n">MXN/m² mediano</th></tr></thead>
-          <tbody>
-            {zonas.items.map((z) => (
-              <tr key={z.zona_id}><td><Link href={`/colonias/${z.zona_id}`}>{z.nombre}</Link></td><td className="n">{num(z.n_listados)}</td>
-                {z.estadistica_suprimida
-                  ? <td colSpan={4} className="suprimida">menos de {zonas.min_listados_estadistica} listados</td>
-                  : <><td className="n">{mxn(z.renta_mediana)}</td><td className="n">{mxn(z.renta_p25)}</td><td className="n">{mxn(z.renta_p75)}</td><td className="n">{mxn(z.precio_m2_mediano)}</td></>}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      <h2>Muestra de listados</h2>
-      <p className="nota">Los más recientes de {num(muestra.total)} listados. Cada fila es un inmueble: no hay teléfonos ni nombres de anunciantes.</p>
-      <div className="tabla-scroll">
-        <table>
-          <thead><tr><th>Anuncio</th><th>Tipo</th><th className="n">Renta</th><th className="n">m²</th><th className="n">Rec.</th><th>Zona</th><th>Publicado</th></tr></thead>
-          <tbody>
-            {muestra.items.map((l) => (
-              <tr key={l.id}><td><code>{l.id_fuente}</code></td><td>{l.tipo_inmueble}</td><td className="n">{mxn(l.precio_mxn)}</td>
-                <td className="n">{num(l.superficie_m2, 0)}</td><td className="n">{l.recamaras ?? '—'}</td>
-                <td>{l.zona_id ? <Link href={`/colonias/${l.zona_id}`}>{l.zona_nombre}</Link> : <span className="suprimida">sin zona</span>}</td><td>{l.publicado_en ?? '—'}</td></tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {paginas > 1 && (
+        <nav className="paginacion" aria-label="Páginas de listados">
+          {pagina > 1 ? <Link href={enlace(pagina - 1)} rel="prev">← Anterior</Link> : <span aria-disabled="true">← Anterior</span>}
+          <span>Página {pagina} de {paginas}</span>
+          {pagina < paginas ? <Link href={enlace(pagina + 1)} rel="next">Siguiente →</Link> : <span aria-disabled="true">Siguiente →</span>}
+        </nav>
+      )}
     </div>
   );
 }

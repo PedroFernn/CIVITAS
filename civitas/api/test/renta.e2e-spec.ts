@@ -39,6 +39,33 @@ describe('API MVP-3 · listados de renta (BD simulada)', () => {
     expect(llamadas[0].params).toEqual([50, 0]);
   });
 
+  it.each([
+    ['reciente', 'l.publicado_en DESC'], ['antiguo', 'l.publicado_en ASC'], ['precio', 'l.precio_mxn DESC'], ['barato', 'l.precio_mxn ASC'],
+    ['precio_m2', 'l.precio_m2 DESC'], ['superficie', 'l.superficie_m2 DESC'], ['recamaras', 'l.recamaras DESC'],
+  ])('orden=%s → ORDER BY %s', async (orden, fragmento) => {
+    await request(app.getHttpServer()).get(`/listados-renta?orden=${orden}`).expect(200);
+    expect(llamadas[0].sql).toContain(`ORDER BY ${fragmento}`);
+  });
+
+  it('q busca sin acentos ni mayúsculas; todo va como parámetro y los comodines se escapan', async () => {
+    await request(app.getHttpServer()).get('/listados-renta?q=Sint%C3%A9tico%2004%2050%25').expect(200);
+    const { sql, params } = llamadas[0];
+    expect(params).toEqual([['%sintetico%', '%50\\%%'], ['%04%'], 50, 0]);   // generales, número corto, limit, offset
+    expect(sql).toContain('LIKE ALL');
+    expect(sql).not.toMatch(/sintetico|sintético/i);          // nada interpolado en el SQL
+  });
+
+  it('un número de 1–3 dígitos solo se busca en el nombre de la zona, no en el id del anuncio', async () => {
+    await request(app.getHttpServer()).get('/listados-renta?q=4').expect(200);
+    expect(llamadas[0].sql).not.toContain('COALESCE(l.id_fuente');
+    expect(llamadas[0].params).toEqual([['%4%'], 50, 0]);
+  });
+
+  it('sin q no agrega condiciones de búsqueda', async () => {
+    await request(app.getHttpServer()).get('/listados-renta').expect(200);
+    expect(llamadas[0].sql).not.toContain('LIKE ALL');
+  });
+
   it('la consulta no expone columnas de contacto', async () => {
     await request(app.getHttpServer()).get('/listados-renta').expect(200);
     expect(llamadas[0].sql).not.toMatch(/telefono|anunciante|contacto|descripcion/i);
@@ -48,7 +75,7 @@ describe('API MVP-3 · listados de renta (BD simulada)', () => {
     ['/listados-renta?limit=1000'], ['/listados-renta?limit=abc'], ['/listados-renta?orden=precio;DROP TABLE listados_renta'],
     ['/listados-renta?zona_id=no-es-uuid'], ['/listados-renta?tipo=castillo'], ['/listados-renta?recamaras=99'],
     ['/listados-renta?min_precio=-1'], ['/listados-renta?min_precio=9000&max_precio=100'], ['/listados-renta?con_zona=quizas'],
-    ['/listados-renta/resumen-zonas?limit=0'],
+    ['/listados-renta/resumen-zonas?limit=0'], [`/listados-renta?q=${'a'.repeat(200)}`],
   ])('rechaza entrada inválida: %s → 400', async (url) => {
     await request(app.getHttpServer()).get(url).expect(400);
     expect(llamadas).toHaveLength(0);
@@ -72,3 +99,5 @@ describe('API MVP-3 · listados de renta (BD simulada)', () => {
     await request(app.getHttpServer()).get('/listados-renta/validacion').expect(200);
   });
 });
+
+

@@ -12,13 +12,14 @@ export class RentaController {
 
   @Get()
   @ApiOperation({ summary: 'Listados de renta normalizados (precio, m², recámaras, coordenadas) con su zona — RF-1.2' })
+  @ApiQuery({ name: 'q', required: false, description: 'Texto: zona, clave INEGI, id del anuncio o tipo (sin acentos ni mayúsculas; todos los términos deben coincidir)' })
   @ApiQuery({ name: 'zona_id', required: false })
   @ApiQuery({ name: 'con_zona', required: false })
   @ApiQuery({ name: 'tipo', required: false })
   @ApiQuery({ name: 'recamaras', required: false })
   @ApiQuery({ name: 'min_precio', required: false })
   @ApiQuery({ name: 'max_precio', required: false })
-  @ApiQuery({ name: 'orden', required: false, description: 'reciente | precio | precio_m2' })
+  @ApiQuery({ name: 'orden', required: false, description: 'reciente (por defecto) | antiguo | precio (renta más alta) | barato (renta más baja) | precio_m2 | superficie | recamaras' })
   @ApiQuery({ name: 'limit', required: false, description: 'Máx. 200' })
   @ApiQuery({ name: 'offset', required: false })
   listar(@Query() q: Record<string, string>) {
@@ -49,3 +50,5 @@ export class RentaController {
     return r;
   }
 }
+
+

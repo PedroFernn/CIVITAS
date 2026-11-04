@@ -132,7 +132,9 @@ export default async function FichaZonaPage({ params }: { params: Promise<{ id: 
         <dt>Precios actualizados</dt><dd>{fechaMX(t.precios_actualizados_en)}</dd>
         <dt>Última recaptura</dt><dd>{t.ultima_recaptura_en ? fechaMX(t.ultima_recaptura_en) : 'ninguna registrada todavía'}</dd>
       </dl>
-      <p className="nota"><Link href="/colonias">← Volver al catálogo</Link> · <Link href="/zonas">Datos de las zonas piloto</Link> · <Link href="/rentas">Calidad de los datos de renta</Link></p>
+      <p className="nota"><Link href="/colonias">← Volver al catálogo</Link> · <Link href="/zonas">Datos de las zonas piloto</Link> · <Link href="/rentas">Precios de renta</Link></p>
     </div>
   );
 }
+
+

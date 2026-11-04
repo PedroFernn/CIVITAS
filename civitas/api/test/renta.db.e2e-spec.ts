@@ -55,6 +55,22 @@ describe('API MVP-3 (PostGIS real)', () => {
     expect(deZona.body.items.every((l: any) => l.zona_id === zona)).toBe(true);
   });
 
+  it('orden más barato / más recientes y búsqueda de zona sin acentos ni mayúsculas', async () => {
+    if (!listo) return;
+    const baratos = (await http().get('/listados-renta?orden=barato&limit=10').expect(200)).body.items.map((l: any) => l.precio_mxn);
+    expect(baratos).toEqual([...baratos].sort((a: number, b: number) => a - b));
+    const fechas = (await http().get('/listados-renta?orden=reciente&limit=50').expect(200)).body.items
+      .map((l: any) => l.publicado_en).filter(Boolean);
+    expect(fechas).toEqual([...fechas].sort().reverse());
+    const zona: string = (await http().get('/listados-renta?con_zona=true&limit=1').expect(200)).body.items[0].zona_nombre;
+    const sinAcentos = zona.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase();
+    const hallados = await http().get(`/listados-renta?q=${encodeURIComponent(sinAcentos)}&limit=200`).expect(200);
+    expect(hallados.body.total).toBeGreaterThanOrEqual(1);
+    expect(hallados.body.items.some((l: any) => l.zona_nombre === zona)).toBe(true);
+    const ninguno = await http().get('/listados-renta?q=zzzz-no-existe').expect(200);
+    expect(ninguno.body.total).toBe(0);
+  });
+
   it('resumen por zona: estadísticas solo con ≥5 listados', async () => {
     if (!listo) return;
     const r = await http().get('/listados-renta/resumen-zonas?limit=500').expect(200);
@@ -87,3 +103,5 @@ describe('API MVP-3 (PostGIS real)', () => {
     expect(renta.registros_descartados).toBe(19);
   });
 });
+
+
