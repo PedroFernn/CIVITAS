@@ -176,6 +176,34 @@ th[aria-sort=ascending] .th-flecha, th[aria-sort=descending] .th-flecha { color:
   .filtros-listados label:nth-child(4) { grid-column: auto; }
 }
 
+/* ── Comparador y selección de zonas (MVP-5) ── */
+.tarjeta-pie { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 4px; }
+.tarjeta-pie .ver-ficha { margin: 0; }
+.comparar-check { display: flex; align-items: center; gap: 6px; font-size: .88rem; color: var(--azul); font-weight: 600; cursor: pointer; }
+.comparar-check input:disabled + * , .comparar-check input:disabled { cursor: not-allowed; }
+.barra-comparar { position: sticky; top: 8px; z-index: 5; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;
+  margin-bottom: 10px; padding: 10px 14px; border: 1px solid #d48a00; border-radius: 10px; background: #fffaf0; font-size: .92rem; }
+.barra-comparar a { color: var(--azul); font-weight: 600; }
+.barra-comparar-acciones { display: flex; gap: 14px; align-items: center; }
+.filtros-comparar { grid-template-columns: minmax(220px, 1fr) auto; }
+.tabla-comparar th, .tabla-comparar td { white-space: normal; vertical-align: top; }
+.tabla-comparar tbody th[scope=row] { font-weight: 500; color: #1b2430; background: #fff; min-width: 170px; }
+.tabla-comparar .col-zona { min-width: 150px; }
+.tabla-comparar .col-zona a { display: block; font-weight: 700; }
+.tabla-comparar .col-zona small { font-weight: 400; color: var(--gris); }
+.tabla-comparar tr.grupo-fila th { background: #eef2f8; text-transform: uppercase; letter-spacing: .5px; font-size: .72rem; padding: 5px 10px; }
+.minimapas { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin: 22px 0; }
+.minimapas figure { margin: 0; } .minimapas figcaption { text-align: center; font-size: .88rem; color: var(--gris); margin-top: 4px; }
+@media (max-width: 760px) { .filtros-comparar { grid-template-columns: 1fr; } .barra-comparar { position: static; } }
+
+/* ── Entrevistas de precio (administración) ── */
+.aviso-ok { background: #e8f6ed; border: 1px solid #b6e0c4; color: #14693a; border-radius: 8px; padding: 10px 14px; font-size: .92rem; }
+.form-entrevista { max-width: 720px; }
+.form-fila { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 14px; }
+.form-entrevista select, .form-entrevista textarea { font: inherit; font-weight: 400; color: #1b2430; padding: 9px 11px; border: 1px solid #c9d1dc; border-radius: 8px; background: #fff; width: 100%; }
+.lista-entrevistas { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.notas-entrevista { white-space: pre-wrap; margin: 8px 0 0; }
+
 /* ── Adaptable: móvil desde 360 px ── */
 @media (max-width: 900px) {
   .explorador, .ficha-cols { grid-template-columns: minmax(0, 1fr); }

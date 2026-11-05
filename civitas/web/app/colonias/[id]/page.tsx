@@ -45,6 +45,7 @@ export default async function FichaZonaPage({ params }: { params: Promise<{ id: 
     <div className="ancho ficha-zona">
       <nav className="migas" aria-label="Ruta"><Link href="/colonias">Catálogo</Link> › {f.ciudad} › <span aria-current="page">{f.nombre}</span></nav>
       <h1>{f.nombre}</h1>
+      <p><Link className="enlace-sec" href={`/comparar?items=${f.id}`}>Comparar con otras zonas →</Link></p>
       <p className="nota">
         {f.tipo_unidad.toUpperCase()} <code>{f.clave_geo ?? 's/clave'}</code> · {f.ciudad}{f.area_km2 !== null && <> · {num(f.area_km2, 2)} km²</>}
         {t.precios_actualizados_en && <> · precios actualizados el {fechaMX(t.precios_actualizados_en)}</>}

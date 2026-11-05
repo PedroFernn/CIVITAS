@@ -112,3 +112,5 @@ export async function asignarZonaListados(conn: Conn): Promise<void> {
 export async function limpiarOtroModoRenta(conn: Conn, modo: string): Promise<void> {
   await conn.tx(() => conn.query('DELETE FROM listados_renta WHERE carga_id IN (SELECT id FROM cargas_datos WHERE modo <> $1)', [modo]));
 }
+
+

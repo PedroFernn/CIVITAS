@@ -34,3 +34,5 @@ export interface ParserRenta {
 
 export type TipoInmueble = 'departamento' | 'casa' | 'cuarto' | 'otro';
 export const TIPOS_INMUEBLE: readonly TipoInmueble[] = ['departamento', 'casa', 'cuarto', 'otro'];
+
+

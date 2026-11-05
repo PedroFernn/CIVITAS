@@ -49,3 +49,5 @@ export class EstadisticasCarga {
 
 export const aObjeto = (m: Map<string, number>): Record<string, number> =>
   Object.fromEntries([...m.entries()].sort((a, b) => b[1] - a[1] || (a[0] < b[0] ? -1 : 1)));
+
+

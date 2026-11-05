@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import Explorador from '@/components/Explorador';
 import { api, num, type Validacion } from '@/lib/api';
-import type { GeoCatalogo, ListaCatalogo, Metrica } from '@/lib/zonas';
+import { OPCIONES_PARADAS, type GeoCatalogo, type ListaCatalogo, type Metrica } from '@/lib/zonas';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Catálogo de zonas · CIVITAS' };
@@ -18,6 +18,7 @@ const uno = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v)?
 export default async function Catalogo({ searchParams }: { searchParams: Promise<SP> }) {
   const sp = await searchParams;
   const q = uno(sp.q), minRenta = uno(sp.min_renta), maxRenta = uno(sp.max_renta), conPrecio = uno(sp.con_precio) === 'true';
+  const minParadas = OPCIONES_PARADAS.some(([k]) => k && k === uno(sp.min_paradas)) ? uno(sp.min_paradas) : undefined;
   const pagina = Math.max(1, Number(uno(sp.pagina)) || 1);
   const orden = uno(sp.orden) && ORDENES.some(([k]) => k === uno(sp.orden)) && !(uno(sp.orden) === 'relevancia' && !q) ? uno(sp.orden)! : q ? 'relevancia' : 'nombre';
 
@@ -25,6 +26,7 @@ export default async function Catalogo({ searchParams }: { searchParams: Promise
   if (q) filtros.set('q', q);
   if (minRenta) filtros.set('min_renta', minRenta);
   if (maxRenta) filtros.set('max_renta', maxRenta);
+  if (minParadas) filtros.set('min_paradas', minParadas);
   if (conPrecio) filtros.set('con_precio', 'true');
   filtros.set('orden', orden);
 
@@ -52,7 +54,7 @@ export default async function Catalogo({ searchParams }: { searchParams: Promise
   const enlace = (p: number) => { const u = new URLSearchParams(filtros); u.set('pagina', String(p)); return `/colonias?${u}`; };
   const metrica: Metrica = orden === 'renta' ? 'renta' : orden === 'comercios' ? 'comercios' : orden === 'paradas' ? 'paradas' : 'precio_m2';
   const sintetico = val?.modo === 'fixture';
-  const hayFiltros = !!(q || minRenta || maxRenta || conPrecio);
+  const hayFiltros = !!(q || minRenta || maxRenta || minParadas || conPrecio);
 
   return (
     <div className="ancho">
@@ -66,6 +68,8 @@ export default async function Catalogo({ searchParams }: { searchParams: Promise
         <label>Buscar<input name="q" defaultValue={q ?? ''} placeholder="nombre, número o clave INEGI" maxLength={60} /></label>
         <label>Renta mediana mínima<input name="min_renta" type="number" min={0} step={500} inputMode="numeric" defaultValue={minRenta ?? ''} placeholder="$" /></label>
         <label>Renta mediana máxima<input name="max_renta" type="number" min={0} step={500} inputMode="numeric" defaultValue={maxRenta ?? ''} placeholder="$" /></label>
+        <label>Transporte
+          <select name="min_paradas" defaultValue={minParadas ?? ''}>{OPCIONES_PARADAS.map(([k, t]) => <option key={k} value={k}>{t}</option>)}</select></label>
         <label>Ordenar por
           <select name="orden" defaultValue={orden}>{ORDENES.filter(([k]) => k !== 'relevancia' || q).map(([k, t]) => <option key={k} value={k}>{t}</option>)}</select></label>
         <label className="check"><input type="checkbox" name="con_precio" value="true" defaultChecked={conPrecio} /> Solo zonas con precio publicado</label>
@@ -92,3 +96,5 @@ export default async function Catalogo({ searchParams }: { searchParams: Promise
     </div>
   );
 }
+
+

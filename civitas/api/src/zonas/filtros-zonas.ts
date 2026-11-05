@@ -12,6 +12,7 @@ export interface FiltrosZonas {
   minRenta?: number;
   maxRenta?: number;
   conPrecio: boolean;          // solo zonas con estadística publicable (≥ MIN_LISTADOS_ESTADISTICA)
+  minParadas?: number;         // transporte (MVP-5): zonas con al menos N paradas
   orden: OrdenZonas;
   limit: number;
   offset: number;
@@ -31,15 +32,19 @@ export function parseFiltrosZonas(q: Q, limitMax = 200, limitPorDefecto = 12): F
   const minRenta = entero(q.min_renta, 'min_renta', 0, 100_000_000);
   const maxRenta = entero(q.max_renta, 'max_renta', 0, 100_000_000);
   if (minRenta !== undefined && maxRenta !== undefined && minRenta > maxRenta) throw new BadRequestException('min_renta no puede ser mayor que max_renta');
+  const minParadas = entero(q.min_paradas, 'min_paradas', 0, 100_000);
   return {
     q: terms,
     ciudad: q.ciudad?.trim() || undefined,
     piloto: q.piloto !== 'false',
     minRenta,
     maxRenta,
+    minParadas,
     conPrecio: q.con_precio === 'true' || minRenta !== undefined || maxRenta !== undefined,
     orden,
     limit: entero(q.limit, 'limit', 1, limitMax) ?? Math.min(limitPorDefecto, limitMax),
     offset: entero(q.offset, 'offset', 0, 1_000_000) ?? 0,
   };
 }
+
+

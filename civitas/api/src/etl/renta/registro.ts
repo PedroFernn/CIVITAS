@@ -11,3 +11,5 @@ export function obtenerParser(clave: string): ParserRenta {
   }
   return p;
 }
+
+

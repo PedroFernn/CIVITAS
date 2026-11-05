@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { DatabaseService } from '../database/database.service';
 import { MIN_LISTADOS_ESTADISTICA } from '../renta/filtros-renta';
 import { esNumeroCorto, escaparLike, ordenarPorRelevancia } from './busqueda';
+import { armarComparacion } from './comparar';
 import { FiltrosZonas, OrdenZonas } from './filtros-zonas';
 
 const MIN = MIN_LISTADOS_ESTADISTICA; // constante del código (entero): se interpola, no viene del usuario
@@ -53,6 +54,7 @@ function where(f: Omit<FiltrosZonas, 'orden' | 'limit' | 'offset'>, params: unkn
   if (f.conPrecio) w.push(`COALESCE(v.n_listados,0) >= ${MIN}`);
   if (f.minRenta !== undefined) w.push(`v.renta_mediana >= ${p(f.minRenta)}`);
   if (f.maxRenta !== undefined) w.push(`v.renta_mediana <= ${p(f.maxRenta)}`);
+  if (f.minParadas !== undefined) w.push(`COALESCE(a.num_paradas,0) >= ${p(f.minParadas)}`);
   return w.length ? `WHERE ${w.join(' AND ')}` : '';
 }
 
@@ -156,8 +158,38 @@ export class ZonasService {
     };
   }
 
+  /**
+   * Comparador (P-07, RF-1.4): hasta 3 zonas lado a lado, en el orden pedido. Misma regla de supresión que la ficha:
+   * una zona con menos de MIN listados aparece, pero sin mediana ni cuartiles (y sin diferencia contra la ciudad).
+   */
+  async comparar(ids: string[]) {
+    const filas = await this.db.query<any>(
+      `SELECT ${CAMPOS}, ST_AsGeoJSON(c.geom, 6)::json AS geometry, pos.lugar, pos.de
+       ${DESDE}
+       LEFT JOIN LATERAL (
+         SELECT (count(*) FILTER (WHERE v2.precio_m2_mediano > v.precio_m2_mediano) + 1)::int AS lugar, count(*)::int AS de
+         FROM v_zona_precios v2 WHERE v2.n_precio_m2 >= ${MIN}
+       ) pos ON v.n_precio_m2 >= ${MIN}
+       WHERE c.id = ANY($1::uuid[])`, [ids]);
+    const pedido = new Map(ids.map((id, i) => [id.toLowerCase(), i]));
+    const hallados = new Set(filas.map((f) => String(f.id).toLowerCase()));
+    const falta = ids.find((id) => !hallados.has(id.toLowerCase()));
+    if (falta) throw new NotFoundException(`Zona no encontrada: ${falta}`);
+    filas.sort((a, b) => pedido.get(String(a.id).toLowerCase())! - pedido.get(String(b.id).toLowerCase())!);
+
+    const ciudades = await this.db.query<any>(
+      `SELECT cz.ciudad, count(*)::int AS n_listados, count(DISTINCT l.zona_id)::int AS zonas,
+              percentile_cont(0.5) WITHIN GROUP (ORDER BY l.precio_mxn)::float AS renta_mediana,
+              percentile_cont(0.5) WITHIN GROUP (ORDER BY l.precio_m2)::float AS precio_m2_mediano
+       FROM listados_renta l JOIN colonias cz ON cz.id = l.zona_id WHERE cz.ciudad = ANY($1::text[]) GROUP BY cz.ciudad`,
+      [[...new Set(filas.map((f) => f.ciudad as string))]]);
+    return armarComparacion(filas, ciudades, MIN);
+  }
+
   async ultimaValidacion() {
     const [r] = await this.db.query<any>('SELECT id, ejecutada_en, aprobada, modo, resultados FROM mvp4_validaciones ORDER BY id DESC LIMIT 1');
     return r ?? null;
   }
 }
+
+

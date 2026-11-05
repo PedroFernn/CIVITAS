@@ -3,6 +3,7 @@
  *   node dist/cli.js mvp2 [--fuente fixture|real] [--desde-cero] [...]
  *   node dist/cli.js mvp3 [--fuente fixture|real] [--listados <archivo>]   (requiere haber corrido mvp2)
  *   node dist/cli.js recaptura [--cada-dias 7] | mvp4 | validar-mvp4
+ *   node dist/cli.js mvp5   (checklist de búsqueda, comparador y entrevistas; CIVITAS_URL verifica el despliegue)
  *   node dist/cli.js migrar | validar | validar-mvp3
  */
 import 'reflect-metadata';
@@ -13,10 +14,11 @@ import { correrMvp2 } from './etl/pipeline';
 import { correrMvp3 } from './etl/renta/pipeline';
 import { programar, recapturar } from './etl/mvp4/recaptura';
 import * as validacionMvp4 from './etl/mvp4/validacion';
+import * as validacionMvp5 from './etl/mvp5/validacion';
 import * as validacionMvp3 from './etl/renta/validacion';
 import * as validacion from './etl/validacion';
 
-const AYUDA = `Uso: civitas-etl <mvp2|mvp3|recaptura|mvp4|migrar|validar|validar-mvp3|validar-mvp4> [opciones]
+const AYUDA = `Uso: civitas-etl <mvp2|mvp3|recaptura|mvp4|mvp5|migrar|validar|validar-mvp3|validar-mvp4|validar-mvp5> [opciones]
 
   mvp2      Importa INEGI (MGN, DENUE) + transporte, calcula atributos y valida
     --fuente fixture|real      (por defecto fixture)
@@ -39,10 +41,13 @@ const AYUDA = `Uso: civitas-etl <mvp2|mvp3|recaptura|mvp4|migrar|validar|validar
             Acepta las opciones de mvp3 (--fuente, --listados, ...).
     --cada-dias N              Se queda corriendo y repite cada N días (servicio \`recaptura\` del compose); sin esto corre una vez
   mvp4      Una recaptura (si aún no hay ninguna) y el checklist «Para pasar» de MVP-4
+  mvp5      Checklist «Para pasar» de MVP-5: búsqueda y filtros, comparador (3 zonas), latencia, 50 usuarios simulados, entrevistas y plan B
+            Con CIVITAS_URL=https://tu-dominio comprueba también el comparador en producción
   migrar        Aplica db/migrations
   validar       Ejecuta solo el checklist de MVP-2 sobre lo ya cargado
   validar-mvp3  Ejecuta solo el checklist de MVP-3 sobre lo ya cargado
   validar-mvp4  Ejecuta solo el checklist de MVP-4 sobre lo ya cargado
+  validar-mvp5  Ejecuta solo el checklist de MVP-5 sobre lo ya cargado (mvp5 además aplica las migraciones)
 `;
 
 export async function main(argv: string[]): Promise<number> {
@@ -91,6 +96,17 @@ export async function main(argv: string[]): Promise<number> {
     try {
       const checks = await validacionMvp4.ejecutar(conn, cfg);
       const ok = await validacionMvp4.guardar(conn, checks, await validacionMvp4.modoDeDatos(conn));
+      validacion.imprimir(checks);
+      return ok ? 0 : 1;
+    } finally { await conn.close(); }
+  }
+  if (cmd === 'mvp5' || cmd === 'validar-mvp5') {
+    const conn = await conectar(cfg.databaseUrl);
+    try {
+      if (cmd === 'mvp5') await migrar(conn);
+      const checks = await validacionMvp5.ejecutar(conn, cfg);
+      const ok = await validacionMvp5.guardar(conn, checks, await validacionMvp4.modoDeDatos(conn));
+      if (cmd === 'mvp5') console.log(`\nMVP-5 · validación — ${ok ? 'APROBADO' : 'NO APROBADO'}`);
       validacion.imprimir(checks);
       return ok ? 0 : 1;
     } finally { await conn.close(); }
@@ -178,3 +194,5 @@ export async function main(argv: string[]): Promise<number> {
 if (require.main === module) {
   main(process.argv.slice(2)).then((c) => process.exit(c), (e) => { console.error(e); process.exit(1); });
 }
+
+

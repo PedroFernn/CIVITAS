@@ -32,6 +32,31 @@ export interface FichaZona extends ZonaCatalogo {
   listados_recientes: { id: string; tipo_inmueble: string; precio_mxn: number; superficie_m2: number | null; recamaras: number | null; precio_m2: number | null; publicado_en: string | null }[];
 }
 
+/** Comparador (MVP-5): hasta 3 zonas lado a lado. */
+export const MAX_COMPARAR = 3;
+export interface ItemComparacion extends ZonaCatalogo {
+  geometry: { type: string; coordinates: any };
+  posicion_precio_m2: { lugar: number; de: number } | null;
+  renta_vs_ciudad_pct: number | null;
+  paradas_por_km2: number | null;
+}
+export interface Comparacion {
+  max: number; min_listados_estadistica: number;
+  ciudades_referencia: { ciudad: string; n_listados: number; zonas: number; renta_mediana: number | null; precio_m2_mediano: number | null }[];
+  items: ItemComparacion[];
+}
+export const UUID_ZONA = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+/** `items=a,b,c` → ids válidos, sin repetir, máximo 3 (lo demás se ignora). */
+export function idsDeComparacion(crudo: string | undefined, extra?: string): string[] {
+  const out: string[] = [];
+  for (const t of `${crudo ?? ''},${extra ?? ''}`.split(',').map((x) => x.trim().toLowerCase())) {
+    if (UUID_ZONA.test(t) && !out.includes(t)) out.push(t);
+  }
+  return out;
+}
+/** Opciones del filtro de transporte (paradas mínimas por zona). */
+export const OPCIONES_PARADAS: [string, string][] = [['', 'Cualquiera'], ['1', '1 o más paradas'], ['3', '3 o más'], ['5', '5 o más'], ['10', '10 o más']];
+
 export type Metrica = 'precio_m2' | 'renta' | 'comercios' | 'paradas';
 export const METRICAS: { clave: Metrica; etiqueta: string; unidad: string }[] = [
   { clave: 'precio_m2', etiqueta: 'Renta por m²', unidad: 'MXN/m²' },
@@ -95,3 +120,5 @@ export const plural = (n: number, uno: string, varios: string) => `${entero(n)} 
 export const mxnC = (n: number | null | undefined) => (n == null ? '—' : n.toLocaleString('es-MX', { style: 'currency', currency: 'MXN', maximumFractionDigits: 0 }));
 export const mxn2 = (n: number | null | undefined) => (n == null ? '—' : n.toLocaleString('es-MX', { style: 'currency', currency: 'MXN', minimumFractionDigits: 2, maximumFractionDigits: 2 }));
 export const entero = (n: number | null | undefined) => (n == null ? '—' : n.toLocaleString('es-MX', { maximumFractionDigits: 0 }));
+
+

@@ -19,7 +19,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <header>
           <Link href="/" className="marca"><img src="/civitas_logo.svg" alt="CIVITAS" height={44} /></Link>
           <BuscadorZonas />
-          <nav><Link href="/colonias">Catálogo</Link><Link href="/zonas">Zonas piloto</Link><Link href="/rentas">Rentas</Link><Link href="/aviso-privacidad">Aviso de privacidad</Link>            {sesion ? (
+          <nav><Link href="/colonias">Catálogo</Link><Link href="/comparar">Comparar</Link><Link href="/zonas">Zonas piloto</Link><Link href="/rentas">Rentas</Link><Link href="/aviso-privacidad">Aviso de privacidad</Link>            {sesion ? (
               <>
                 {sesion.cuenta.rol === 'administrador' && <Link href="/admin">Panel</Link>}
                 <Link href="/mi-cuenta" className="sesion">{sesion.cuenta.usuario}</Link>
@@ -38,3 +38,5 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     </html>
   );
 }
+
+

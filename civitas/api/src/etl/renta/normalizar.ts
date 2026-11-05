@@ -123,3 +123,5 @@ export function huella(d: DatosHuella): string {
   const base = [d.tipo, d.precio.toFixed(2), d.superficie.toFixed(2), d.recamaras ?? '', d.lat.toFixed(4), d.lon.toFixed(4)].join('|');
   return createHash('sha256').update(base).digest('hex').slice(0, 32);
 }
+
+

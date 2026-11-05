@@ -61,3 +61,5 @@ export function evaluarAdr(adr: Adr): EstadoAdr {
     terminosPermiten: permite === 'si',
   };
 }
+
+

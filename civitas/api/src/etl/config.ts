@@ -19,6 +19,12 @@ export const ADR_FUENTE_RENTA =
     .map((d) => path.join(d, 'ADR-002-fuente-renta.md'))
     .find(existsSync) ?? path.join(ROOT, 'docs', 'mvp3', 'ADR-002-fuente-renta.md');
 
+// MVP-5: el plan B (si el lun 2 nov, Día de Muertos, se pierde) vive en docs/mvp5/MVP5.md; el checklist comprueba que esté escrito.
+export const DOC_MVP5 =
+  [path.join(ROOT, 'docs', 'mvp5'), path.join(ROOT, '..', 'docs', 'mvp5')]
+    .map((d) => path.join(d, 'MVP5.md'))
+    .find(existsSync) ?? path.join(ROOT, 'docs', 'mvp5', 'MVP5.md');
+
 export const DEFAULT_DB = 'postgresql://civitas:civitas@localhost:5432/civitas';
 
 /** Unidad de zona decidida en ADR-001 */
@@ -151,3 +157,5 @@ function descubrir(base: string, patrones: string[], shp = false): string | unde
   }
   return undefined;
 }
+
+

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Criterios "PARA PASAR" de MVP-1 a MVP-4 (requiere el ETL ya corrido: mvp2, mvp3 y mvp4). Uso:
+# Criterios "PARA PASAR" de MVP-1 a MVP-5 (requiere el ETL ya corrido: mvp2, mvp3 y mvp4). Uso:
 #   WEB_URL=https://tu-dominio.mx scripts/smoke.sh
 #   WEB_URL=http://localhost scripts/smoke.sh   (stack local con Docker Compose)
 set -euo pipefail
@@ -79,6 +79,27 @@ if [ "${SMOKE_DATA:-1}" = "1" ] && [ "${SMOKE_MVP4:-1}" = "1" ]; then
   [ "$(code "$WEB_URL/colonias/no-es-una-zona")" = "404" ] && ok "ficha con id inválido → 404" || fail "un id inválido debe dar 404"
 fi
 
+# Datos de MVP-5 (búsqueda con filtros y comparador: requiere el ETL de mvp2 y mvp3). SMOKE_MVP5=0 los omite.
+# Las entrevistas (negocio) no se miden aquí: las comprueba `docker compose run --rm etl mvp5`.
+if [ "${SMOKE_DATA:-1}" = "1" ] && [ "${SMOKE_MVP5:-1}" = "1" ]; then
+  ids="$(curl -s --max-time 15 "$API_URL/zonas?limit=4&orden=nombre" | grep -o '"id":"[0-9a-f-]\{36\}"' | cut -d'"' -f4 | head -4 | tr '\n' ' ')"
+  set -- $ids; [ "$#" -ge 4 ] || fail "no hay 4 zonas para probar el comparador (¿corriste el ETL?)"
+  cmp="$(curl -s --max-time 15 -w '\n%{http_code}' "$API_URL/zonas/comparar?items=$1,$2,$3")"
+  [ "${cmp##*$'\n'}" = "200" ] && [ "$(echo "$cmp" | grep -o '"paradas_por_km2"' | wc -l)" = "3" ] \
+    && ok "GET /zonas/comparar → 3 zonas lado a lado" || fail "el comparador no devolvió 3 zonas"
+  [ "$(code "$API_URL/zonas/comparar?items=$1,$2,$3,$4")" = "400" ] && ok "el comparador rechaza una cuarta zona (400)" || fail "el comparador debe rechazar 4 zonas"
+  [ "$(code "$API_URL/zonas/comparar?items=no-es-uuid")" = "400" ] && ok "el comparador valida los ids (400)" || fail "el comparador debe rechazar ids inválidos"
+  [ "$(code "$API_URL/zonas?min_paradas=3&limit=5")" = "200" ] && ok "GET /zonas filtra por transporte (min_paradas)" || fail "el filtro min_paradas no responde 200"
+  [ "$(code "$API_URL/zonas?min_paradas=abc")" = "400" ] && ok "min_paradas valida su valor (400)" || fail "min_paradas debe rechazar valores no numéricos"
+  [ "$(code "$API_URL/entrevistas")" = "401" ] && ok "GET /entrevistas sin sesión → 401" || fail "/entrevistas debe exigir sesión de administrador"
+  pagina="$(curl -s --max-time 15 "$WEB_URL/comparar?items=$1,$2,$3")"
+  echo "$pagina" | grep -q 'Comparando <strong>3</strong>' \
+    && ok "GET /comparar (web) muestra las 3 zonas" || fail "la página /comparar no muestra las 3 zonas"
+  echo "$pagina" | grep -qiE 'para pasar|aprobado' && fail "/comparar muestra información de desarrollo" || ok "/comparar no muestra información de desarrollo"
+  loc="$(curl -s -o /dev/null -w '%{http_code} %{redirect_url}' --max-time 15 "$WEB_URL/admin/entrevistas")"
+  case "$loc" in 30[1278]\ *iniciar-sesion*) ok "/admin/entrevistas sin sesión redirige a iniciar sesión";; *) fail "/admin/entrevistas sin sesión debe redirigir (obtuvo: $loc)";; esac
+fi
+
 # Cuentas y sesiones (no necesitan datos del ETL). SMOKE_PROD=1 además exige que NO haya cuentas de demostración (servidor público).
 status() { curl -s -o /dev/null -w '%{http_code}' --max-time 15 "$@"; }
 [ "$(status -X POST -H 'content-type: application/json' -d '{"identificador":"nadie","contrasena":"x"}' "$API_URL/auth/login")" = "401" ] \
@@ -98,3 +119,5 @@ if [ "${SMOKE_PROD:-0}" = "1" ]; then
 fi
 
 echo "Smoke OK"
+
+

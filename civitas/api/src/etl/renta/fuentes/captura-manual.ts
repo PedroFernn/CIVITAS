@@ -43,3 +43,5 @@ export const capturaManual: ParserRenta = {
     }
   },
 };
+
+

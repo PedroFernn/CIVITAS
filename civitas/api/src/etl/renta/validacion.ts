@@ -113,3 +113,5 @@ export async function guardar(conn: Conn, checks: Check[], modo: string): Promis
   await conn.tx(() => conn.query('INSERT INTO mvp3_validaciones (aprobada, modo, resultados) VALUES ($1,$2,$3)', [aprobada, modo, JSON.stringify(checks)]));
   return aprobada;
 }
+
+

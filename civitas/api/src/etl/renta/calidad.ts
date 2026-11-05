@@ -156,3 +156,5 @@ export function escribirArchivosReporte(r: ReporteCalidad): void {
     console.warn(`No se pudo escribir data/reports (${(e as Error).message}); el reporte sigue disponible en la API: GET /listados-renta/calidad`);
   }
 }
+
+

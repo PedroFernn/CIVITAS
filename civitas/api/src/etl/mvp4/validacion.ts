@@ -20,10 +20,10 @@ export function medianaManual(xs: number[]): number | null {
   return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
 }
 
-const p95 = (xs: number[]) => [...xs].sort((a, b) => a - b)[Math.max(0, Math.ceil(xs.length * 0.95) - 1)] ?? 0;
+export const p95 = (xs: number[]) => [...xs].sort((a, b) => a - b)[Math.max(0, Math.ceil(xs.length * 0.95) - 1)] ?? 0;
 
 /** El servicio usa un pool y lanza consultas en paralelo; el ETL tiene un solo cliente, que no admite consultas simultáneas: se encolan. */
-function enSerie(conn: Conn) {
+export function enSerie(conn: Conn) {
   let cola: Promise<unknown> = Promise.resolve();
   return {
     query: <T>(sql: string, params: unknown[] = []): Promise<T[]> => {
@@ -125,3 +125,5 @@ export async function modoDeDatos(conn: Conn): Promise<string> {
   const m = (await conn.query('SELECT DISTINCT cd.modo FROM colonias z JOIN cargas_datos cd ON cd.id = z.carga_id')).map((x) => x.modo as string);
   return m.length === 1 ? m[0] : 'n/d';
 }
+
+
