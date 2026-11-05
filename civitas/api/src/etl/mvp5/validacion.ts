@@ -58,7 +58,7 @@ export async function ejecutar(conn: Conn, cfg: Config): Promise<Check[]> {
     if (!porNombre.items.some((i: any) => i.id === z0.id)) problemas.push(`buscar «${z0.nombre}» sin acentos ni mayúsculas no la encuentra`);
     notas.push(`nombre: «${z0.nombre}» → ${porNombre.total} resultado(s)`);
 
-    const rentas = (await conn.query(`SELECT renta_mediana::float AS r FROM v_zona_precios v JOIN colonias c ON c.id = v.zona_id WHERE c.es_piloto AND v.n_listados >= ${MIN_LISTADOS_ESTADISTICA}`)).map((x) => x.r as number);
+    const rentas = (await conn.query(`SELECT v.renta_mediana::float AS r FROM v_zona_precios v JOIN colonias c ON c.id = v.zona_id WHERE c.es_piloto AND v.n_listados >= ${MIN_LISTADOS_ESTADISTICA}`)).map((x) => x.r as number);
     if (!rentas.length) problemas.push('ninguna zona tiene renta publicable para probar el filtro de renta');
     else {
       const minRenta = Math.floor(mediana(rentas));
