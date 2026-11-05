@@ -67,7 +67,7 @@ Una zona con menos de **5 listados** aparece, pero sin mediana ni cuartiles; la 
 
 ## Recaptura: qué es y qué no es
 
-Con captura manual (ADR-002) **no hay nada que «recapturar» automáticamente**: una persona sigue transcribiendo anuncios. La recaptura semanal re-ingiere de forma idempotente los archivos que haya en `data/raw/rentas/` (si hay archivos nuevos, entran; si no, no cambia nada, y en modo sintético tampoco). Automatiza la ingesta, no la captura. Un fallo (archivo ausente, zonas sin cargar, error de lectura) se registra, no detiene el servicio y se reintenta en el siguiente ciclo.
+Con captura manual (ADR-002) **no hay nada que «recapturar» automáticamente**: una persona sigue transcribiendo anuncios. La recaptura semanal re-ingiere de forma idempotente el archivo de `data/raw/rentas/` (si trae listados nuevos, entran; si no, no cambia nada, y en modo sintético tampoco). **En modo real lee un solo archivo**, el primero que encuentra por orden alfabético: si la carpeta tiene varios, entra solo uno. Hoy hay que mantener un único archivo (agregarle filas o reemplazarlo por una exportación más reciente). Automatiza la ingesta, no la captura. Un fallo (archivo ausente, zonas sin cargar, error de lectura) se registra, no detiene el servicio y se reintenta en el siguiente ciclo.
 
 ## Límites conocidos (a propósito, no olvidos)
 
