@@ -15,7 +15,22 @@ O indica las rutas con `CIVITAS_MGN_PATH`, `CIVITAS_DENUE_PATH`, `CIVITAS_TRANSP
 ## De dónde bajarlos
 - **MGN y DENUE:** portal de INEGI (https://www.inegi.org.mx → Marco Geoestadístico y DENUE, "Descarga masiva"). Verifica en el portal
   la versión vigente y el nombre exacto de la capa de AGEB urbanas: este repo no la fija.
-- **Transporte:** **pendiente de decidir** qué proveedor/conjunto de datos de Puebla se usará y bajo qué licencia.
+- **Transporte:** paradas de bus de **OpenStreetMap** (© colaboradores de OpenStreetMap, licencia ODbL: hay que citar la fuente; la UI y el pie lo hacen),
+  consultadas con Overpass. Puebla no publica un GTFS abierto de sus rutas que se haya podido verificar. Son paradas, no rutas ni frecuencias, y muchas no tienen nombre en OSM.
+
+## Datos reales del municipio de Puebla (un solo comando)
+`python3 scripts/preparar-datos-reales.py` (desde `civitas/`, solo biblioteca estándar) descarga y deja listos en `data/raw/`:
+AGEB urbanas oficiales (INEGI, servicio wscatgeo, MGN dic. 2025, 498 zonas del municipio 21/114, CRS EPSG:6365 ≈ WGS84 en grados), el DENUE completo de Puebla
+(descarga masiva, ~217 MB descomprimido) y las paradas de OSM. Las zonas se nombran con la colonia más frecuente del DENUE en cada AGEB (`nomb_asent`).
+Luego: `docker compose run --rm etl mvp2 --fuente real --desde-cero`. Ojo: el CSV del DENUE trae teléfono y correo de cada negocio; el ETL no los lee ni los guarda,
+pero el archivo queda en disco (está fuera de git y de la imagen de Docker).
+
+## Rentas de DEMOSTRACIÓN sobre zonas reales
+No existe una fuente abierta de rentas por zona. Por decisión explícita del equipo, `python3 scripts/generar-rentas-demo.py` genera ~6,000 listados **inventados**
+dentro de las AGEB reales (`data/raw/rentas-demo/`), que se cargan siempre como `fixture`:
+`docker compose run --rm etl mvp3 --fuente fixture --listados /app/data/raw/rentas-demo/renta_demo_puebla.csv` (y lo mismo con `mvp4`/`mvp5`).
+La validación de origen del MVP-3 pasa de `fail` a `warn` **solo** en el caso «zonas reales + precios fixture»; el caso inverso sigue fallando.
+La UI avisa por separado del origen de zonas y de precios (`web/components/AvisoDatos.tsx`). Para precios reales: captura manual (ADR-002) y `--fuente real`.
 
 ## Qué lee el importador
 | Fuente | Campos esperados (sin distinguir mayúsculas) |

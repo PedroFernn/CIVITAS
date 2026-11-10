@@ -96,9 +96,13 @@ export async function ejecutar(conn: Conn, cfg: Config): Promise<Check[]> {
 
   // 9 ── origen único y coherente con las zonas (RNF calidad)
   const modosZonas = (await conn.query('SELECT DISTINCT cd.modo FROM colonias z JOIN cargas_datos cd ON cd.id = z.carga_id ORDER BY 1')).map((x) => x.modo as string);
+  const coincide = modo !== null && modosZonas.length === 1 && modosZonas[0] === modo;
+  // Excepción acotada y explícita: precios de DEMOSTRACIÓN (fixture) sobre zonas reales. Nunca al revés (precios «reales» sobre zonas sintéticas).
+  const demoSobreReales = modo === 'fixture' && modosZonas.length === 1 && modosZonas[0] === 'real';
   out.push({ id: 'origen_unico', requisito: 'RNF-CAL', descripcion: 'Listados de un solo origen y del mismo origen que las zonas (sin mezclar sintético y real)',
-    estado: modo !== null && modosZonas.length === 1 && modosZonas[0] === modo ? 'ok' : 'fail',
-    detalle: `modo de los listados: ${lista(modos)} · modo de las zonas: ${lista(modosZonas)}` });
+    estado: coincide ? 'ok' : demoSobreReales ? 'warn' : 'fail',
+    detalle: `modo de los listados: ${lista(modos)} · modo de las zonas: ${lista(modosZonas)}` +
+      (demoSobreReales ? ' · PRECIOS DE DEMOSTRACIÓN sobre zonas reales: las zonas, comercios y paradas son reales; los precios de renta son sintéticos (decisión explícita del equipo)' : '') });
 
   // 10 ── aviso: datos sintéticos
   if (sintetico) {
