@@ -1,6 +1,9 @@
 import Link from 'next/link';
 import Explorador from '@/components/Explorador';
-import { api, num, type Validacion } from '@/lib/api';
+import AvisoDatos from '@/components/AvisoDatos';
+import { api, num } from '@/lib/api';
+import { modosDatos, type ModosDatos } from '@/lib/modo';
+import Termino from '@/components/Termino';
 import { OPCIONES_PARADAS, type GeoCatalogo, type ListaCatalogo, type Metrica } from '@/lib/zonas';
 
 export const dynamic = 'force-dynamic';
@@ -8,8 +11,8 @@ export const metadata = { title: 'Catálogo de zonas · CIVITAS' };
 
 const POR_PAGINA = 12;
 const ORDENES: [string, string][] = [
-  ['relevancia', 'Relevancia (con búsqueda)'], ['nombre', 'Nombre'], ['precio_m2', 'Renta por m² (mayor primero)'], ['renta', 'Renta mediana (mayor primero)'],
-  ['comercios', 'Más comercios'], ['paradas', 'Más paradas'], ['listados', 'Más listados'],
+  ['relevancia', 'Mejor coincidencia'], ['nombre', 'Nombre (A–Z)'], ['precio_m2', 'Más cara por m²'], ['renta', 'Renta típica más alta'],
+  ['comercios', 'Más comercios'], ['paradas', 'Más paradas'], ['listados', 'Más anuncios'],
 ];
 type SP = Record<string, string | string[] | undefined>;
 const uno = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v)?.trim() || undefined;
@@ -30,13 +33,13 @@ export default async function Catalogo({ searchParams }: { searchParams: Promise
   if (conPrecio) filtros.set('con_precio', 'true');
   filtros.set('orden', orden);
 
-  let lista: ListaCatalogo, geo: GeoCatalogo, val: Validacion | null;
+  let lista: ListaCatalogo, geo: GeoCatalogo, modos: ModosDatos;
   try {
     [lista, geo] = await Promise.all([
-      api<ListaCatalogo>(`/zonas?${filtros}&limit=${POR_PAGINA}&offset=${(pagina - 1) * POR_PAGINA}`),
-      api<GeoCatalogo>(`/zonas/geojson?${filtros}&limit=500`),
+      api<ListaCatalogo>(`/zonas?${filtros}&piloto=false&limit=${POR_PAGINA}&offset=${(pagina - 1) * POR_PAGINA}`),
+      api<GeoCatalogo>(`/zonas/geojson?${filtros}&piloto=false&limit=500`),
     ]);
-    val = await api<Validacion>('/datos-abiertos/validacion').catch(() => null);
+    modos = await modosDatos();
   } catch (e) {
     const msg = (e as Error).message;
     return (
@@ -53,28 +56,28 @@ export default async function Catalogo({ searchParams }: { searchParams: Promise
   const paginas = Math.max(1, Math.ceil(lista.total / POR_PAGINA));
   const enlace = (p: number) => { const u = new URLSearchParams(filtros); u.set('pagina', String(p)); return `/colonias?${u}`; };
   const metrica: Metrica = orden === 'renta' ? 'renta' : orden === 'comercios' ? 'comercios' : orden === 'paradas' ? 'paradas' : 'precio_m2';
-  const sintetico = val?.modo === 'fixture';
   const hayFiltros = !!(q || minRenta || maxRenta || minParadas || conPrecio);
 
   return (
     <div className="ancho">
       <h1>{q ? <>Resultados para «{q}»</> : 'Catálogo de zonas'}</h1>
-      {sintetico && (
-        <p className="aviso-borrador"><strong>Datos sintéticos.</strong> Las zonas son cuadrículas generadas y los precios de renta son de prueba: ni la forma ni las cifras
-          describen el mercado de Puebla. El mapa no lleva mapa base a propósito, para no sugerir límites reales.</p>
+      {!q && (
+        <p className="lead">Cada zona es un área de la ciudad. Elige un criterio arriba del mapa para colorearlo (por ejemplo, dónde la renta es más cara),
+          haz clic en una zona para ver su ficha, o marca «Comparar» en hasta 3 tarjetas para ponerlas lado a lado.</p>
       )}
+      <AvisoDatos modos={modos} />
 
       <form className="filtros" method="get" action="/colonias">
-        <label>Buscar<input name="q" defaultValue={q ?? ''} placeholder="nombre, número o clave INEGI" maxLength={60} /></label>
-        <label>Renta mediana mínima<input name="min_renta" type="number" min={0} step={500} inputMode="numeric" defaultValue={minRenta ?? ''} placeholder="$" /></label>
-        <label>Renta mediana máxima<input name="max_renta" type="number" min={0} step={500} inputMode="numeric" defaultValue={maxRenta ?? ''} placeholder="$" /></label>
-        <label>Transporte
+        <label>Buscar una zona<input name="q" defaultValue={q ?? ''} placeholder="nombre o número de zona" maxLength={60} /></label>
+        <label><Termino k="mediana" etiqueta="Renta típica desde" /><input name="min_renta" type="number" min={0} step={500} inputMode="numeric" defaultValue={minRenta ?? ''} placeholder="$ al mes" /></label>
+        <label>Renta típica hasta<input name="max_renta" type="number" min={0} step={500} inputMode="numeric" defaultValue={maxRenta ?? ''} placeholder="$ al mes" /></label>
+        <label>Transporte público
           <select name="min_paradas" defaultValue={minParadas ?? ''}>{OPCIONES_PARADAS.map(([k, t]) => <option key={k} value={k}>{t}</option>)}</select></label>
         <label>Ordenar por
           <select name="orden" defaultValue={orden}>{ORDENES.filter(([k]) => k !== 'relevancia' || q).map(([k, t]) => <option key={k} value={k}>{t}</option>)}</select></label>
-        <label className="check"><input type="checkbox" name="con_precio" value="true" defaultChecked={conPrecio} /> Solo zonas con precio publicado</label>
+        <label className="check"><input type="checkbox" name="con_precio" value="true" defaultChecked={conPrecio} /> Solo zonas con precio de renta</label>
         <div className="filtros-acciones">
-          <button type="submit">Aplicar</button>
+          <button type="submit">Aplicar filtros</button>
           {hayFiltros && <Link href="/colonias" className="enlace-sec">Limpiar</Link>}
         </div>
       </form>
@@ -84,7 +87,7 @@ export default async function Catalogo({ searchParams }: { searchParams: Promise
         {lista.total > 0 && <> · mostrando {num((pagina - 1) * POR_PAGINA + 1)}–{num(Math.min(pagina * POR_PAGINA, lista.total))}</>}
       </p>
 
-      <Explorador items={lista.items} features={geo.features} minListados={lista.min_listados_estadistica} metricaInicial={metrica}>
+      <Explorador conBase={modos.zonas === 'real'} items={lista.items} features={geo.features} minListados={lista.min_listados_estadistica} metricaInicial={metrica}>
         {paginas > 1 && (
           <nav className="paginacion" aria-label="Páginas de resultados">
             {pagina > 1 ? <Link href={enlace(pagina - 1)} rel="prev">← Anterior</Link> : <span aria-disabled="true">← Anterior</span>}

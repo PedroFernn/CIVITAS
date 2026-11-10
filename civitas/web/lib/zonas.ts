@@ -55,12 +55,12 @@ export function idsDeComparacion(crudo: string | undefined, extra?: string): str
   return out;
 }
 /** Opciones del filtro de transporte (paradas mínimas por zona). */
-export const OPCIONES_PARADAS: [string, string][] = [['', 'Cualquiera'], ['1', '1 o más paradas'], ['3', '3 o más'], ['5', '5 o más'], ['10', '10 o más']];
+export const OPCIONES_PARADAS: [string, string][] = [['', 'Cualquiera'], ['1', 'Al menos 1 parada'], ['3', 'Al menos 3 paradas'], ['5', 'Al menos 5 paradas'], ['10', 'Al menos 10 paradas']];
 
 export type Metrica = 'precio_m2' | 'renta' | 'comercios' | 'paradas';
 export const METRICAS: { clave: Metrica; etiqueta: string; unidad: string }[] = [
   { clave: 'precio_m2', etiqueta: 'Renta por m²', unidad: 'MXN/m²' },
-  { clave: 'renta', etiqueta: 'Renta mediana', unidad: 'MXN/mes' },
+  { clave: 'renta', etiqueta: 'Renta típica', unidad: 'MXN/mes' },
   { clave: 'comercios', etiqueta: 'Comercios', unidad: 'comercios' },
   { clave: 'paradas', etiqueta: 'Paradas', unidad: 'paradas' },
 ];
@@ -75,8 +75,8 @@ export function valorMetrica(z: ZonaCatalogo, m: Metrica): number | null {
   }
 }
 
-export const ESCALA = ['#e8eef7', '#c5d5ec', '#9cb8de', '#6f95cb', '#3f6cae', '#1d4580', '#0f2a4a'];
-export const COLOR_SIN_DATO = '#d9dee6';
+export const ESCALA = ['#eef2fc', '#d3defa', '#aebff0', '#8199e1', '#5573cc', '#3050b0', '#14307f'];
+export const COLOR_SIN_DATO = '#dde1ea';
 
 /** Color de un valor dentro de [min, max] (7 tonos). */
 export function colorEscala(v: number | null, min: number, max: number): string {

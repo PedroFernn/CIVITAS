@@ -1,20 +1,24 @@
 import Link from 'next/link';
 import MapaZonas from '@/components/MapaZonas';
 import TablaDatos, { type Columna, type Fila, type OpcionOrden } from '@/components/TablaDatos';
+import Termino from '@/components/Termino';
+import { GLOSARIO } from '@/lib/glosario';
+import AvisoDatos from '@/components/AvisoDatos';
 import { api, num, type FeatureZona, type ListaZonas } from '@/lib/api';
+import { modosDatos } from '@/lib/modo';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Zonas piloto · CIVITAS' };
 
 const COLUMNAS: Columna[] = [
   { clave: 'nombre', etiqueta: 'Zona', tipo: 'enlace', href: 'href' },
-  { clave: 'clave_geo', etiqueta: 'Clave INEGI', tipo: 'codigo' },
-  { clave: 'num_comercios', etiqueta: 'Comercios', tipo: 'entero' },
-  { clave: 'num_comercios_mayoreo', etiqueta: 'Mayoreo', tipo: 'entero' },
-  { clave: 'num_comercios_menudeo', etiqueta: 'Menudeo', tipo: 'entero' },
-  { clave: 'num_paradas', etiqueta: 'Paradas', tipo: 'entero' },
-  { clave: 'area_km2', etiqueta: 'Área km²', tipo: 'decimal', decimales: 2 },
-  { clave: 'densidad_comercios_km2', etiqueta: 'Comercios/km²', tipo: 'decimal', decimales: 0 },
+  { clave: 'num_comercios', etiqueta: 'Comercios', tipo: 'entero', ayuda: GLOSARIO.comercios.texto },
+  { clave: 'num_comercios_mayoreo', etiqueta: 'Mayoreo', tipo: 'entero', ayuda: GLOSARIO.mayoreo.texto },
+  { clave: 'num_comercios_menudeo', etiqueta: 'Menudeo', tipo: 'entero', ayuda: GLOSARIO.menudeo.texto },
+  { clave: 'num_paradas', etiqueta: 'Paradas de transporte', tipo: 'entero', ayuda: GLOSARIO.paradas.texto },
+  { clave: 'area_km2', etiqueta: 'Tamaño (km²)', tipo: 'decimal', decimales: 2, ayuda: GLOSARIO.area.texto },
+  { clave: 'densidad_comercios_km2', etiqueta: 'Comercios por km²', tipo: 'decimal', decimales: 0, ayuda: GLOSARIO.densidad.texto },
+  { clave: 'clave_geo', etiqueta: 'Clave INEGI', tipo: 'codigo', ayuda: GLOSARIO.claveGeo.texto },
 ];
 
 const OPCIONES: OpcionOrden[] = [
@@ -22,8 +26,8 @@ const OPCIONES: OpcionOrden[] = [
   { clave: 'paradas', etiqueta: 'Más paradas', columna: 'num_paradas', dir: 'desc' },
   { clave: 'mayoreo', etiqueta: 'Más comercios de mayoreo', columna: 'num_comercios_mayoreo', dir: 'desc' },
   { clave: 'menudeo', etiqueta: 'Más comercios de menudeo', columna: 'num_comercios_menudeo', dir: 'desc' },
-  { clave: 'densidad', etiqueta: 'Mayor densidad de comercios', columna: 'densidad_comercios_km2', dir: 'desc' },
-  { clave: 'area', etiqueta: 'Mayor área', columna: 'area_km2', dir: 'desc' },
+  { clave: 'densidad', etiqueta: 'Más comercios por km²', columna: 'densidad_comercios_km2', dir: 'desc' },
+  { clave: 'area', etiqueta: 'Más grandes', columna: 'area_km2', dir: 'desc' },
   { clave: 'nombre', etiqueta: 'Nombre (A–Z)', columna: 'nombre', dir: 'asc' },
 ];
 
@@ -44,7 +48,7 @@ export default async function Zonas() {
   }
 
   const zonas = lista.items;
-  const sintetico = zonas.some((z) => z.modo_datos === 'fixture');
+  const modos = await modosDatos();
   const totComercios = zonas.reduce((s, z) => s + z.num_comercios, 0);
   const totParadas = zonas.reduce((s, z) => s + z.num_paradas, 0);
 
@@ -56,25 +60,25 @@ export default async function Zonas() {
 
   return (
     <div className="ancho">
-      <h1>Zonas piloto</h1>
-      <p className="nota">Zonas de Puebla con su número de comercios y paradas de transporte. Para ver precios de renta, entra al <Link href="/colonias">catálogo</Link>.</p>
-      {sintetico && (
-        <p className="aviso-borrador"><strong>Datos sintéticos.</strong> Estas zonas, comercios y paradas son datos de prueba, no información real de INEGI.</p>
-      )}
+      <h1>Datos de apoyo: zonas piloto</h1>
+      <p className="lead">Además de los precios, CIVITAS mide qué hay alrededor: cuántos comercios y paradas de transporte tiene cada zona. Son datos abiertos
+        (INEGI y transporte público) que ayudan a entender <em>por qué</em> una zona es más cara o más barata. Para ver precios de renta, entra a <Link href="/colonias">Explorar zonas</Link>.</p>
+      <AvisoDatos modos={modos} capas={['zonas']} />
 
       <section className="kpis">
         <div><b>{num(lista.total)}</b><span>zonas piloto</span></div>
-        <div><b>{num(totComercios)}</b><span>comercios</span></div>
-        <div><b>{num(totParadas)}</b><span>paradas de transporte</span></div>
+        <div><b>{num(totComercios)}</b><span><Termino k="comercios" /> en total</span></div>
+        <div><b>{num(totParadas)}</b><span><Termino k="paradas" /> en total</span></div>
       </section>
 
-      <h2>Mapa</h2>
+      <h2>Mapa de comercios</h2>
+      <p className="nota">Cuanto más oscura la zona, más comercios tiene. Pasa el cursor sobre una zona para ver sus números.</p>
       <MapaZonas zonas={geo.features} />
 
-      <h2>Zonas</h2>
-      <p className="nota">Busca por nombre o clave y elige cómo ordenar. Cada zona enlaza a su ficha en el <Link href="/colonias">catálogo</Link>.</p>
+      <h2>Todas las zonas</h2>
+      <p className="nota">Busca por nombre y elige cómo ordenar; los encabezados con «?» tienen una explicación al pasar el cursor. Cada zona abre su ficha.</p>
       <TablaDatos columnas={COLUMNAS} filas={filas} idFila="id" buscar={['nombre', 'clave_geo']} opciones={OPCIONES} ordenInicial="comercios"
-        unidad={['zona', 'zonas']} placeholder="nombre, número o clave INEGI" />
+        unidad={['zona', 'zonas']} placeholder="nombre o número de zona" />
     </div>
   );
 }

@@ -14,6 +14,8 @@ interface Props {
   seleccionadaId?: string | null;
   onHover?: (id: string | null) => void;
   onSelect?: (id: string) => void;
+  /** Dibuja el mapa de calles debajo (solo con zonas reales: con zonas sintéticas daría a entender que son límites reales). */
+  conBase?: boolean;
   /** Mapa estático (minimapa de la ficha): sin zoom, arrastre ni popups. */
   interactivo?: boolean;
   altura?: number;
@@ -27,10 +29,10 @@ export function textoValor(f: FeatureCatalogo, m: Metrica): string {
 }
 
 /**
- * Mapa Leaflet de zonas (capa GeoJSON coloreada por una métrica). Sin capa base a propósito: con datos sintéticos, dibujar las zonas
- * sobre el mapa real de Puebla daría a entender que son límites reales. Las zonas sin estadística publicable van en gris.
+ * Mapa Leaflet de zonas (capa GeoJSON coloreada por una métrica). Con zonas reales lleva mapa de calles debajo (OpenStreetMap);
+ * con zonas sintéticas no, para no sugerir límites reales. Las zonas sin estadística publicable van en gris.
  */
-export default function MapaLeaflet({ features, metrica, resaltadaId, seleccionadaId, onHover, onSelect, interactivo = true, altura = 420, etiqueta }: Props) {
+export default function MapaLeaflet({ features, metrica, resaltadaId, seleccionadaId, onHover, onSelect, interactivo = true, altura = 420, etiqueta, conBase = false }: Props) {
   const el = useRef<HTMLDivElement>(null);
   const mapa = useRef<MapaL | null>(null);
   const capas = useRef(new Map<string, any>());
@@ -48,8 +50,8 @@ export default function MapaLeaflet({ features, metrica, resaltadaId, selecciona
   const estilo = (f: FeatureCatalogo, hover: boolean, sel: boolean): PathOptions => {
     const v = valorMetrica(f.properties, metrica);
     return {
-      fillColor: colorEscala(v, min, max), fillOpacity: v === null ? 0.55 : 0.88,
-      color: sel ? '#d48a00' : hover ? '#d48a00' : '#ffffff', weight: sel ? 3 : hover ? 2.5 : 1,
+      fillColor: colorEscala(v, min, max), fillOpacity: v === null ? 0.35 : conBase ? 0.72 : 0.88,
+      color: sel ? '#f3c316' : hover ? '#0b1736' : '#ffffff', weight: sel ? 3 : hover ? 2.5 : 0.8,
       dashArray: v === null ? '3 3' : undefined,
     };
   };
@@ -66,6 +68,10 @@ export default function MapaLeaflet({ features, metrica, resaltadaId, selecciona
         boxZoom: false, keyboard: interactivo, attributionControl: false, zoomSnap: 0.25,
       });
       mapa.current = m;
+      if (conBase) {
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, className: 'base-gris' }).addTo(m);
+        L.control.attribution({ prefix: false }).addAttribution('© <a href="https://www.openstreetmap.org/copyright">colaboradores de OpenStreetMap</a>').addTo(m);
+      }
       capas.current.clear();
       const g = L.geoJSON({ type: 'FeatureCollection', features } as any, {
         style: (f) => estilo(f as unknown as FeatureCatalogo, false, false),
@@ -86,7 +92,7 @@ export default function MapaLeaflet({ features, metrica, resaltadaId, selecciona
     })();
     return () => { cancelado = true; mapa.current?.remove(); mapa.current = null; capa.current = null; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [features, interactivo]);
+  }, [features, interactivo, conBase]);
 
   // Recolorea y resalta sin recrear el mapa.
   useEffect(() => {
@@ -107,9 +113,9 @@ export default function MapaLeaflet({ features, metrica, resaltadaId, selecciona
       <div ref={el} className="mapa-lienzo" style={{ height: altura }} role="img" aria-label={etiqueta} />
       {interactivo && (
         <figcaption>
-          <span className="leyenda" aria-hidden="true">{ESCALA.map((c) => <i key={c} style={{ background: c }} />)}</span>
-          <span>{max > min ? `${fmt(min)} → ${fmt(max)} ${unidad}` : unidad}</span>
-          {(metrica === 'precio_m2' || metrica === 'renta') && <span className="leyenda-sin"><i style={{ background: COLOR_SIN_DATO }} aria-hidden="true" /> sin estadística</span>}
+          <span aria-hidden="true">Menos</span><span className="leyenda" aria-hidden="true">{ESCALA.map((c) => <i key={c} style={{ background: c }} />)}</span>
+          <span>Más · {max > min ? `de ${fmt(min)} a ${fmt(max)} ${unidad}` : unidad}</span>
+          {(metrica === 'precio_m2' || metrica === 'renta') && <span className="leyenda-sin"><i style={{ background: COLOR_SIN_DATO }} aria-hidden="true" /> pocos datos</span>}
         </figcaption>
       )}
     </figure>

@@ -1,24 +1,121 @@
 import Link from 'next/link';
+import AvisoDatos from '@/components/AvisoDatos';
+import Mosaico from '@/components/Mosaico';
+import { api, num } from '@/lib/api';
+import type { GeoCatalogo } from '@/lib/zonas';
+import { modosDatos } from '@/lib/modo';
 
-export default function Inicio() {
+export const dynamic = 'force-dynamic';
+
+const PROBLEMAS: { titulo: string; texto: string }[] = [
+  { titulo: 'Nadie sabe cuánto vale una colonia', texto: 'Los precios reales están repartidos entre portales con intereses comerciales, dependencias lentas y el «dicen que» de boca en boca.' },
+  { titulo: 'Rentar exige exponer tu dinero', texto: 'Para probar que puedes pagar entregas estados de cuenta completos, cuando al arrendador solo le importa un «sí» o un «no».' },
+  { titulo: 'Los precios se inflan sin contraste', texto: 'Sin una referencia pública es fácil pedir de más, y difícil saber si lo que te piden es justo.' },
+  { titulo: 'La gentrificación se nota tarde', texto: 'Cuando el barrio ya cambió y los vecinos de siempre se fueron, ya no hay nada que hacer. Falta verlo venir.' },
+];
+
+const PASOS: { titulo: string; texto: string }[] = [
+  { titulo: 'Reúne datos abiertos', texto: 'El mapa oficial de zonas y los comercios del INEGI, y las paradas de transporte público de OpenStreetMap.' },
+  { titulo: 'Recoge precios de renta', texto: 'Anuncios limpios y sin repetir, asignados a su zona. Sin teléfonos ni nombres de quien anuncia.' },
+  { titulo: 'Te lo explica en claro', texto: 'Cuánto cuesta rentar en cada zona, si es cara o barata frente a la ciudad y qué tan bien servida está.' },
+];
+
+const PRUEBALO: { href: string; titulo: string; texto: string }[] = [
+  { href: '/colonias', titulo: 'Explorar zonas', texto: 'Un mapa y una lista de todas las zonas. Búscalas, filtra por precio o transporte y mira cuáles son más caras.' },
+  { href: '/comparar', titulo: 'Comparar zonas', texto: 'Pon hasta tres zonas lado a lado: precio, comercios y transporte. Para decidir entre dos opciones.' },
+  { href: '/rentas', titulo: 'Ver precios de renta', texto: 'Cuánto se paga de renta en cada zona y los anuncios que respaldan esas cifras.' },
+];
+
+export default async function Inicio() {
+  const [modos, geo] = await Promise.all([
+    modosDatos(),
+    api<GeoCatalogo>('/zonas/geojson?limit=500&piloto=false').catch(() => null),
+  ]);
+  const zonas = geo?.features ?? [];
+  const comercios = zonas.reduce((s, z) => s + z.properties.num_comercios, 0);
+  const paradas = zonas.reduce((s, z) => s + z.properties.num_paradas, 0);
+
   return (
-    <div className="prosa">
-      <h1>CIVITAS</h1>
-      <p>Observatorio urbano para entender la asequibilidad de vivir en una ciudad con datos abiertos y verificables.</p>
-      <h2>Estado del proyecto</h2>
-      <p>
-        <strong>MVP-2 · Datos abiertos y zonas piloto:</strong> zonas piloto de Puebla con polígono, comercios (DENUE) y paradas de transporte,
-        con trazabilidad de cada carga. <Link href="/zonas">Ver zonas piloto →</Link>
-      </p>
-      <p>
-        <strong>MVP-3 · Ingesta de precios de renta:</strong> listados de renta de una fuente, normalizados (precio, m², recámaras, coordenadas),
-        deduplicados y asignados a su zona, con reporte de calidad. No se guardan teléfonos ni nombres de anunciantes.{' '}
-        <Link href="/rentas">Ver rentas →</Link>
-      </p>
-      <p>
-        <strong>MVP-4 · Catálogo de zonas:</strong> mapa, lista y ficha de cada zona con la renta mediana y la renta por m², comparadas con la ciudad.
-        Se actualiza con una recaptura semanal de precios. <Link href="/colonias">Explorar el catálogo →</Link>
-      </p>
+    <div className="portada">
+      <section className="hero" aria-labelledby="h-hero">
+        <div className="hero-texto">
+          <h1 id="h-hero">¿Cuánto cuesta de verdad vivir en tu colonia?</h1>
+          <p className="hero-lead">
+            CIVITAS junta datos abiertos y precios de renta de Puebla en un solo lugar y los explica en claro, para que decidir dónde vivir deje de ser una apuesta a ciegas.
+          </p>
+          <div className="hero-acciones">
+            <Link className="boton boton-amarillo" href="/colonias">Explorar zonas</Link>
+            <Link className="boton boton-fantasma" href="/comparar">Comparar zonas</Link>
+          </div>
+        </div>
+        {zonas.length > 0 && (
+          <div className="hero-mapa">
+            <Mosaico zonas={zonas} />
+            <p className="hero-cifras">
+              <b>{num(zonas.length)}</b> zonas, <b>{num(comercios)}</b> comercios y <b>{num(paradas)}</b> paradas de transporte del municipio de Puebla, tomados de datos abiertos.
+            </p>
+          </div>
+        )}
+      </section>
+
+      <AvisoDatos modos={modos} />
+
+      <section className="bloque" aria-labelledby="h-problema">
+        <h2 id="h-problema">El problema</h2>
+        <p className="lead">Rentar o comprar en una ciudad con poca información tiene cuatro fallas que se alimentan entre sí.</p>
+        <dl className="problemas">
+          {PROBLEMAS.map((p) => (
+            <div key={p.titulo}><dt>{p.titulo}</dt><dd>{p.texto}</dd></div>
+          ))}
+        </dl>
+      </section>
+
+      <section className="bloque" aria-labelledby="h-como">
+        <h2 id="h-como">Qué hace CIVITAS</h2>
+        <ol className="pasos">
+          {PASOS.map((p, i) => (
+            <li key={p.titulo}>
+              <span className="paso-n" aria-hidden="true">{i + 1}</span>
+              <div><h3>{p.titulo}</h3><p>{p.texto}</p></div>
+            </li>
+          ))}
+        </ol>
+      </section>
+
+      <section className="bloque" aria-labelledby="h-prueba">
+        <h2 id="h-prueba">Pruébalo</h2>
+        <ul className="accesos">
+          {PRUEBALO.map((p) => (
+            <li key={p.href}>
+              <Link href={p.href}><strong>{p.titulo}</strong><span>{p.texto}</span></Link>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <section className="bloque" aria-labelledby="h-estado">
+        <h2 id="h-estado">Qué funciona hoy y qué sigue</h2>
+        <div className="dos-col estado">
+          <div>
+            <h3>Ya funciona</h3>
+            <ul>
+              <li>Mapa y catálogo de zonas con búsqueda y filtros</li>
+              <li>Precio típico de renta por zona, comparado con la ciudad</li>
+              <li>Comparador de hasta tres zonas</li>
+              <li>Cuentas de usuario y captura de entrevistas de precio</li>
+            </ul>
+          </div>
+          <div>
+            <h3>Lo que sigue</h3>
+            <ul>
+              <li>Probar que puedes pagar una renta sin entregar tus estados de cuenta, con pruebas criptográficas</li>
+              <li>Avisar cuando un precio se ve inflado frente a su zona</li>
+              <li>Anticipar la gentrificación antes de que sea irreversible</li>
+            </ul>
+          </div>
+        </div>
+        <p className="nota">Todo se apoya en datos abiertos y cada cifra indica de dónde sale.</p>
+      </section>
     </div>
   );
 }

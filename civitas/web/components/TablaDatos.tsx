@@ -8,6 +8,7 @@ export type TipoColumna = 'texto' | 'codigo' | 'entero' | 'decimal' | 'mxn' | 'f
 export interface Columna {
   clave: string;          // campo de la fila
   etiqueta: string;
+  ayuda?: string;         // explicación en lenguaje llano (se muestra al pasar el cursor)
   tipo: TipoColumna;
   decimales?: number;     // solo 'decimal'
   href?: string;          // solo 'enlace': campo de la fila con la URL
@@ -132,8 +133,8 @@ export default function TablaDatos({ columnas, filas, idFila, buscar, opciones, 
                   const activa = orden.col === c.clave;
                   return (
                     <th key={c.clave} className={numerica(c.tipo) ? 'n' : undefined} aria-sort={activa ? (orden.dir === 'asc' ? 'ascending' : 'descending') : 'none'}>
-                      <button type="button" className="th-orden" onClick={() => ordenarPor(c)}>
-                        {c.etiqueta}<span className="th-flecha" aria-hidden="true">{activa ? (orden.dir === 'asc' ? '▲' : '▼') : '↕'}</span>
+                      <button type="button" className="th-orden" title={c.ayuda} onClick={() => ordenarPor(c)}>
+                        {c.etiqueta}{c.ayuda && <span className="th-ayuda" aria-hidden="true">?</span>}<span className="th-flecha" aria-hidden="true">{activa ? (orden.dir === 'asc' ? '▲' : '▼') : '↕'}</span>
                       </button>
                     </th>
                   );

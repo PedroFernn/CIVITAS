@@ -73,7 +73,7 @@ export default function BuscadorZonas() {
     const t = setTimeout(async () => {
       setEstado('cargando');
       try {
-        const r = await fetch(`${API_PUBLICA}/zonas/buscar?q=${encodeURIComponent(q.trim())}&limit=8`, { signal: ctl.signal });
+        const r = await fetch(`${API_PUBLICA}/zonas/buscar?q=${encodeURIComponent(q.trim())}&limit=8&piloto=false`, { signal: ctl.signal });
         if (!r.ok) throw new Error(`HTTP ${r.status}`);
         const j = (await r.json()) as RespuestaBusqueda;
         cache.current.set(clave, j);
@@ -131,7 +131,7 @@ export default function BuscadorZonas() {
         </span>
         <input
           ref={campo} id={`${id}-q`} name="q" type="search" value={q} autoComplete="off" spellCheck={false} maxLength={60}
-          placeholder="Buscar zona, clave INEGI…" enterKeyHint="search"
+          placeholder="Buscar una zona…" enterKeyHint="search"
           role="combobox" aria-expanded={abierto} aria-controls={`${id}-lista`} aria-autocomplete="list"
           aria-activedescendant={abierto && activo >= 0 ? idOpcion(activo) : undefined}
           onFocus={abrir} onChange={(e) => { setQ(e.target.value); setActivo(-1); if (!abierto) abrir(); }} onKeyDown={onKeyDown}
@@ -162,7 +162,7 @@ export default function BuscadorZonas() {
                   ))}
                 </div>
               )}
-              <div className="buscador-titulo">{resp?.sugeridas || !q.trim() ? 'Zonas con más listados' : estado === 'cargando' ? 'Buscando…' : 'Zonas'}</div>
+              <div className="buscador-titulo">{resp?.sugeridas || !q.trim() ? 'Zonas con más anuncios' : estado === 'cargando' ? 'Buscando…' : 'Zonas'}</div>
               <ul role="listbox" id={`${id}-lista`} aria-label="Zonas encontradas" onMouseDown={(e) => e.preventDefault()}>
                 {items.map((z, i) => (
                   <li key={z.id} id={idOpcion(i)} role="option" aria-selected={i === activo} className={i === activo ? 'activo' : ''}
@@ -171,8 +171,8 @@ export default function BuscadorZonas() {
                     <span className="op-sub"><code><Resaltado texto={z.clave_geo ?? 's/clave'} ts={ts.filter((t) => !/^\d{1,3}$/.test(t))} /></code> · {z.ciudad}</span>
                     <span className="op-dato">
                       {z.estadistica_suprimida
-                        ? <small>{z.n_listados} {z.n_listados === 1 ? 'listado' : 'listados'} · sin estadística</small>
-                        : <><b>{mxnC(z.renta_mediana)}</b><small>renta mediana</small></>}
+                        ? <small>{z.n_listados} {z.n_listados === 1 ? 'anuncio' : 'anuncios'} · pocos datos</small>
+                        : <><b>{mxnC(z.renta_mediana)}</b><small>renta típica</small></>}
                     </span>
                   </li>
                 ))}

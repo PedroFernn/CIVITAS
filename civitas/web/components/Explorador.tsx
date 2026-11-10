@@ -2,14 +2,15 @@
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import MapaLeaflet from './MapaLeaflet';
+import Termino from './Termino';
 import { MAX_COMPARAR, METRICAS, mxnC, plural, type FeatureCatalogo, type Metrica, type ZonaCatalogo } from '@/lib/zonas';
 
 const CLAVE_COMPARAR = 'civitas_comparar';
 type Elegida = { id: string; nombre: string };
 
 /** Lista + mapa del catálogo (P-02): son la misma consulta con dos representaciones; el cursor y el clic los mantienen sincronizados. */
-export default function Explorador({ items, features, minListados, metricaInicial, children }: {
-  items: ZonaCatalogo[]; features: FeatureCatalogo[]; minListados: number; metricaInicial: Metrica; children?: React.ReactNode;
+export default function Explorador({ items, features, minListados, metricaInicial, conBase = false, children }: {
+  conBase?: boolean; items: ZonaCatalogo[]; features: FeatureCatalogo[]; minListados: number; metricaInicial: Metrica; children?: React.ReactNode;
 }) {
   const [metrica, setMetrica] = useState<Metrica>(metricaInicial);
   const [hover, setHover] = useState<string | null>(null);
@@ -39,7 +40,7 @@ export default function Explorador({ items, features, minListados, metricaInicia
             <button key={m.clave} type="button" aria-pressed={metrica === m.clave} className={metrica === m.clave ? 'activa' : ''} onClick={() => setMetrica(m.clave)}>{m.etiqueta}</button>
           ))}
         </div>
-        <MapaLeaflet features={features} metrica={metrica} resaltadaId={hover} seleccionadaId={sel} onHover={setHover} onSelect={setSel}
+        <MapaLeaflet conBase={conBase} features={features} metrica={metrica} resaltadaId={hover} seleccionadaId={sel} onHover={setHover} onSelect={setSel}
           altura={460} etiqueta="Mapa de zonas coloreado por la métrica elegida; la lista de al lado tiene los mismos datos" />
       </div>
       <div className="explorador-lista">
@@ -47,7 +48,7 @@ export default function Explorador({ items, features, minListados, metricaInicia
           <div className="barra-comparar" role="status">
             <span><b>Comparar</b> {elegidas.length} de {MAX_COMPARAR}: {elegidas.map((e) => e.nombre).join(' · ')}</span>
             <span className="barra-comparar-acciones">
-              <Link href={`/comparar?items=${elegidas.map((e) => e.id).join(',')}`}>{elegidas.length === 1 ? 'Elegir otra en la comparación →' : 'Ver comparación →'}</Link>
+              <Link href={`/comparar?items=${elegidas.map((e) => e.id).join(',')}`}>{elegidas.length === 1 ? 'Elegir otra para comparar' : 'Ver comparación'}</Link>
               <button type="button" className="enlace" onClick={() => guardar([])}>Vaciar</button>
             </span>
           </div>
@@ -61,17 +62,16 @@ export default function Explorador({ items, features, minListados, metricaInicia
                 onMouseEnter={() => setHover(z.id)} onMouseLeave={() => setHover(null)}>
                 <div className="tarjeta-cab">
                   <h3><Link href={`/colonias/${z.id}`}>{z.nombre}</Link></h3>
-                  <code>{z.clave_geo ?? 's/clave'}</code>
                 </div>
                 {z.estadistica_suprimida ? (
-                  <p className="suprimida">Sin estadística de renta: {z.n_listados} {z.n_listados === 1 ? 'listado' : 'listados'} (se publica con {minListados} o más).</p>
+                  <p className="suprimida">Pocos anuncios para dar una cifra confiable: {z.n_listados} (se publica con {minListados} o más).</p>
                 ) : (
-                  <p className="tarjeta-precio"><b>{mxnC(z.renta_mediana)}</b> <small>renta mediana</small>
+                  <p className="tarjeta-precio"><b>{mxnC(z.renta_mediana)}</b> <small>al mes · <Termino k="mediana" etiqueta="renta típica" /></small>
                     {z.precio_m2_mediano !== null && <> · <b>{mxnC(z.precio_m2_mediano)}</b> <small>por m²</small></>}</p>
                 )}
-                <p className="tarjeta-datos">{plural(z.n_listados, 'listado', 'listados')} · {plural(z.num_comercios, 'comercio', 'comercios')} · {plural(z.num_paradas, 'parada', 'paradas')}</p>
+                <p className="tarjeta-datos">{plural(z.n_listados, 'anuncio', 'anuncios')} · {plural(z.num_comercios, 'comercio', 'comercios')} · {plural(z.num_paradas, 'parada', 'paradas')}</p>
                 <div className="tarjeta-pie">
-                  <Link className="ver-ficha" href={`/colonias/${z.id}`} aria-label={`Ver ficha de ${z.nombre}`}>Ver ficha →</Link>
+                  <Link className="ver-ficha" href={`/colonias/${z.id}`} aria-label={`Ver ficha de ${z.nombre}`}>Ver detalle</Link>
                   <label className="comparar-check">
                     <input type="checkbox" checked={elegidas.some((e) => e.id === z.id)} disabled={!elegidas.some((e) => e.id === z.id) && elegidas.length >= MAX_COMPARAR}
                       onChange={() => alternar(z)} /> Comparar
