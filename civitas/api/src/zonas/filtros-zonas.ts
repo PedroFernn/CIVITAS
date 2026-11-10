@@ -21,7 +21,7 @@ export interface FiltrosZonas {
 type Q = Record<string, string | undefined>;
 
 /** Valida y normaliza los query params de GET /zonas y /zonas/geojson. Todo lo que llega a SQL va parametrizado. */
-export function parseFiltrosZonas(q: Q, limitMax = 200, limitPorDefecto = 12): FiltrosZonas {
+export function parseFiltrosZonas(q: Q, limitMax = 600, limitPorDefecto = 12): FiltrosZonas {
   if (q.q !== undefined && q.q.length > MAX_Q * 2) throw new BadRequestException(`q admite hasta ${MAX_Q} caracteres`);
   const terms = terminos(q.q);
   const orden = (q.orden ?? (terms.length ? 'relevancia' : 'nombre')) as OrdenZonas;

@@ -9,7 +9,7 @@ const PARAMS = [
   ['orden', 'relevancia (con q) | nombre | renta | precio_m2 | comercios | paradas | listados'],
   ['min_renta', 'Renta mediana mínima (solo zonas con estadística publicable)'], ['max_renta', 'Renta mediana máxima'],
   ['min_paradas', 'Transporte: zonas con al menos N paradas'], ['con_precio', 'true: solo zonas con ≥5 listados'], ['ciudad', 'Ciudad'], ['piloto', 'true (por defecto) solo piloto'],
-  ['limit', 'Máx. 200 (lista) · 20 (buscar)'], ['offset', 'Paginación'],
+  ['limit', 'Máx. 600 (lista) · 20 (buscar)'], ['offset', 'Paginación'],
 ] as const;
 
 /** MVP-4 · catálogo v1 (solo lectura): lista, búsqueda, mapa y ficha de zona con la mediana de precio por m². */

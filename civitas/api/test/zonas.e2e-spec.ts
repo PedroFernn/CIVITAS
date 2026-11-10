@@ -71,7 +71,7 @@ describe('API MVP-4 · zonas (BD simulada)', () => {
   });
 
   it.each([
-    ['/zonas?orden=relevancia'], ['/zonas?orden=x'], ['/zonas?limit=500'], ['/zonas?min_renta=9&max_renta=1'], ['/zonas?piloto=maybe'],
+    ['/zonas?orden=relevancia'], ['/zonas?orden=x'], ['/zonas?limit=601'], ['/zonas?min_renta=9&max_renta=1'], ['/zonas?piloto=maybe'],
     ['/zonas/buscar?limit=50'], ['/zonas/buscar?q=' + 'a'.repeat(200)],
   ])('rechaza entrada inválida: %s → 400', async (url) => {
     await request(app.getHttpServer()).get(url).expect(400);
