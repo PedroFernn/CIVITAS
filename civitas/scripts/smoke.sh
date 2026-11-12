@@ -118,6 +118,47 @@ if [ "${SMOKE_PROD:-0}" = "1" ]; then
     && ok "sin cuentas de demostración (producción)" || fail "hay cuentas de demostración activas: pon DEMO_USERS=0 y reinicia la API (las elimina; ver docs/auth/AUTH.md)"
 fi
 
+# MVP-6: INEGI de todo el estado y motor de anomalías (requieren `etl mvp2` y `etl mvp6`). SMOKE_DATA=0 o SMOKE_MVP6=0 los omiten.
+# Después, un ciclo de sesión real: crea una cuenta de prueba, por eso NUNCA corre con REQUIRE_HTTPS=1 (servidor público), SMOKE_PROD=1 ni SMOKE_CUENTAS=0.
+if [ "${SMOKE_DATA:-1}" = "1" ] && [ "${SMOKE_MVP6:-1}" != "0" ]; then
+  curl -s --max-time 15 "$API_URL/municipios/geojson" | grep -q '"FeatureCollection"' \
+    && ok "GET /municipios/geojson → FeatureCollection" || fail "GET /municipios/geojson no devuelve un FeatureCollection"
+  curl -s --max-time 15 "$API_URL/municipios" | grep -q '^\[' \
+    && ok "GET /municipios → lista" || fail "GET /municipios no devuelve una lista"
+  curl -s --max-time 15 "$API_URL/zonas?limit=1" | grep -q '"poblacion"' \
+    && ok "las zonas traen población del Censo (poblacion)" || fail "las zonas no traen el campo poblacion (¿migración 011?)"
+  [ "$(status "$API_URL/zonas/geojson?simplificar=1")" = "400" ] && ok "simplificar fuera de rango → 400" || fail "simplificar debe validar su rango"
+  resumen="$(curl -s --max-time 15 -w '\n%{http_code}' "$API_URL/anomalias/resumen")"
+  [ "${resumen##*$'\n'}" = "200" ] && echo "$resumen" | grep -q '"conteo"' \
+    && ok "GET /anomalias/resumen → 200 con el conteo Justo / Inflado / Subprecio" || fail "GET /anomalias/resumen falló (¿corriste etl mvp6?)"
+  curl -s --max-time 15 "$WEB_URL/rentas" | grep -q 'Precios fuera de lo normal' \
+    && ok "GET /rentas (web) muestra el resumen de anomalías" || fail "/rentas no muestra el resumen de anomalías"
+  zid="$(curl -s --max-time 15 "$API_URL/zonas?limit=1" | grep -o '"id":"[0-9a-f-]\{36\}"' | head -1 | cut -d'"' -f4)"
+  [ -n "$zid" ] && curl -s --max-time 15 "$WEB_URL/colonias/$zid" | grep -q 'Quién vive aquí' \
+    && ok "la ficha muestra «Quién vive aquí» (población del Censo)" || fail "la ficha no muestra el bloque de población"
+  # Ciclo de sesión real. Crea una cuenta de prueba, así que no corre contra producción ni con SMOKE_CUENTAS=0.
+  if [ "${SMOKE_PROD:-0}" != "1" ] && [ "${REQUIRE_HTTPS:-0}" != "1" ] && [ "${SMOKE_CUENTAS:-1}" != "0" ]; then
+    u="smoke_$(date +%s)_$RANDOM"
+    reg="$(curl -s --max-time 15 -w '\n%{http_code}' -X POST -H 'content-type: application/json' \
+      -d "{\"usuario\":\"$u\",\"correo\":\"$u@example.com\",\"contrasena\":\"Prueba-Humo-2026\",\"proposito\":\"rentar\",\"acepta_aviso\":true}" "$API_URL/auth/registro")"
+    tok="$(echo "$reg" | grep -o '"token":"[^"]*"' | head -1 | cut -d'"' -f4)"
+    if [ "${reg##*$'\n'}" = "201" ] && [ -n "$tok" ]; then
+      ok "POST /auth/registro crea la cuenta y abre sesión"
+      me="$(curl -s --max-time 15 -H "Authorization: Bearer $tok" "$API_URL/auth/me")"
+      echo "$me" | grep -q "\"usuario\":\"$u\"" && echo "$me" | grep -q '"rol":"usuario"' \
+        && ok "GET /auth/me con sesión devuelve la cuenta con rol usuario" || fail "/auth/me no devuelve la cuenta recién creada"
+      echo "$me" | grep -q 'password' && fail "/auth/me expone la contraseña" || ok "/auth/me no expone la contraseña ni su hash"
+      [ "$(status -H "Authorization: Bearer $tok" "$API_URL/admin/resumen")" = "403" ] \
+        && ok "un usuario normal no entra a /admin/resumen (403)" || fail "un usuario normal debe recibir 403 en /admin/resumen"
+      [ "$(status -X POST -H "Authorization: Bearer $tok" "$API_URL/auth/logout")" = "200" ] && ok "POST /auth/logout cierra la sesión" || fail "el logout falló"
+      [ "$(status -H "Authorization: Bearer $tok" "$API_URL/auth/me")" = "401" ] \
+        && ok "tras cerrar sesión el token ya no sirve (401)" || fail "el token sigue siendo válido tras el logout"
+    else
+      fail "POST /auth/registro no devolvió 201 con token (obtuvo: ${reg##*$'\n'})"
+    fi
+  fi
+fi
+
 echo "Smoke OK"
 
 
