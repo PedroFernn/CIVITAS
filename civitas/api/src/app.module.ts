@@ -14,11 +14,15 @@ import { ZonasController } from './zonas/zonas.controller';
 import { ZonasService } from './zonas/zonas.service';
 import { EntrevistasController } from './entrevistas/entrevistas.controller';
 import { EntrevistasService } from './entrevistas/entrevistas.service';
+import { MunicipiosController } from './municipios/municipios.controller';
+import { MunicipiosService } from './municipios/municipios.service';
+import { AnomaliasController } from './anomalias/anomalias.controller';
+import { AnomaliasService } from './anomalias/anomalias.service';
 
 @Module({
   imports: [DatabaseModule],
-  controllers: [HealthController, ColoniasController, TilesController, DatosAbiertosController, RentaController, ZonasController, EntrevistasController, AuthController, AdminController],
-  providers: [ColoniasService, RentaService, ZonasService, EntrevistasService, AuthService, SesionGuard],
+  controllers: [HealthController, ColoniasController, TilesController, DatosAbiertosController, RentaController, ZonasController, MunicipiosController, AnomaliasController, EntrevistasController, AuthController, AdminController],
+  providers: [ColoniasService, RentaService, ZonasService, MunicipiosService, AnomaliasService, EntrevistasService, AuthService, SesionGuard],
 })
 export class AppModule {}
 

@@ -16,6 +16,8 @@ export interface FiltrosListados {
   conZona?: boolean;
   tipo?: TipoInmueble;
   recamaras?: number;
+  /** MVP-6: solo listados con esta etiqueta del motor de anomalías. */
+  anomalia?: 'justo' | 'inflado' | 'subprecio';
   minPrecio?: number;
   maxPrecio?: number;
   orden: OrdenListados;
@@ -34,6 +36,7 @@ export function parseFiltrosListados(q: Q): FiltrosListados {
   if (q.tipo !== undefined && !(TIPOS_INMUEBLE as readonly string[]).includes(q.tipo)) {
     throw new BadRequestException(`tipo debe ser ${TIPOS_INMUEBLE.join('|')}`);
   }
+  if (q.anomalia !== undefined && !['justo', 'inflado', 'subprecio'].includes(q.anomalia)) throw new BadRequestException('anomalia debe ser justo|inflado|subprecio');
   const orden = (q.orden ?? 'reciente') as OrdenListados;
   if (!(ORDENES_LISTADOS as readonly string[]).includes(orden)) throw new BadRequestException(`orden debe ser ${ORDENES_LISTADOS.join('|')}`);
   const minPrecio = entero(q.min_precio, 'min_precio', 0, 100_000_000);
@@ -45,6 +48,7 @@ export function parseFiltrosListados(q: Q): FiltrosListados {
     conZona: q.con_zona === undefined ? undefined : q.con_zona === 'true',
     tipo: q.tipo as TipoInmueble | undefined,
     recamaras: entero(q.recamaras, 'recamaras', 0, 10),
+    anomalia: q.anomalia as FiltrosListados['anomalia'],
     minPrecio,
     maxPrecio,
     orden,

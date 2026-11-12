@@ -13,6 +13,8 @@ export interface FiltrosZonas {
   maxRenta?: number;
   conPrecio: boolean;          // solo zonas con estadística publicable (≥ MIN_LISTADOS_ESTADISTICA)
   minParadas?: number;         // transporte (MVP-5): zonas con al menos N paradas
+  /** Tolerancia de simplificación del contorno en grados (solo geojson): 0 = sin simplificar. */
+  simplificar?: number;
   orden: OrdenZonas;
   limit: number;
   offset: number;
@@ -33,6 +35,10 @@ export function parseFiltrosZonas(q: Q, limitMax = 600, limitPorDefecto = 12): F
   const maxRenta = entero(q.max_renta, 'max_renta', 0, 100_000_000);
   if (minRenta !== undefined && maxRenta !== undefined && minRenta > maxRenta) throw new BadRequestException('min_renta no puede ser mayor que max_renta');
   const minParadas = entero(q.min_paradas, 'min_paradas', 0, 100_000);
+  const simplificar = q.simplificar === undefined ? undefined : Number(q.simplificar);
+  if (simplificar !== undefined && !(Number.isFinite(simplificar) && simplificar >= 0 && simplificar <= 0.01)) {
+    throw new BadRequestException('simplificar debe estar entre 0 y 0.01 (grados)');
+  }
   return {
     q: terms,
     ciudad: q.ciudad?.trim() || undefined,
@@ -40,6 +46,7 @@ export function parseFiltrosZonas(q: Q, limitMax = 600, limitPorDefecto = 12): F
     minRenta,
     maxRenta,
     minParadas,
+    simplificar,
     conPrecio: q.con_precio === 'true' || minRenta !== undefined || maxRenta !== undefined,
     orden,
     limit: entero(q.limit, 'limit', 1, limitMax) ?? Math.min(limitPorDefecto, limitMax),

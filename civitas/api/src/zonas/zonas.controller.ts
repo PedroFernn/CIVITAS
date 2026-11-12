@@ -8,7 +8,7 @@ const PARAMS = [
   ['q', 'Texto: nombre, CVEGEO o ciudad (sin acentos ni mayúsculas; todos los términos deben coincidir)'],
   ['orden', 'relevancia (con q) | nombre | renta | precio_m2 | comercios | paradas | listados'],
   ['min_renta', 'Renta mediana mínima (solo zonas con estadística publicable)'], ['max_renta', 'Renta mediana máxima'],
-  ['min_paradas', 'Transporte: zonas con al menos N paradas'], ['con_precio', 'true: solo zonas con ≥5 listados'], ['ciudad', 'Ciudad'], ['piloto', 'true (por defecto) solo piloto'],
+  ['min_paradas', 'Transporte: zonas con al menos N paradas'], ['con_precio', 'true: solo zonas con ≥5 listados'], ['ciudad', 'Municipio (nombre oficial de INEGI)'], ['piloto', 'true (por defecto) solo piloto; false: todas las zonas del estado'],
   ['limit', 'Máx. 600 (lista) · 20 (buscar)'], ['offset', 'Paginación'],
 ] as const;
 
@@ -44,9 +44,10 @@ export class ZonasController {
   }
 
   @Get('geojson')
-  @ApiOperation({ summary: 'Zonas como FeatureCollection GeoJSON con renta y precio por m² (mapa Leaflet)' })
+  @ApiOperation({ summary: 'Zonas como FeatureCollection GeoJSON con renta y precio por m² (mapa Leaflet); contorno simplificado' })
+  @ApiQuery({ name: 'simplificar', required: false, description: 'Tolerancia de simplificación en grados, de 0 (sin simplificar) a 0.01; por defecto 0.0002 (~22 m)' })
   geojson(@Query() q: Record<string, string>) {
-    return this.svc.geojson(parseFiltrosZonas(q, 500, 500));
+    return this.svc.geojson(parseFiltrosZonas(q, 3000, 3000));
   }
 
   @Get('validacion')

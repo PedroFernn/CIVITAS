@@ -15,10 +15,14 @@ import { correrMvp3 } from './etl/renta/pipeline';
 import { programar, recapturar } from './etl/mvp4/recaptura';
 import * as validacionMvp4 from './etl/mvp4/validacion';
 import * as validacionMvp5 from './etl/mvp5/validacion';
+import * as validacionMvp6 from './etl/mvp6/validacion';
+import { calcularAnomalias, etiquetasSiExisten } from './etl/mvp6/calcular';
+import { existsSync, readdirSync } from 'node:fs';
+import path from 'node:path';
 import * as validacionMvp3 from './etl/renta/validacion';
 import * as validacion from './etl/validacion';
 
-const AYUDA = `Uso: civitas-etl <mvp2|mvp3|recaptura|mvp4|mvp5|migrar|validar|validar-mvp3|validar-mvp4|validar-mvp5> [opciones]
+const AYUDA = `Uso: civitas-etl <mvp2|mvp3|recaptura|mvp4|mvp5|mvp6|migrar|validar|validar-mvp3|validar-mvp4|validar-mvp5|validar-mvp6> [opciones]
 
   mvp2      Importa INEGI (MGN, DENUE) + transporte, calcula atributos y valida
     --fuente fixture|real      (por defecto fixture)
@@ -27,6 +31,7 @@ const AYUDA = `Uso: civitas-etl <mvp2|mvp3|recaptura|mvp4|mvp5|migrar|validar|va
     --transporte <archivo>     Paradas: GTFS stops.txt, CSV, GeoJSON o ZIP
     --sistema-transporte <n>   Nombre del sistema (p. ej. RUTA)
     --ciudad Puebla  --cve-ent 21  --cve-mun 114
+    --estado-completo          Carga las AGEB y el DENUE de TODOS los municipios de la entidad (--cve-mun solo fija el municipio de los pilotos)
     --zonas-piloto 30  --min-comercios 1
     --lista-piloto <archivo>   CVEGEO (uno por línea) para forzar los pilotos
     --desde-cero               Recrea el esquema antes de importar (solo hosts locales)
@@ -41,6 +46,9 @@ const AYUDA = `Uso: civitas-etl <mvp2|mvp3|recaptura|mvp4|mvp5|migrar|validar|va
             Acepta las opciones de mvp3 (--fuente, --listados, ...).
     --cada-dias N              Se queda corriendo y repite cada N días (servicio \`recaptura\` del compose); sin esto corre una vez
   mvp4      Una recaptura (si aún no hay ninguna) y el checklist «Para pasar» de MVP-4
+  mvp6      Motor de anomalías v1 (Justo / Inflado / Subprecio) y checklist de MVP-6 (anomalías, INEGI consistente y cuentas)
+    --umbral <z>               Umbral del z robusto (por defecto se calibra con la muestra etiquetada)
+    --etiquetas <archivo>      CSV id_anuncio,etiqueta con la muestra de validación
   mvp5      Checklist «Para pasar» de MVP-5: búsqueda y filtros, comparador (3 zonas), latencia, 50 usuarios simulados, entrevistas y plan B
             Con CIVITAS_URL=https://tu-dominio comprueba también el comparador en producción
   migrar        Aplica db/migrations
@@ -58,12 +66,12 @@ export async function main(argv: string[]): Promise<number> {
     options: {
       fuente: { type: 'string', default: 'fixture' }, zonas: { type: 'string' }, denue: { type: 'string' },
       transporte: { type: 'string' }, 'sistema-transporte': { type: 'string' }, ciudad: { type: 'string', default: 'Puebla' },
-      'cve-ent': { type: 'string', default: '21' }, 'cve-mun': { type: 'string', default: '114' },
+      'cve-ent': { type: 'string', default: '21' }, 'cve-mun': { type: 'string', default: '114' }, 'estado-completo': { type: 'boolean', default: false },
       'zonas-piloto': { type: 'string', default: '30' }, 'min-comercios': { type: 'string', default: '1' },
       'lista-piloto': { type: 'string' }, 'desde-cero': { type: 'boolean', default: false },
       listados: { type: 'string' }, 'fuente-renta': { type: 'string', default: 'renta_captura_manual' },
       'min-listados': { type: 'string', default: '300' }, 'umbral-nulos': { type: 'string', default: '0.1' },
-      'cada-dias': { type: 'string' },
+      'cada-dias': { type: 'string'}, umbral: { type: 'string' }, etiquetas: { type: 'string' },
     },
   });
   const cfg = nuevaConfig();
@@ -107,6 +115,22 @@ export async function main(argv: string[]): Promise<number> {
       const checks = await validacionMvp5.ejecutar(conn, cfg);
       const ok = await validacionMvp5.guardar(conn, checks, await validacionMvp4.modoDeDatos(conn));
       if (cmd === 'mvp5') console.log(`\nMVP-5 · validación — ${ok ? 'APROBADO' : 'NO APROBADO'}`);
+      validacion.imprimir(checks);
+      return ok ? 0 : 1;
+    } finally { await conn.close(); }
+  }
+  if (cmd === 'mvp6' || cmd === 'validar-mvp6') {
+    const umbral = a.umbral === undefined ? undefined : Number(a.umbral);
+    if (umbral !== undefined && !(umbral > 0 && umbral <= 10)) { console.error('--umbral debe estar entre 0 (exclusivo) y 10'); return 2; }
+    const dirDemo = path.join(cfg.rawDir, 'rentas-demo');
+    const porDefecto = existsSync(dirDemo) ? readdirSync(dirDemo).filter((f) => /etiquetas.*\.csv$/i.test(f)).map((f) => path.join(dirDemo, f))[0] : undefined;
+    const conn = await conectar(cfg.databaseUrl);
+    try {
+      await migrar(conn);
+      const resumen = await calcularAnomalias(conn, { umbral, etiquetas: etiquetasSiExisten(a.etiquetas ?? process.env.CIVITAS_ETIQUETAS_PATH ?? porDefecto) });
+      const checks = await validacionMvp6.ejecutar(conn, cfg, resumen);
+      const ok = await validacionMvp6.guardar(conn, checks, await validacionMvp4.modoDeDatos(conn));
+      console.log(`\nMVP-6 · validación — ${ok ? 'APROBADO' : 'NO APROBADO'}`);
       validacion.imprimir(checks);
       return ok ? 0 : 1;
     } finally { await conn.close(); }
@@ -173,7 +197,7 @@ export async function main(argv: string[]): Promise<number> {
 
   if (a.fuente !== 'fixture' && a.fuente !== 'real') { console.error("--fuente debe ser 'fixture' o 'real'"); return 2; }
   Object.assign(cfg, {
-    modo: a.fuente, ciudad: a.ciudad, cveEnt: a['cve-ent'], cveMun: a['cve-mun'],
+    modo: a.fuente, ciudad: a.ciudad, cveEnt: a['cve-ent'], cveMun: a['cve-mun'], estadoCompleto: a['estado-completo'],
     zonasPiloto: Number(a['zonas-piloto']), minComercios: Number(a['min-comercios']),
     rutaZonas: a.zonas, rutaDenue: a.denue, rutaTransporte: a.transporte, listaPiloto: a['lista-piloto'],
     comando: 'civitas_etl ' + resto.map((x) => (/^[\w@%+=:,./-]+$/.test(x) ? x : `'${x}'`)).join(' '),

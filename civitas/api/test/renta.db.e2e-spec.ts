@@ -32,8 +32,9 @@ describe('API MVP-3 (PostGIS real)', () => {
     const r = await http().get('/listados-renta?limit=200').expect(200);
     expect(r.body.total).toBeGreaterThanOrEqual(300);
     for (const l of r.body.items) {
-      expect(Object.keys(l).sort()).toEqual(['fuente_clave', 'id', 'id_fuente', 'lat', 'lon', 'modo_datos', 'precio_m2', 'precio_mxn', 'publicado_en',
-        'recamaras', 'superficie_m2', 'tipo_inmueble', 'url', 'zona_clave_geo', 'zona_id', 'zona_nombre']);
+      // MVP-6 añade el municipio de la zona y la etiqueta del motor de anomalías (derivados del precio: nada personal)
+      expect(Object.keys(l).sort()).toEqual(['anomalia', 'anomalia_z', 'fuente_clave', 'id', 'id_fuente', 'lat', 'lon', 'modo_datos', 'precio_m2', 'precio_mxn', 'publicado_en',
+        'recamaras', 'superficie_m2', 'tipo_inmueble', 'url', 'zona_clave_geo', 'zona_id', 'zona_municipio', 'zona_nombre']);
       expect(typeof l.precio_mxn).toBe('number');
       expect(l.modo_datos).toBe('fixture');
     }

@@ -18,6 +18,9 @@ export function parseIdsComparacion(items: string | string[] | undefined): strin
   return ids;
 }
 
+/** Un municipio con menos zonas con precios que esto no sirve de referencia: se compara con todo el estado. */
+export const MIN_ZONAS_REFERENCIA = 5;
+
 export interface ReferenciaCiudad {
   ciudad: string; n_listados: number; zonas: number; renta_mediana: number | null; precio_m2_mediano: number | null;
 }
@@ -28,17 +31,20 @@ const redondear = (n: number, d = 1) => Math.round(n * 10 ** d) / 10 ** d;
  * Respuesta del comparador. Cada zona trae los mismos campos que el catálogo (`ZonaCatalogo`) más: su posición por precio por m²,
  * la diferencia porcentual de su renta mediana contra la ciudad y las paradas por km². Las zonas suprimidas no llevan diferencia.
  */
-export function armarComparacion(filas: any[], ciudades: ReferenciaCiudad[], minListados: number) {
+export function armarComparacion(filas: any[], ciudades: ReferenciaCiudad[], estado: ReferenciaCiudad | null, minListados: number) {
   const ref = new Map(ciudades.map((c) => [c.ciudad, c]));
   return {
     max: MAX_COMPARAR,
     min_listados_estadistica: minListados,
     ciudades_referencia: ciudades,
-    items: filas.map(({ lugar, de, ...z }) => {
-      const c = ref.get(z.ciudad);
+    estado_referencia: estado,
+    items: filas.map(({ lugar, de, ambito_pos, ...z }) => {
+      const local = ref.get(z.ciudad);
+      const c = local && local.zonas >= MIN_ZONAS_REFERENCIA ? local : estado;
       return {
         ...z,
-        posicion_precio_m2: lugar != null ? { lugar, de } : null,
+        posicion_precio_m2: lugar != null ? { lugar, de, ambito: ambito_pos } : null,
+        referencia: c?.ciudad ?? null,
         renta_vs_ciudad_pct: z.renta_mediana != null && c?.renta_mediana ? redondear((z.renta_mediana / c.renta_mediana - 1) * 100) : null,
         paradas_por_km2: z.area_km2 ? redondear(z.num_paradas / z.area_km2) : null,
       };

@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { Carga } from './cargas';
 import { Config, TIPO_UNIDAD } from './config';
 import { Conn } from './db';
-import { leerDenue, leerParadas, leerZonas } from './readers';
+import { leerDenue, leerMunicipios, leerParadas, leerZonas } from './readers';
 
 // Caja que contiene a México continental e insular; fuera de ella la coordenada es un error de captura.
 const LAT_RANGO = [14.0, 33.0];
@@ -39,12 +39,13 @@ WITH g AS (
 ), f AS (
   SELECT raw, ST_Multi(ST_CollectionExtract(ST_MakeValid(raw), 3)) AS geom FROM g
 )
-INSERT INTO colonias (nombre, ciudad, geom, tipo_unidad, clave_geo, cve_ent, cve_mun, carga_id, actualizado_en)
-SELECT $2, $3, f.geom, $4, $5, $6, $7, $8, now()
+INSERT INTO colonias (nombre, ciudad, geom, tipo_unidad, clave_geo, cve_ent, cve_mun, carga_id, localidad, poblacion, viviendas, actualizado_en)
+SELECT $2, $3, f.geom, $4, $5, $6, $7, $8, $9, $10::int, $11::int, now()
 FROM f WHERE NOT ST_IsEmpty(f.geom) AND ST_IsValid(f.geom)
 ON CONFLICT (tipo_unidad, clave_geo) DO UPDATE
   SET nombre = EXCLUDED.nombre, ciudad = EXCLUDED.ciudad, geom = EXCLUDED.geom,
-      cve_ent = EXCLUDED.cve_ent, cve_mun = EXCLUDED.cve_mun, carga_id = EXCLUDED.carga_id, actualizado_en = now()
+      cve_ent = EXCLUDED.cve_ent, cve_mun = EXCLUDED.cve_mun, carga_id = EXCLUDED.carga_id, localidad = EXCLUDED.localidad,
+      poblacion = EXCLUDED.poblacion, viviendas = EXCLUDED.viviendas, actualizado_en = now()
 RETURNING (SELECT NOT ST_IsValid(raw) FROM f) AS reparada
 `;
 
@@ -52,12 +53,13 @@ export async function cargarZonas(conn: Conn, cfg: Config, c: Carga): Promise<vo
   let reparadas = 0;
   await conn.tx(async () => {
     for await (const z of leerZonas(cfg.rutaZonas!)) {
-      if (z.cveEnt !== cfg.cveEnt || z.cveMun !== cfg.cveMun) continue; // fuera del municipio piloto: fuera de alcance
+      if (z.cveEnt !== cfg.cveEnt || (!cfg.estadoCompleto && z.cveMun !== cfg.cveMun)) continue; // fuera del alcance de la carga
       c.leidos++;
       if (!z.claveGeo) { c.descartar(z.referencia, 'sin CVEGEO'); continue; }
       if (z.geojson === null) { c.descartar(z.referencia, 'sin geometría'); continue; }
       const [row] = await conn.query(SQL_ZONA, [
-        z.geojson, z.nombre ?? `AGEB ${z.claveGeo}`, cfg.ciudad, TIPO_UNIDAD, z.claveGeo, z.cveEnt, z.cveMun, c.id,
+        z.geojson, z.nombre ?? `AGEB ${z.claveGeo}`, z.municipio ?? cfg.ciudad, TIPO_UNIDAD, z.claveGeo, z.cveEnt, z.cveMun, c.id,
+        z.localidad, z.poblacion, z.viviendas,
       ]);
       if (!row) { c.descartar(z.referencia, 'geometría vacía o irreparable'); continue; }
       c.cargados++;
@@ -65,6 +67,30 @@ export async function cargarZonas(conn: Conn, cfg: Config, c: Carga): Promise<vo
     }
   });
   if (reparadas) console.info(`Zonas con geometría inválida reparada con ST_MakeValid: ${reparadas}`);
+}
+
+// ───────────────────────── Municipios (MVP-6 · MGN) ─────────────────────────
+const SQL_MUNICIPIO = `
+WITH g AS (SELECT ST_SetSRID(ST_GeomFromGeoJSON($1), 4326) AS raw),
+f AS (SELECT ST_Multi(ST_CollectionExtract(ST_MakeValid(raw), 3)) AS geom FROM g)
+INSERT INTO municipios (cve_ent, cve_mun, nombre, poblacion, viviendas, geom, carga_id)
+SELECT $2, $3, $4, $5::int, $6::int, f.geom, $7 FROM f WHERE NOT ST_IsEmpty(f.geom) AND ST_IsValid(f.geom)
+ON CONFLICT (cve_ent, cve_mun) DO UPDATE SET nombre = EXCLUDED.nombre, poblacion = EXCLUDED.poblacion,
+  viviendas = EXCLUDED.viviendas, geom = EXCLUDED.geom, carga_id = EXCLUDED.carga_id
+RETURNING 1 AS ok`;
+
+export async function cargarMunicipios(conn: Conn, cfg: Config, c: Carga): Promise<void> {
+  await conn.tx(async () => {
+    for (const m of leerMunicipios(cfg.rutaMunicipios!)) {
+      if (m.cveEnt !== cfg.cveEnt) continue;
+      c.leidos++;
+      if (!m.cveMun || !m.nombre) { c.descartar(m.referencia, 'sin clave o nombre de municipio'); continue; }
+      if (m.geojson === null) { c.descartar(m.referencia, 'sin geometría'); continue; }
+      const [row] = await conn.query(SQL_MUNICIPIO, [m.geojson, m.cveEnt, m.cveMun, m.nombre, m.poblacion, m.viviendas, c.id]);
+      if (!row) { c.descartar(m.referencia, 'geometría vacía o irreparable'); continue; }
+      c.cargados++;
+    }
+  });
 }
 
 // ───────────────────────── DENUE (RF-1.2) ─────────────────────────
@@ -94,7 +120,7 @@ export async function cargarDenue(conn: Conn, cfg: Config, c: Carga): Promise<vo
   let lote: LoteUE[] = [];
   await conn.tx(async () => {
     for await (const u of leerDenue(cfg.rutaDenue!)) {
-      if (u.cveEnt && u.cveMun && (u.cveEnt !== cfg.cveEnt || u.cveMun !== cfg.cveMun)) continue; // fuera del municipio piloto
+      if (u.cveEnt && u.cveMun && (u.cveEnt !== cfg.cveEnt || (!cfg.estadoCompleto && u.cveMun !== cfg.cveMun))) continue; // fuera del alcance
       c.leidos++;
       const ref = `fila ${u.fila}`;
       if (!u.idDenue) { c.descartar(ref, 'sin id de DENUE'); continue; }
@@ -182,7 +208,7 @@ export async function asignarYCalcularAtributos(conn: Conn, cargaId: number | nu
  *  se toman N espaciadas uniformemente (muestreo sistemático). Se puede forzar con --lista-piloto. */
 export async function seleccionarPilotos(conn: Conn, cfg: Config): Promise<number> {
   await conn.tx(async () => {
-    await conn.query('UPDATE colonias SET es_piloto = FALSE WHERE ciudad = $1', [cfg.ciudad]);
+    await conn.query('UPDATE colonias SET es_piloto = FALSE WHERE es_piloto');
     if (cfg.listaPiloto) {
       const claves = readFileSync(cfg.listaPiloto, 'utf8').split(/\r?\n/).map((l) => l.trim()).filter((l) => l && !l.startsWith('#'));
       await conn.query('UPDATE colonias SET es_piloto = TRUE WHERE tipo_unidad=$1 AND clave_geo = ANY($2)', [TIPO_UNIDAD, claves]);
@@ -203,7 +229,7 @@ export async function seleccionarPilotos(conn: Conn, cfg: Config): Promise<numbe
 /** Evita mezclar datos sintéticos con reales: borra lo cargado por corridas de otro modo. */
 export async function limpiarOtroModo(conn: Conn, modo: string): Promise<void> {
   await conn.tx(async () => {
-    for (const tabla of ['listados_renta', 'unidades_economicas', 'paradas_transporte', 'colonias']) {
+    for (const tabla of ['listados_renta', 'unidades_economicas', 'paradas_transporte', 'colonias', 'municipios']) {
       await conn.query(`DELETE FROM ${tabla} WHERE carga_id IN (SELECT id FROM cargas_datos WHERE modo <> $1)`, [modo]);
     }
   });

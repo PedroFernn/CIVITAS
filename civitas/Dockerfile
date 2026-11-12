@@ -20,6 +20,7 @@ COPY civitas/ .
 COPY docs/mvp2 docs/mvp2
 COPY docs/mvp3 docs/mvp3
 COPY docs/mvp5 docs/mvp5
+COPY docs/mvp6 docs/mvp6
 RUN pnpm -r build
 
 # ── sólo dependencias de producción de la API ──
@@ -28,7 +29,7 @@ COPY civitas/package.json civitas/pnpm-lock.yaml civitas/pnpm-workspace.yaml ./
 COPY civitas/api/package.json api/
 RUN pnpm install --frozen-lockfile --prod --filter civitas-api...
 
-# ── API + ETL ──  (db/ y data/fixtures, docs/mvp2, docs/mvp3 y docs/mvp5 los lee el ETL: migraciones, datos sintéticos, ADR-001, ADR-002 y el plan B de MVP-5)
+# ── API + ETL ──  (db/ y data/fixtures, docs/mvp2, docs/mvp3, docs/mvp5 y docs/mvp6 los lee el ETL: migraciones, datos sintéticos, ADR-001, ADR-002, el plan B de MVP-5 y el método de MVP-6)
 FROM node:22-alpine AS api
 ENV NODE_ENV=production PORT=4000
 WORKDIR /app
@@ -41,6 +42,7 @@ COPY civitas/data/fixtures ./data/fixtures
 COPY docs/mvp2/ADR-001-unidad-de-zona.md ./docs/mvp2/ADR-001-unidad-de-zona.md
 COPY docs/mvp3/ADR-002-fuente-renta.md ./docs/mvp3/ADR-002-fuente-renta.md
 COPY docs/mvp5/MVP5.md ./docs/mvp5/MVP5.md
+COPY docs/mvp6/MVP6.md ./docs/mvp6/MVP6.md
 RUN mkdir -p data/reports data/raw && chown -R node:node data
 USER node
 WORKDIR /app/api

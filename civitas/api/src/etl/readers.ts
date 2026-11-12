@@ -15,6 +15,11 @@ export interface ZonaRaw {
   cveEnt: string | null;
   cveMun: string | null;
   nombre: string | null;
+  /** Nombre oficial del municipio y de la localidad (INEGI) y población y viviendas del Censo 2020; null si el archivo no los trae. */
+  municipio: string | null;
+  localidad: string | null;
+  poblacion: number | null;
+  viviendas: number | null;
   geojson: string | null; // geometría GeoJSON en EPSG:4326
 }
 
@@ -44,8 +49,35 @@ function zonaDe(props: Props, geometry: unknown, refVacia: string): ZonaRaw {
     cveEnt: prop(props, 'cve_ent') ?? (clave ? clave.slice(0, 2) : null),
     cveMun: prop(props, 'cve_mun') ?? (clave ? clave.slice(2, 5) : null),
     nombre: prop(props, 'nombre', 'nomgeo'),
+    municipio: prop(props, 'nom_agem', 'nom_mun'),
+    localidad: prop(props, 'nom_loc'),
+    poblacion: entero(prop(props, 'pobtot')),
+    viviendas: entero(prop(props, 'tvivhab')),
     geojson: geometry ? JSON.stringify(geometry) : null,
   };
+}
+
+/** El Censo marca con «*» las cifras que reserva por confidencialidad: se guardan como nulo, no como cero. */
+function entero(v: string | null): number | null {
+  if (v === null) return null;
+  const n = Number(v.replace(/,/g, ''));
+  return Number.isInteger(n) && n >= 0 ? n : null;
+}
+
+export interface MunicipioRaw { referencia: string; cveEnt: string; cveMun: string; nombre: string | null; poblacion: number | null; viviendas: number | null; geojson: string | null }
+
+/** Polígonos de municipios del MGN (GeoJSON con CVEGEO de 5 caracteres: entidad + municipio). */
+export function* leerMunicipios(file: string): Generator<MunicipioRaw> {
+  const data = JSON.parse(readFileSync(file, 'utf8'));
+  for (const f of data.features ?? []) {
+    const p = f.properties ?? {};
+    const clave = prop(p, 'cvegeo') ?? '';
+    yield {
+      referencia: clave || 'municipio', cveEnt: prop(p, 'cve_agee', 'cve_ent') ?? clave.slice(0, 2), cveMun: prop(p, 'cve_agem', 'cve_mun') ?? clave.slice(2, 5),
+      nombre: prop(p, 'nom_agem', 'nomgeo'), poblacion: entero(prop(p, 'pob')), viviendas: entero(prop(p, 'viv')),
+      geojson: f.geometry ? JSON.stringify(f.geometry) : null,
+    };
+  }
 }
 
 /** Reproyecta recursivamente las coordenadas de una geometría GeoJSON. */

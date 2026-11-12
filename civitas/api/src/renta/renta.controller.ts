@@ -16,6 +16,7 @@ export class RentaController {
   @ApiQuery({ name: 'zona_id', required: false })
   @ApiQuery({ name: 'con_zona', required: false })
   @ApiQuery({ name: 'tipo', required: false })
+  @ApiQuery({ name: 'anomalia', required: false, description: 'justo | inflado | subprecio (motor de anomalías, MVP-6)' })
   @ApiQuery({ name: 'recamaras', required: false })
   @ApiQuery({ name: 'min_precio', required: false })
   @ApiQuery({ name: 'max_precio', required: false })
@@ -31,7 +32,7 @@ export class RentaController {
   @ApiOperation({ summary: 'Renta mediana y cuartiles por zona (se suprimen con menos de 5 listados)' })
   @ApiQuery({ name: 'limit', required: false })
   resumenZonas(@Query('limit') limit?: string) {
-    return this.svc.resumenZonas(entero(limit, 'limit', 1, 500) ?? 100);
+    return this.svc.resumenZonas(entero(limit, 'limit', 1, 3000) ?? 100);
   }
 
   @Get('calidad')

@@ -19,11 +19,13 @@ const CAMPOS = `
   l.precio_mxn::float AS precio_mxn, l.superficie_m2::float AS superficie_m2, l.recamaras, l.precio_m2::float AS precio_m2,
   to_char(l.publicado_en, 'YYYY-MM-DD') AS publicado_en,
   ST_Y(l.geom) AS lat, ST_X(l.geom) AS lon,
-  l.zona_id, z.nombre AS zona_nombre, z.clave_geo AS zona_clave_geo, cd.modo AS modo_datos`;
+  l.zona_id, z.nombre AS zona_nombre, z.clave_geo AS zona_clave_geo, z.ciudad AS zona_municipio, cd.modo AS modo_datos,
+  a.etiqueta AS anomalia, a.z_robusto::float AS anomalia_z`;
 
 const DESDE = `FROM listados_renta l
   LEFT JOIN colonias z ON z.id = l.zona_id
-  LEFT JOIN cargas_datos cd ON cd.id = l.carga_id`;
+  LEFT JOIN cargas_datos cd ON cd.id = l.carga_id
+  LEFT JOIN listados_anomalias a ON a.listado_id = l.id`;
 
 function where(f: FiltrosListados, params: unknown[]): string {
   const w: string[] = [];
@@ -31,6 +33,7 @@ function where(f: FiltrosListados, params: unknown[]): string {
   if (f.zonaId) w.push(`l.zona_id = ${p(f.zonaId)}`);
   if (f.conZona !== undefined) w.push(f.conZona ? 'l.zona_id IS NOT NULL' : 'l.zona_id IS NULL');
   if (f.tipo) w.push(`l.tipo_inmueble = ${p(f.tipo)}`);
+  if (f.anomalia) w.push(`a.etiqueta = ${p(f.anomalia)}`);
   if (f.recamaras !== undefined) w.push(`l.recamaras = ${p(f.recamaras)}`);
   if (f.minPrecio !== undefined) w.push(`l.precio_mxn >= ${p(f.minPrecio)}`);
   if (f.maxPrecio !== undefined) w.push(`l.precio_mxn <= ${p(f.maxPrecio)}`);
@@ -41,7 +44,7 @@ function where(f: FiltrosListados, params: unknown[]): string {
     const patrones = (ts: string[]) => p(ts.map((t) => `%${escaparLike(t)}%`));
     const generales = f.q.filter((t) => !esNumeroCorto(t)), numeros = f.q.filter(esNumeroCorto);
     if (generales.length) {
-      w.push(`${sinAcentos(`COALESCE(z.nombre,'') || ' ' || COALESCE(z.clave_geo,'') || ' ' || COALESCE(l.id_fuente,'') || ' ' || l.tipo_inmueble`)} LIKE ALL (${patrones(generales)}::text[])`);
+      w.push(`${sinAcentos(`COALESCE(z.nombre,'') || ' ' || COALESCE(z.ciudad,'') || ' ' || COALESCE(z.clave_geo,'') || ' ' || COALESCE(l.id_fuente,'') || ' ' || l.tipo_inmueble`)} LIKE ALL (${patrones(generales)}::text[])`);
     }
     if (numeros.length) w.push(`${sinAcentos(`COALESCE(z.nombre,'')`)} LIKE ALL (${patrones(numeros)}::text[])`);
   }
@@ -65,13 +68,13 @@ export class RentaService {
   /** Resumen por zona. Con menos de MIN_LISTADOS_ESTADISTICA listados la zona aparece, pero sin medianas ni cuartiles. */
   async resumenZonas(limit: number) {
     const rows = await this.db.query<any>(
-      `SELECT zona_id, nombre, clave_geo, es_piloto, n_listados, (n_listados < $1) AS estadistica_suprimida,
-              CASE WHEN n_listados >= $1 THEN renta_mediana::float END AS renta_mediana,
-              CASE WHEN n_listados >= $1 THEN renta_p25::float END AS renta_p25,
-              CASE WHEN n_listados >= $1 THEN renta_p75::float END AS renta_p75,
-              CASE WHEN n_listados >= $1 THEN precio_m2_mediano::float END AS precio_m2_mediano,
+      `SELECT r.zona_id, r.nombre, c.ciudad AS municipio, r.clave_geo, r.es_piloto, r.n_listados, (r.n_listados < $1) AS estadistica_suprimida,
+              CASE WHEN r.n_listados >= $1 THEN r.renta_mediana::float END AS renta_mediana,
+              CASE WHEN r.n_listados >= $1 THEN r.renta_p25::float END AS renta_p25,
+              CASE WHEN r.n_listados >= $1 THEN r.renta_p75::float END AS renta_p75,
+              CASE WHEN r.n_listados >= $1 THEN r.precio_m2_mediano::float END AS precio_m2_mediano,
               count(*) OVER()::int AS total
-       FROM v_renta_zona ORDER BY n_listados DESC, nombre LIMIT $2`, [MIN_LISTADOS_ESTADISTICA, limit]);
+       FROM v_renta_zona r JOIN colonias c ON c.id = r.zona_id ORDER BY r.n_listados DESC, r.nombre LIMIT $2`, [MIN_LISTADOS_ESTADISTICA, limit]);
     return { total: rows[0]?.total ?? 0, min_listados_estadistica: MIN_LISTADOS_ESTADISTICA, items: rows.map(({ total, ...r }) => r) };
   }
 

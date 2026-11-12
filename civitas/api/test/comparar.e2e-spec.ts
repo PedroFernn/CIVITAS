@@ -84,7 +84,7 @@ describe('API MVP-5 · comparador y transporte (BD simulada)', () => {
 
   it('min_paradas aplica también al mapa y a la búsqueda por texto', async () => {
     await request(app.getHttpServer()).get('/zonas/geojson?min_paradas=3').expect(200);
-    expect(llamadas[0].params).toEqual([3, 500]);
+    expect(llamadas[0].params).toEqual([3, 3000, 0.0002]); // paradas mínimas, tope de zonas del estado y simplificación por defecto
     await request(app.getHttpServer()).get('/zonas?q=centro&min_paradas=2').expect(200);
     expect(llamadas.at(-1)!.params).toEqual([['%centro%'], 2]);                    // orden=relevancia: sin limit/offset en SQL
   });

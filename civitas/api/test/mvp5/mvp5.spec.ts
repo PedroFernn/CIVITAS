@@ -81,7 +81,7 @@ describe('MVP-5 · parseIdsComparacion', () => {
     expect(() => parseIdsComparacion([U(1), U(2), U(3), U(4)].join(','))).toThrow('hasta 3');
   });
   it('armarComparacion no divide entre cero ni inventa diferencias', () => {
-    const r = armarComparacion([{ id: 'a', ciudad: 'X', renta_mediana: 100, area_km2: 0, num_paradas: 3, lugar: null, de: null }], [{ ciudad: 'X', n_listados: 1, zonas: 1, renta_mediana: null, precio_m2_mediano: null }], 5);
+    const r = armarComparacion([{ id: 'a', ciudad: 'X', renta_mediana: 100, area_km2: 0, num_paradas: 3, lugar: null, de: null }], [{ ciudad: 'X', n_listados: 1, zonas: 1, renta_mediana: null, precio_m2_mediano: null }], null, 5);
     expect(r.items[0]).toMatchObject({ paradas_por_km2: null, renta_vs_ciudad_pct: null, posicion_precio_m2: null });
   });
 });

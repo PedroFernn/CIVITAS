@@ -25,6 +25,12 @@ export const DOC_MVP5 =
     .map((d) => path.join(d, 'MVP5.md'))
     .find(existsSync) ?? path.join(ROOT, 'docs', 'mvp5', 'MVP5.md');
 
+// MVP-6: el método del motor de anomalías vive en docs/mvp6/MVP6.md; el checklist comprueba que esté escrito.
+export const DOC_MVP6 =
+  [path.join(ROOT, 'docs', 'mvp6'), path.join(ROOT, '..', 'docs', 'mvp6')]
+    .map((d) => path.join(d, 'MVP6.md'))
+    .find(existsSync) ?? path.join(ROOT, 'docs', 'mvp6', 'MVP6.md');
+
 export const DEFAULT_DB = 'postgresql://civitas:civitas@localhost:5432/civitas';
 
 /** Unidad de zona decidida en ADR-001 */
@@ -36,11 +42,17 @@ export interface Config {
   ciudad: string;
   cveEnt: string;
   cveMun: string;
+  /** MVP-6: carga las AGEB y el DENUE de TODOS los municipios de la entidad (cveMun solo fija el municipio de los pilotos, ADR-001). */
+  estadoCompleto: boolean;
   zonasPiloto: number;
   minComercios: number;
   rutaZonas?: string;
   rutaDenue?: string;
   rutaTransporte?: string;
+  /** Polígonos de municipios (INEGI MGN). Opcional: sin el archivo, la carga sigue y solo falta la capa de municipios. */
+  rutaMunicipios?: string;
+  /** MVP-6: CSV `id_anuncio,etiqueta` con la muestra de validación del motor de anomalías. */
+  rutaEtiquetas?: string;
   sistemaTransporte: string;
   listaPiloto?: string;
   comando: string;
@@ -69,6 +81,7 @@ export function nuevaConfig(parcial: Partial<Config> = {}): Config {
     ciudad: 'Puebla',
     cveEnt: '21', // Puebla
     cveMun: '114', // Puebla (municipio capital)
+    estadoCompleto: false,
     zonasPiloto: 30, // RF: ≥30 zonas piloto
     minComercios: 1, // una zona piloto debe tener al menos N comercios
     sistemaTransporte: 'GTFS',
@@ -97,6 +110,7 @@ export function resolverRutas(cfg: Config): void {
   cfg.rutaTransporte ??=
     envPath('CIVITAS_TRANSPORTE_PATH') ??
     descubrir(path.join(cfg.rawDir, 'transporte'), ['stops.txt', '.csv', '.geojson', '.zip']);
+  cfg.rutaMunicipios ??= envPath('CIVITAS_MUNICIPIOS_PATH') ?? descubrir(path.join(cfg.rawDir, 'municipios'), ['.geojson']);
   const faltan = (
     [
       ['MGN (AGEB urbanas)', cfg.rutaZonas],

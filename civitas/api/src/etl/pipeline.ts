@@ -3,7 +3,7 @@ import path from 'node:path';
 import { conCarga } from './cargas';
 import { Config, REPORTS, resolverRutas } from './config';
 import { conectar, migrar, resetTotal } from './db';
-import { asignarYCalcularAtributos, cargarDenue, cargarParadas, cargarZonas, limpiarOtroModo, seleccionarPilotos } from './loaders';
+import { asignarYCalcularAtributos, cargarDenue, cargarMunicipios, cargarParadas, cargarZonas, limpiarOtroModo, seleccionarPilotos } from './loaders';
 import * as validacion from './validacion';
 
 export async function correrMvp2(cfg: Config, desdeCero = false, resetPermitido = false): Promise<boolean> {
@@ -15,6 +15,7 @@ export async function correrMvp2(cfg: Config, desdeCero = false, resetPermitido 
     await limpiarOtroModo(conn, cfg.modo);
 
     await conCarga(conn, 'inegi_mgn', cfg.modo, cfg.rutaZonas, cfg.comando, null, (c) => cargarZonas(conn, cfg, c));
+    if (cfg.rutaMunicipios) await conCarga(conn, 'inegi_mgem', cfg.modo, cfg.rutaMunicipios, cfg.comando, null, (c) => cargarMunicipios(conn, cfg, c));
     await conCarga(conn, 'inegi_denue', cfg.modo, cfg.rutaDenue, cfg.comando, null, (c) => cargarDenue(conn, cfg, c));
     const ultima = await conCarga(conn, 'transporte_paradas', cfg.modo, cfg.rutaTransporte, cfg.comando, cfg.sistemaTransporte,
       async (c) => { await cargarParadas(conn, cfg, c); return c.id; });
