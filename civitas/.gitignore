@@ -10,3 +10,9 @@ next-env.d.ts
 data/reports/
 data/raw/*
 !data/raw/README.md
+# Datos REALES de INEGI y OpenStreetMap del estado de Puebla (los descarga y recorta scripts/preparar-datos-reales.py; el DENUE va sin teléfono ni correo).
+# Lo demás de data/raw (p. ej. rentas-demo, que es SINTÉTICO, o rentas/) sigue fuera del repo.
+!data/raw/mgn/
+!data/raw/municipios/
+!data/raw/denue/
+!data/raw/transporte/

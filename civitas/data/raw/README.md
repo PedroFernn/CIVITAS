@@ -18,17 +18,27 @@ O indica las rutas con `CIVITAS_MGN_PATH`, `CIVITAS_DENUE_PATH`, `CIVITAS_TRANSP
 - **Transporte:** paradas de bus de **OpenStreetMap** (© colaboradores de OpenStreetMap, licencia ODbL: hay que citar la fuente; la UI y el pie lo hacen),
   consultadas con Overpass. Puebla no publica un GTFS abierto de sus rutas que se haya podido verificar. Son paradas, no rutas ni frecuencias, y muchas no tienen nombre en OSM.
 
-## Datos reales del municipio de Puebla (un solo comando)
-`python3 scripts/preparar-datos-reales.py` (desde `civitas/`, solo biblioteca estándar) descarga y deja listos en `data/raw/`:
-AGEB urbanas oficiales (INEGI, servicio wscatgeo, MGN dic. 2025, 498 zonas del municipio 21/114, CRS EPSG:6365 ≈ WGS84 en grados), el DENUE completo de Puebla
-(descarga masiva, ~217 MB descomprimido) y las paradas de OSM. Las zonas se nombran con la colonia más frecuente del DENUE en cada AGEB (`nomb_asent`).
-Luego: `docker compose run --rm etl mvp2 --fuente real --desde-cero`. Ojo: el CSV del DENUE trae teléfono y correo de cada negocio; el ETL no los lee ni los guarda,
-pero el archivo queda en disco (está fuera de git y de la imagen de Docker).
+## Datos reales de todo el estado de Puebla (ya versionados)
+Estos archivos SÍ están en el repo, para que cualquiera corra el ETL real sin descargar nada:
+
+| Archivo | Qué es | Tamaño |
+|---|---|---|
+| `mgn/agebu_21.geojson` | 2,503 AGEB urbanas de los 217 municipios (INEGI, MGN dic. 2025) con población y viviendas del Censo 2020, municipio y localidad oficiales y nombre de colonia | ~9 MB |
+| `municipios/mgem_21.geojson` | Contorno, población y viviendas de los 217 municipios (INEGI) | ~10 MB |
+| `denue/denue_21_recortado.zip` | 410,693 unidades económicas del DENUE de Puebla, **sin teléfono, correo, sitio web ni razón social** | ~13 MB |
+| `transporte/paradas_osm_21.geojson` | 1,211 paradas y estaciones de bus y tren de OpenStreetMap (ODbL) | ~0.2 MB |
+
+`python3 scripts/preparar-datos-reales.py` los vuelve a descargar o regenerar (idempotente; `--renombrar` recalcula los nombres de zona):
+consulta el servicio wscatgeo de INEGI una vez por municipio, descarga el DENUE completo y lo recorta, y consulta Overpass para las paradas.
+Luego: `docker compose run --rm etl mvp2 --fuente real --estado-completo --desde-cero`. `--cve-mun 114` solo fija el municipio de los 30 pilotos (ADR-001).
+
+El DENUE original sí trae teléfono y correo de cada negocio; el recorte los quita antes de guardarlo porque el ETL no los lee y no hay motivo para
+conservarlos ni publicarlos. Los nombres de negocio pueden incluir usuarios de redes sociales (p. ej. `@ELCARRITO.PUEBLA`): son el nombre que INEGI publica.
 
 ## Rentas de DEMOSTRACIÓN sobre zonas reales
-No existe una fuente abierta de rentas por zona. Por decisión explícita del equipo, `python3 scripts/generar-rentas-demo.py` genera ~6,000 listados **inventados**
-dentro de las AGEB reales (`data/raw/rentas-demo/`), que se cargan siempre como `fixture`:
-`docker compose run --rm etl mvp3 --fuente fixture --listados /app/data/raw/rentas-demo/renta_demo_puebla.csv` (y lo mismo con `mvp4`/`mvp5`).
+No existe una fuente abierta de rentas por zona. Por decisión explícita del equipo, `python3 scripts/generar-rentas-demo.py` genera ~29,000 listados **inventados**
+dentro de las AGEB reales (`data/raw/rentas-demo/`, fuera del repo), con su archivo de etiquetas sembradas, que se cargan siempre como `fixture`:
+`docker compose run --rm etl mvp3 --fuente fixture --listados /app/data/raw/rentas-demo/renta_demo_estado.csv` (y lo mismo con `mvp4`/`mvp5`; luego `mvp6`).
 La validación de origen del MVP-3 pasa de `fail` a `warn` **solo** en el caso «zonas reales + precios fixture»; el caso inverso sigue fallando.
 La UI avisa por separado del origen de zonas y de precios (`web/components/AvisoDatos.tsx`). Para precios reales: captura manual (ADR-002) y `--fuente real`.
 
