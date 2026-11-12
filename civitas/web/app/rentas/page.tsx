@@ -1,10 +1,11 @@
 import Link from 'next/link';
 import TablaDatos, { type Columna, type Fila, type OpcionOrden } from '@/components/TablaDatos';
+import Etiqueta from '@/components/Etiqueta';
 import Termino from '@/components/Termino';
 import { GLOSARIO } from '@/lib/glosario';
 import AvisoDatos from '@/components/AvisoDatos';
 import { modosDatos } from '@/lib/modo';
-import { api, mxn, num, type ListaListados, type ReporteCalidad, type ResumenZonasRenta } from '@/lib/api';
+import { api, mxn, num, type ListaListados, type ReporteCalidad, type ResumenAnomalias, type ResumenZonasRenta } from '@/lib/api';
 
 export const dynamic = 'force-dynamic';
 export const metadata = { title: 'Precios de renta · CIVITAS' };
@@ -17,9 +18,11 @@ const ORDENES: [string, string][] = [
 const TIPOS: [string, string][] = [['departamento', 'Departamento'], ['casa', 'Casa'], ['cuarto', 'Cuarto'], ['otro', 'Otro']];
 const RECAMARAS: [string, string][] = [['0', 'Estudio'], ['1', '1'], ['2', '2'], ['3', '3'], ['4', '4'], ['5', '5']];
 const NOMBRE_TIPO = Object.fromEntries(TIPOS);
+const ANOMALIAS: [string, string][] = [['justo', 'Precio justo'], ['inflado', 'Inflado'], ['subprecio', 'Subprecio']];
 
 const COLUMNAS_ZONAS: Columna[] = [
   { clave: 'nombre', etiqueta: 'Zona', tipo: 'enlace', href: 'href' },
+  { clave: 'municipio', etiqueta: 'Municipio', tipo: 'texto', ayuda: GLOSARIO.municipio.texto },
   { clave: 'n_listados', etiqueta: 'Anuncios', tipo: 'entero', ayuda: GLOSARIO.listados.texto },
   { clave: 'renta_mediana', etiqueta: 'Renta típica', tipo: 'mxn', vacio: 'Pocos datos', ayuda: GLOSARIO.mediana.texto },
   { clave: 'renta_p25', etiqueta: 'Renta baja', tipo: 'mxn', ayuda: GLOSARIO.p25.texto },
@@ -44,6 +47,7 @@ export default async function Rentas({ searchParams }: { searchParams: Promise<S
   const q = uno(sp.q), minPrecio = uno(sp.min_precio), maxPrecio = uno(sp.max_precio);
   const tipo = TIPOS.some(([k]) => k === uno(sp.tipo)) ? uno(sp.tipo) : undefined;
   const recamaras = RECAMARAS.some(([k]) => k === uno(sp.recamaras)) ? uno(sp.recamaras) : undefined;
+  const anomalia = ANOMALIAS.some(([k]) => k === uno(sp.anomalia)) ? uno(sp.anomalia) : undefined;
   const orden = ORDENES.some(([k]) => k === uno(sp.orden)) ? uno(sp.orden)! : 'reciente';
   const pagina = Math.min(10_000, Math.max(1, Math.floor(Number(uno(sp.pagina))) || 1));
 
@@ -52,18 +56,20 @@ export default async function Rentas({ searchParams }: { searchParams: Promise<S
   if (q) filtros.set('q', q);
   if (tipo) filtros.set('tipo', tipo);
   if (recamaras) filtros.set('recamaras', recamaras);
+  if (anomalia) filtros.set('anomalia', anomalia);
   if (minPrecio) filtros.set('min_precio', minPrecio);
   if (maxPrecio) filtros.set('max_precio', maxPrecio);
   filtros.set('orden', orden);
-  const hayFiltros = !!(q || tipo || recamaras || minPrecio || maxPrecio);
+  const hayFiltros = !!(q || tipo || recamaras || minPrecio || maxPrecio || anomalia);
 
-  let zonas: ResumenZonasRenta, lista: ListaListados, rep: ReporteCalidad | null;
+  let zonas: ResumenZonasRenta, lista: ListaListados, rep: ReporteCalidad | null, anom: ResumenAnomalias | null;
   try {
     [zonas, lista] = await Promise.all([
-      api<ResumenZonasRenta>('/listados-renta/resumen-zonas?limit=500'),
+      api<ResumenZonasRenta>('/listados-renta/resumen-zonas?limit=3000'),
       api<ListaListados>(`/listados-renta?${filtros}&limit=${POR_PAGINA}&offset=${(pagina - 1) * POR_PAGINA}`),
     ]);
     rep = await api<ReporteCalidad>('/listados-renta/calidad').catch(() => null);
+    anom = await api<ResumenAnomalias>('/anomalias/resumen').catch(() => null);
   } catch (e) {
     const msg = (e as Error).message;
     return (
@@ -82,7 +88,7 @@ export default async function Rentas({ searchParams }: { searchParams: Promise<S
   const totalListados = rep?.totales.acumulado.listados ?? zonas.items.reduce((s, z) => s + z.n_listados, 0);
 
   const filasZonas: Fila[] = zonas.items.map((z) => ({
-    zona_id: z.zona_id, href: `/colonias/${z.zona_id}`, nombre: z.nombre, clave_geo: z.clave_geo, n_listados: z.n_listados,
+    zona_id: z.zona_id, href: `/colonias/${z.zona_id}`, nombre: z.nombre, municipio: z.municipio, clave_geo: z.clave_geo, n_listados: z.n_listados,
     renta_mediana: z.renta_mediana, renta_p25: z.renta_p25, renta_p75: z.renta_p75, precio_m2_mediano: z.precio_m2_mediano,
   }));
 
@@ -104,10 +110,24 @@ export default async function Rentas({ searchParams }: { searchParams: Promise<S
         )}
       </section>
 
+      {anom && (
+        <section className="anomalias" aria-labelledby="h-anomalias">
+          <h2 id="h-anomalias">Precios fuera de lo normal</h2>
+          <p className="lead">Cada anuncio se compara con otros parecidos de su misma zona (mismo tipo de inmueble y recámaras). Si cuesta mucho más o mucho menos por metro cuadrado, se marca.
+            <Termino k="anomalia" etiqueta=" ¿Cómo se decide?" /></p>
+          <div className="kpis">
+            <div><b>{num(anom.conteo.justo)}</b><span><Etiqueta valor="justo" /></span><Link href="/rentas?anomalia=justo#listados" className="enlace-sec">Ver anuncios</Link></div>
+            <div><b>{num(anom.conteo.inflado)}</b><span><Etiqueta valor="inflado" /></span><Link href="/rentas?anomalia=inflado#listados" className="enlace-sec">Ver anuncios</Link></div>
+            <div><b>{num(anom.conteo.subprecio)}</b><span><Etiqueta valor="subprecio" /></span><Link href="/rentas?anomalia=subprecio#listados" className="enlace-sec">Ver anuncios</Link></div>
+          </div>
+          <p className="nota">{num(anom.total)} anuncios comparados. Una etiqueta «inflado» o «subprecio» avisa de un precio muy fuera de lo común; no prueba un abuso ni un fraude. Método y límites en docs/mvp6/MVP6.md.</p>
+        </section>
+      )}
+
       <h2>Renta por zona</h2>
       <p className="nota">Busca una zona y elige cómo ordenar. Las zonas con menos de {zonas.min_listados_estadistica} anuncios se muestran sin cifras: con tan pocos, el promedio no sería confiable. Los encabezados con «?» explican cada término.</p>
-      <TablaDatos columnas={COLUMNAS_ZONAS} filas={filasZonas} idFila="zona_id" buscar={['nombre', 'clave_geo']} opciones={OPCIONES_ZONAS} ordenInicial="listados"
-        unidad={['zona', 'zonas']} placeholder="nombre o número de zona" />
+      <TablaDatos columnas={COLUMNAS_ZONAS} filas={filasZonas} idFila="zona_id" buscar={['nombre', 'municipio', 'clave_geo']} opciones={OPCIONES_ZONAS} ordenInicial="listados"
+        unidad={['zona', 'zonas']} placeholder="colonia, municipio o número de zona" />
 
       <h2 id="listados">Anuncios de renta, uno por uno</h2>
       <p className="nota">Cada fila es un inmueble. Por privacidad no hay teléfonos ni nombres de quien anuncia.</p>
@@ -119,6 +139,8 @@ export default async function Rentas({ searchParams }: { searchParams: Promise<S
           <select name="recamaras" defaultValue={recamaras ?? ''}><option value="">Cualquiera</option>{RECAMARAS.map(([k, t]) => <option key={k} value={k}>{t}</option>)}</select></label>
         <label>Renta mínima<input name="min_precio" type="number" min={0} step={500} inputMode="numeric" defaultValue={minPrecio ?? ''} placeholder="$" /></label>
         <label>Renta máxima<input name="max_precio" type="number" min={0} step={500} inputMode="numeric" defaultValue={maxPrecio ?? ''} placeholder="$" /></label>
+        <label><Termino k="anomalia" />
+          <select name="anomalia" defaultValue={anomalia ?? ''}><option value="">Todas</option>{ANOMALIAS.map(([k, t]) => <option key={k} value={k}>{t}</option>)}</select></label>
         <label>Ordenar por
           <select name="orden" defaultValue={orden}>{ORDENES.map(([k, t]) => <option key={k} value={k}>{t}</option>)}</select></label>
         <div className="filtros-acciones">
@@ -137,12 +159,13 @@ export default async function Rentas({ searchParams }: { searchParams: Promise<S
       ) : (
         <div className="tabla-scroll tabla-datos">
           <table>
-            <thead><tr><th>Código</th><th>Tipo</th><th className="n">Renta</th><th className="n">m²</th><th className="n">Recámaras</th><th className="n">Renta por m²</th><th>Zona</th><th>Publicado</th></tr></thead>
+            <thead><tr><th>Código</th><th>Tipo</th><th className="n">Renta</th><th className="n">m²</th><th className="n">Recámaras</th><th className="n">Renta por m²</th><th><Termino k="anomalia" /></th><th>Zona</th><th>Municipio</th><th>Publicado</th></tr></thead>
             <tbody>
               {lista.items.map((l) => (
                 <tr key={l.id}><td><code>{l.id_fuente}</code></td><td>{NOMBRE_TIPO[l.tipo_inmueble] ?? l.tipo_inmueble}</td><td className="n">{mxn(l.precio_mxn)}</td>
                   <td className="n">{num(l.superficie_m2, 0)}</td><td className="n">{l.recamaras === 0 ? 'Estudio' : l.recamaras ?? '—'}</td><td className="n">{mxn(l.precio_m2)}</td>
-                  <td>{l.zona_id ? <Link href={`/colonias/${l.zona_id}`}>{l.zona_nombre}</Link> : <span className="suprimida">sin zona</span>}</td><td>{fechaCorta(l.publicado_en)}</td></tr>
+                  <td><Etiqueta valor={l.anomalia} /></td>
+                  <td>{l.zona_id ? <Link href={`/colonias/${l.zona_id}`}>{l.zona_nombre}</Link> : <span className="suprimida">sin zona</span>}</td><td>{l.zona_municipio ?? '—'}</td><td>{fechaCorta(l.publicado_en)}</td></tr>
               ))}
             </tbody>
           </table>

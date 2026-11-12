@@ -383,3 +383,50 @@ button.secundario, .filtros button.secundario-fil { font: inherit; font-weight: 
   .panel-tarjeta .ficha dd { padding-top: 2px; }
   .panel-sesion { padding: 16px; }
 }
+
+/* ── MVP-6: menú que se pliega, etiquetas de precio, chips, estado completo ── */
+header nav a[aria-current=page] { background: rgba(255,255,255,.14); color: #fff; box-shadow: inset 0 -2px 0 var(--amarillo); border-radius: 999px 999px 6px 6px; }
+.menu-boton { display: none; width: 44px; height: 44px; border: 1px solid rgba(255,255,255,.35); border-radius: 10px; background: transparent; cursor: pointer; position: relative; }
+.menu-boton i, .menu-boton i::before, .menu-boton i::after { position: absolute; left: 11px; right: 11px; height: 2px; background: #fff; border-radius: 2px; content: ''; transition: transform .15s, top .15s; }
+.menu-boton i { top: 21px; } .menu-boton i::before { left: 0; right: 0; top: -7px; } .menu-boton i::after { left: 0; right: 0; top: 7px; }
+.menu-boton[aria-expanded=true] i { background: transparent; } .menu-boton[aria-expanded=true] i::before { top: 0; transform: rotate(45deg); } .menu-boton[aria-expanded=true] i::after { top: 0; transform: rotate(-45deg); }
+
+.etiqueta { display: inline-flex; align-items: center; gap: 5px; font-size: .78rem; font-weight: 700; padding: 3px 10px 3px 8px; border-radius: 999px; white-space: nowrap; cursor: help; }
+.etiqueta i { font-style: normal; font-size: .7rem; }
+.etiqueta-justo { background: var(--verde-cl); color: #0f4f3a; }
+.etiqueta-inflado { background: var(--rojo-cl); color: #7a2412; }
+.etiqueta-subprecio { background: var(--amarillo-cl); color: #6a5200; }
+.etiqueta-nd { background: #eceff6; color: var(--suave); font-weight: 600; }
+.inmuebles li .etiqueta { justify-self: start; margin-top: 4px; }
+
+.chips { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 0; padding: 0; }
+.chips a { display: inline-flex; align-items: center; gap: 8px; padding: 5px 8px 5px 14px; border-radius: 999px; background: var(--cobalto-cl); color: var(--cobalto-osc); font-size: .88rem; font-weight: 600; text-decoration: none; }
+.chips a:hover { background: #d3defa; }
+.chips i { font-style: normal; display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; background: #fff; font-size: 1rem; line-height: 1; }
+
+.tarjeta-lugar { font-size: .82rem; color: var(--suave); }
+.mapa-espera { display: grid; place-items: center; text-align: center; padding: 20px; border: 1px dashed var(--linea-2); border-radius: 12px; background: var(--superficie); color: var(--tinta-2); }
+.mapa-nota { margin: 6px 0 0; }
+.kpis-chicos { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); margin-top: 12px; }
+.kpis-chicos b { font-size: 1.5rem; }
+.anomalias .kpis div { display: grid; gap: 6px; align-content: start; }
+.anomalias .kpis span { margin-top: 0; }
+.candidatas { list-style: none; margin: 10px 0 18px; padding: 0; display: grid; gap: 8px; }
+.candidatas li { display: grid; grid-template-columns: 1fr auto auto; gap: 8px 16px; align-items: center; padding: 10px 14px; border: 1px solid var(--linea); border-radius: 10px; background: var(--superficie); }
+.candidatas small { display: block; color: var(--suave); font-size: .82rem; }
+.candidata-dato { font-weight: 600; color: var(--cobalto-osc); white-space: nowrap; }
+.boton-chico { padding: 6px 16px; font-size: .9rem; }
+.accesos { margin-top: 8px; }
+
+@media (max-width: 760px) {
+  .menu-boton { display: block; margin-left: auto; }
+  header nav { display: none; order: 4; flex: 1 1 100%; flex-direction: column; align-items: stretch; margin: 0; padding: 8px 0 4px; border-top: 1px solid rgba(255,255,255,.18); }
+  header nav.abierto { display: flex; }
+  header nav a, header nav button.enlace { padding: 12px 10px; border-radius: 8px; font-size: 1rem; text-align: left; }
+  header nav a[aria-current=page] { box-shadow: inset 3px 0 0 var(--amarillo); border-radius: 8px; }
+  header nav .boton-nav { text-align: center; margin-top: 4px; }
+  .candidatas li { grid-template-columns: 1fr auto; } .candidata-dato { grid-column: 1; }
+}
+.filtros button, .filtros .filtros-acciones button { white-space: nowrap; }
+.ficha-cols th, .ficha-cols td { white-space: normal; }
+.ficha-cols td:last-child { min-width: 9rem; }

@@ -5,6 +5,9 @@ export const API_PUBLICA = process.env.NEXT_PUBLIC_API_BASE ?? '/api';
 
 export interface ZonaCatalogo {
   id: string; nombre: string; ciudad: string; tipo_unidad: string; clave_geo: string | null; es_piloto: boolean;
+  /** MVP-6 (INEGI): `ciudad` es el municipio oficial; el Censo 2020 aporta población y viviendas (null si INEGI las reserva). */
+  cve_mun: string | null; localidad: string | null; poblacion: number | null; viviendas: number | null;
+  densidad_hab_km2: number | null; comercios_por_1000_hab: number | null;
   area_km2: number | null; num_comercios: number; num_comercios_mayoreo: number; num_comercios_menudeo: number;
   num_paradas: number; densidad_comercios_km2: number | null;
   n_listados: number; n_precio_m2: number; estadistica_suprimida: boolean;
@@ -15,6 +18,9 @@ export interface FeatureCatalogo { type: 'Feature'; id: string; properties: Zona
 export interface GeoCatalogo { type: 'FeatureCollection'; min_listados_estadistica: number; features: FeatureCatalogo[] }
 export interface RespuestaBusqueda { q: string; sugeridas: boolean; total: number; items: ZonaCatalogo[] }
 
+export type Etiqueta = 'justo' | 'inflado' | 'subprecio';
+export type Ambito = 'municipio' | 'estado';
+
 export interface FichaZona extends ZonaCatalogo {
   cve_ent: string | null; cve_mun: string | null;
   geometry: { type: string; coordinates: any };
@@ -22,21 +28,26 @@ export interface FichaZona extends ZonaCatalogo {
     n_listados: number; estadistica_suprimida: boolean; min_listados_estadistica: number;
     mediana: number | null; p25: number | null; p75: number | null; precio_m2_mediano: number | null;
     por_tipo: { tipo: string; n: number; renta_mediana: number | null; precio_m2_mediano: number | null }[];
-    posicion_precio_m2: { lugar: number; de: number } | null;
+    posicion_precio_m2: { lugar: number; de: number; ambito: Ambito } | null;
+    anomalias: { inflados: number; subprecio: number; justos: number };
   };
-  ciudad_referencia: { ciudad: string; n_listados: number; zonas: number; renta_mediana: number | null; precio_m2_mediano: number | null } | null;
+  municipio: { nombre: string; cve_mun: string; poblacion: number | null; viviendas: number | null; n_zonas: number } | null;
+  ciudad_referencia: { ciudad: string; ambito: Ambito; n_listados: number; zonas: number; renta_mediana: number | null; precio_m2_mediano: number | null } | null;
   trazabilidad: {
     fuente_geom: string | null; modo_datos: 'real' | 'fixture' | null; fecha_carga: string | null;
     precios_actualizados_en: string | null; ultima_recaptura_en: string | null;
   };
-  listados_recientes: { id: string; tipo_inmueble: string; precio_mxn: number; superficie_m2: number | null; recamaras: number | null; precio_m2: number | null; publicado_en: string | null }[];
+  listados_recientes: { id: string; tipo_inmueble: string; precio_mxn: number; superficie_m2: number | null; recamaras: number | null; precio_m2: number | null; publicado_en: string | null;
+    anomalia: Etiqueta | null; anomalia_z: number | null; anomalia_nivel: string | null }[];
 }
 
 /** Comparador (MVP-5): hasta 3 zonas lado a lado. */
 export const MAX_COMPARAR = 3;
 export interface ItemComparacion extends ZonaCatalogo {
   geometry: { type: string; coordinates: any };
-  posicion_precio_m2: { lugar: number; de: number } | null;
+  posicion_precio_m2: { lugar: number; de: number; ambito: Ambito } | null;
+  /** Con qué se compara la renta: el municipio o, si tiene pocas zonas con precios, todo el estado. */
+  referencia: string | null;
   renta_vs_ciudad_pct: number | null;
   paradas_por_km2: number | null;
 }
@@ -57,12 +68,14 @@ export function idsDeComparacion(crudo: string | undefined, extra?: string): str
 /** Opciones del filtro de transporte (paradas mínimas por zona). */
 export const OPCIONES_PARADAS: [string, string][] = [['', 'Cualquiera'], ['1', 'Al menos 1 parada'], ['3', 'Al menos 3 paradas'], ['5', 'Al menos 5 paradas'], ['10', 'Al menos 10 paradas']];
 
-export type Metrica = 'precio_m2' | 'renta' | 'comercios' | 'paradas';
+export type Metrica = 'precio_m2' | 'renta' | 'comercios' | 'paradas' | 'habitantes' | 'comercios_hab';
 export const METRICAS: { clave: Metrica; etiqueta: string; unidad: string }[] = [
   { clave: 'precio_m2', etiqueta: 'Renta por m²', unidad: 'MXN/m²' },
   { clave: 'renta', etiqueta: 'Renta típica', unidad: 'MXN/mes' },
   { clave: 'comercios', etiqueta: 'Comercios', unidad: 'comercios' },
   { clave: 'paradas', etiqueta: 'Paradas', unidad: 'paradas' },
+  { clave: 'habitantes', etiqueta: 'Habitantes', unidad: 'habitantes' },
+  { clave: 'comercios_hab', etiqueta: 'Comercios por habitante', unidad: 'comercios por 1,000 hab.' },
 ];
 
 /** Valor de la métrica para una zona; null = no publicable (estadística suprimida). */
@@ -72,17 +85,19 @@ export function valorMetrica(z: ZonaCatalogo, m: Metrica): number | null {
     case 'renta': return z.renta_mediana;
     case 'comercios': return z.num_comercios;
     case 'paradas': return z.num_paradas;
+    case 'habitantes': return z.poblacion;
+    case 'comercios_hab': return z.comercios_por_1000_hab;
   }
 }
 
 export const ESCALA = ['#eef2fc', '#d3defa', '#aebff0', '#8199e1', '#5573cc', '#3050b0', '#14307f'];
 export const COLOR_SIN_DATO = '#dde1ea';
 
-/** Color de un valor dentro de [min, max] (7 tonos). */
-export function colorEscala(v: number | null, min: number, max: number): string {
+/** Color de un valor dentro de [min, max] (7 tonos). `curva` < 1 abre el rango bajo: los conteos están muy sesgados y sin ella casi todo saldría del mismo tono. */
+export function colorEscala(v: number | null, min: number, max: number, curva = 1): string {
   if (v === null) return COLOR_SIN_DATO;
   if (max <= min) return ESCALA[Math.floor(ESCALA.length / 2)];
-  const t = (v - min) / (max - min);
+  const t = Math.pow((v - min) / (max - min), curva);
   return ESCALA[Math.min(ESCALA.length - 1, Math.max(0, Math.floor(t * ESCALA.length)))];
 }
 

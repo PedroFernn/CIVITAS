@@ -125,13 +125,13 @@ export default function BuscadorZonas() {
   return (
     <div className="buscador" ref={caja}>
       <form role="search" action="/colonias" method="get" onSubmit={(e) => { e.preventDefault(); irAResultados(q); }}>
-        <label htmlFor={`${id}-q`} className="solo-lectores">Buscar zona por nombre, clave INEGI o ciudad</label>
+        <label htmlFor={`${id}-q`} className="solo-lectores">Buscar zona por nombre, localidad o municipio</label>
         <span className="buscador-icono" aria-hidden="true">
           <svg viewBox="0 0 20 20" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="8.5" cy="8.5" r="5.5" /><path d="M13 13l4.5 4.5" /></svg>
         </span>
         <input
           ref={campo} id={`${id}-q`} name="q" type="search" value={q} autoComplete="off" spellCheck={false} maxLength={60}
-          placeholder="Buscar una zona…" enterKeyHint="search"
+          placeholder="Buscar una zona o municipio…" enterKeyHint="search"
           role="combobox" aria-expanded={abierto} aria-controls={`${id}-lista`} aria-autocomplete="list"
           aria-activedescendant={abierto && activo >= 0 ? idOpcion(activo) : undefined}
           onFocus={abrir} onChange={(e) => { setQ(e.target.value); setActivo(-1); if (!abierto) abrir(); }} onKeyDown={onKeyDown}
@@ -168,7 +168,7 @@ export default function BuscadorZonas() {
                   <li key={z.id} id={idOpcion(i)} role="option" aria-selected={i === activo} className={i === activo ? 'activo' : ''}
                     onMouseEnter={() => setActivo(i)} onClick={() => irAZona(z)}>
                     <span className="op-nombre"><Resaltado texto={z.nombre} ts={ts} /></span>
-                    <span className="op-sub"><code><Resaltado texto={z.clave_geo ?? 's/clave'} ts={ts.filter((t) => !/^\d{1,3}$/.test(t))} /></code> · {z.ciudad}</span>
+                    <span className="op-sub"><Resaltado texto={z.ciudad} ts={ts} />{z.localidad && z.localidad !== z.ciudad ? <> · {z.localidad}</> : null}</span>
                     <span className="op-dato">
                       {z.estadistica_suprimida
                         ? <small>{z.n_listados} {z.n_listados === 1 ? 'anuncio' : 'anuncios'} · pocos datos</small>
@@ -184,7 +184,7 @@ export default function BuscadorZonas() {
                 )}
               </ul>
               {estado !== 'cargando' && resp && items.length === 0 && (
-                <div className="buscador-vacio">Sin resultados para «<strong>{q.trim()}</strong>». Prueba con parte del nombre, el número de la zona o la clave INEGI.</div>
+                <div className="buscador-vacio">Sin resultados para «<strong>{q.trim()}</strong>». Prueba con parte del nombre, el municipio o el número de la zona.</div>
               )}
             </>
           )}

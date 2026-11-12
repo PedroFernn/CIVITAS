@@ -7,15 +7,40 @@ import { MAX_COMPARAR, METRICAS, mxnC, plural, type FeatureCatalogo, type Metric
 
 const CLAVE_COMPARAR = 'civitas_comparar';
 type Elegida = { id: string; nombre: string };
+type Municipios = { type: 'FeatureCollection'; features: unknown[] };
 
-/** Lista + mapa del catálogo (P-02): son la misma consulta con dos representaciones; el cursor y el clic los mantienen sincronizados. */
-export default function Explorador({ items, features, minListados, metricaInicial, conBase = false, children }: {
-  conBase?: boolean; items: ZonaCatalogo[]; features: FeatureCatalogo[]; minListados: number; metricaInicial: Metrica; children?: React.ReactNode;
+/**
+ * Lista + mapa del catálogo (P-02): son la misma consulta con dos representaciones; el cursor y el clic los mantienen sincronizados.
+ * Con todo el estado (miles de zonas) el contorno NO viaja dentro de la página: el navegador lo descarga aparte (`geoUrl`) y lo reutiliza
+ * entre páginas de la lista, porque la dirección no cambia mientras no cambien los filtros.
+ */
+export default function Explorador({ items, geoUrl, municipiosUrl, minListados, metricaInicial, conBase = false, children }: {
+  conBase?: boolean; items: ZonaCatalogo[]; geoUrl: string; municipiosUrl?: string; minListados: number; metricaInicial: Metrica; children?: React.ReactNode;
 }) {
+  const [features, setFeatures] = useState<FeatureCatalogo[] | null>(null);
+  const [municipios, setMunicipios] = useState<Municipios | null>(null);
+  const [falloMapa, setFalloMapa] = useState(false);
+  const [intento, setIntento] = useState(0);
   const [metrica, setMetrica] = useState<Metrica>(metricaInicial);
   const [hover, setHover] = useState<string | null>(null);
   const [sel, setSel] = useState<string | null>(null);
   const lista = useRef<HTMLOListElement>(null);
+
+  useEffect(() => {
+    const ctl = new AbortController();
+    setFeatures(null); setFalloMapa(false);
+    fetch(geoUrl, { signal: ctl.signal }).then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
+      .then((g) => setFeatures(g.features as FeatureCatalogo[]))
+      .catch((e) => { if (e?.name !== 'AbortError') setFalloMapa(true); });
+    return () => ctl.abort();
+  }, [geoUrl, intento]);
+  useEffect(() => {
+    if (!municipiosUrl) return;
+    const ctl = new AbortController();
+    fetch(municipiosUrl, { signal: ctl.signal }).then((r) => (r.ok ? r.json() : null)).then((g) => g && setMunicipios(g)).catch(() => undefined);
+    return () => ctl.abort();
+  }, [municipiosUrl]);
+
   // Zonas elegidas para comparar (hasta 3). Viven en sessionStorage para no perderse al paginar el catálogo.
   const [elegidas, setElegidas] = useState<Elegida[]>([]);
   useEffect(() => {
@@ -40,8 +65,15 @@ export default function Explorador({ items, features, minListados, metricaInicia
             <button key={m.clave} type="button" aria-pressed={metrica === m.clave} className={metrica === m.clave ? 'activa' : ''} onClick={() => setMetrica(m.clave)}>{m.etiqueta}</button>
           ))}
         </div>
-        <MapaLeaflet conBase={conBase} features={features} metrica={metrica} resaltadaId={hover} seleccionadaId={sel} onHover={setHover} onSelect={setSel}
-          altura={460} etiqueta="Mapa de zonas coloreado por la métrica elegida; la lista de al lado tiene los mismos datos" />
+        {features ? (
+          <MapaLeaflet conBase={conBase} features={features} municipios={municipios} metrica={metrica} resaltadaId={hover} seleccionadaId={sel} onHover={setHover} onSelect={setSel}
+            altura={460} etiqueta="Mapa de zonas coloreado por la métrica elegida; la lista de al lado tiene los mismos datos" />
+        ) : (
+          <div className="mapa-espera" style={{ height: 460 }} role="status">
+            {falloMapa ? <>No se pudo cargar el mapa. <button type="button" className="enlace" onClick={() => setIntento((n) => n + 1)}>Reintentar</button></> : 'Cargando el mapa de zonas…'}
+          </div>
+        )}
+        {features && <p className="nota mapa-nota">{plural(features.length, 'zona', 'zonas')} en el mapa. Haz clic en una para ubicarla en la lista.</p>}
       </div>
       <div className="explorador-lista">
         {elegidas.length > 0 && (
@@ -62,6 +94,7 @@ export default function Explorador({ items, features, minListados, metricaInicia
                 onMouseEnter={() => setHover(z.id)} onMouseLeave={() => setHover(null)}>
                 <div className="tarjeta-cab">
                   <h3><Link href={`/colonias/${z.id}`}>{z.nombre}</Link></h3>
+                  <span className="tarjeta-lugar">{z.ciudad}{z.localidad && z.localidad !== z.ciudad ? ` · ${z.localidad}` : ''}</span>
                 </div>
                 {z.estadistica_suprimida ? (
                   <p className="suprimida">Pocos anuncios para dar una cifra confiable: {z.n_listados} (se publica con {minListados} o más).</p>
@@ -69,7 +102,10 @@ export default function Explorador({ items, features, minListados, metricaInicia
                   <p className="tarjeta-precio"><b>{mxnC(z.renta_mediana)}</b> <small>al mes · <Termino k="mediana" etiqueta="renta típica" /></small>
                     {z.precio_m2_mediano !== null && <> · <b>{mxnC(z.precio_m2_mediano)}</b> <small>por m²</small></>}</p>
                 )}
-                <p className="tarjeta-datos">{plural(z.n_listados, 'anuncio', 'anuncios')} · {plural(z.num_comercios, 'comercio', 'comercios')} · {plural(z.num_paradas, 'parada', 'paradas')}</p>
+                <p className="tarjeta-datos">
+                  {z.poblacion !== null && <>{plural(z.poblacion, 'habitante', 'habitantes')} · </>}
+                  {plural(z.num_comercios, 'comercio', 'comercios')} · {plural(z.num_paradas, 'parada', 'paradas')} · {plural(z.n_listados, 'anuncio', 'anuncios')}
+                </p>
                 <div className="tarjeta-pie">
                   <Link className="ver-ficha" href={`/colonias/${z.id}`} aria-label={`Ver ficha de ${z.nombre}`}>Ver detalle</Link>
                   <label className="comparar-check">
@@ -86,5 +122,3 @@ export default function Explorador({ items, features, minListados, metricaInicia
     </div>
   );
 }
-
-

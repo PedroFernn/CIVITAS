@@ -3,6 +3,7 @@ import { Bricolage_Grotesque, Public_Sans } from 'next/font/google';
 import Link from 'next/link';
 import BuscadorZonas from '@/components/BuscadorZonas';
 import Marca from '@/components/Marca';
+import Navegacion from '@/components/Navegacion';
 import { cerrarSesion } from './acciones-auth';
 import { usuarioActual } from '@/lib/sesion';
 import './globals.css';
@@ -25,8 +26,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <header>
           <Link href="/" className="marca" aria-label="CIVITAS, inicio"><Marca /></Link>
           <BuscadorZonas />
-          <nav aria-label="Principal">
-            <Link href="/colonias">Explorar zonas</Link><Link href="/comparar">Comparar</Link><Link href="/rentas">Precios de renta</Link><Link href="/zonas">Datos de apoyo</Link>
+          <Navegacion enlaces={[{ href: '/colonias', etiqueta: 'Explorar zonas' }, { href: '/comparar', etiqueta: 'Comparar' }, { href: '/rentas', etiqueta: 'Precios de renta' }, { href: '/zonas', etiqueta: 'Datos de apoyo' }]}>
             {sesion ? (
               <>
                 {sesion.cuenta.rol === 'administrador' && <Link href="/admin">Panel</Link>}
@@ -36,13 +36,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             ) : (
               <><Link href="/iniciar-sesion">Entrar</Link><Link href="/crear-cuenta" className="boton-nav">Crear cuenta</Link></>
             )}
-          </nav>
+          </Navegacion>
         </header>
         <main id="contenido">{children}</main>
         <footer>
           <p><b>CIVITAS</b> · Observatorio urbano de Puebla · <Link href="/aviso-privacidad">Aviso de privacidad</Link></p>
           <p className="fuentes">
-            Zonas y población: INEGI, Marco Geoestadístico (dic. 2025) y Censo 2020. Comercios: INEGI, DENUE.
+            Zonas, municipios y población: INEGI, Marco Geoestadístico (dic. 2025) y Censo de Población y Vivienda 2020. Comercios: INEGI, DENUE.
             Paradas y mapa base: © <a href="https://www.openstreetmap.org/copyright" rel="noopener noreferrer">colaboradores de OpenStreetMap</a> (licencia ODbL).
           </p>
         </footer>

@@ -19,10 +19,11 @@ export interface Validacion { ejecutada_en: string; aprobada: boolean; modo: str
 export interface ListadoRenta {
   id: string; id_fuente: string; tipo_inmueble: string; precio_mxn: number; superficie_m2: number | null; recamaras: number | null;
   precio_m2: number | null; publicado_en: string | null; zona_id: string | null; zona_nombre: string | null; modo_datos: 'real' | 'fixture';
+  zona_municipio: string | null; anomalia: 'justo' | 'inflado' | 'subprecio' | null; anomalia_z: number | null;
 }
 export interface ListaListados { total: number; items: ListadoRenta[] }
 export interface ZonaRenta {
-  zona_id: string; nombre: string; clave_geo: string; es_piloto: boolean; n_listados: number; estadistica_suprimida: boolean;
+  zona_id: string; nombre: string; municipio: string | null; clave_geo: string; es_piloto: boolean; n_listados: number; estadistica_suprimida: boolean;
   renta_mediana: number | null; renta_p25: number | null; renta_p75: number | null; precio_m2_mediano: number | null;
 }
 export interface ResumenZonasRenta { total: number; min_listados_estadistica: number; items: ZonaRenta[] }
@@ -38,6 +39,12 @@ export interface ReporteCalidad {
   columnas_sensibles_ignoradas: string[];
   distribucion: { precio_mxn: Distribucion | null; precio_m2: Distribucion | null; por_tipo: Record<string, number> };
   zonas: { con_listados: number; piloto_con_listados: number; total_piloto: number };
+}
+
+export interface Municipio { cve_mun: string; nombre: string; poblacion: number | null; viviendas: number | null; n_zonas: number }
+export interface ResumenAnomalias {
+  total: number; conteo: { justo: number; inflado: number; subprecio: number }; niveles: Record<string, number>; umbral: number; calculado_en: string;
+  validacion: { aprobada: boolean; modo: string; ejecutada_en: string } | null;
 }
 
 export async function api<T>(path: string, token?: string): Promise<T> {

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import AvisoDatos from '@/components/AvisoDatos';
-import Mosaico from '@/components/Mosaico';
+import Mosaico, { type PiezaMunicipio } from '@/components/Mosaico';
 import { api, num } from '@/lib/api';
 import type { GeoCatalogo } from '@/lib/zonas';
 import { modosDatos } from '@/lib/modo';
@@ -15,9 +15,9 @@ const PROBLEMAS: { titulo: string; texto: string }[] = [
 ];
 
 const PASOS: { titulo: string; texto: string }[] = [
-  { titulo: 'Reúne datos abiertos', texto: 'El mapa oficial de zonas y los comercios del INEGI, y las paradas de transporte público de OpenStreetMap.' },
+  { titulo: 'Reúne datos abiertos', texto: 'El mapa oficial de zonas y municipios, la población del Censo y los comercios del INEGI, y las paradas de transporte público de OpenStreetMap.' },
   { titulo: 'Recoge precios de renta', texto: 'Anuncios limpios y sin repetir, asignados a su zona. Sin teléfonos ni nombres de quien anuncia.' },
-  { titulo: 'Te lo explica en claro', texto: 'Cuánto cuesta rentar en cada zona, si es cara o barata frente a la ciudad y qué tan bien servida está.' },
+  { titulo: 'Te lo explica en claro', texto: 'Cuánto cuesta rentar en cada zona, si es cara o barata frente a su municipio, si un anuncio parece inflado y qué tan bien servida está.' },
 ];
 
 const PRUEBALO: { href: string; titulo: string; texto: string }[] = [
@@ -27,13 +27,18 @@ const PRUEBALO: { href: string; titulo: string; texto: string }[] = [
 ];
 
 export default async function Inicio() {
-  const [modos, geo] = await Promise.all([
+  // En el héroe cada zona es un punto del estado: basta un contorno muy simplificado (el HTML pesa decenas de veces menos).
+  const [modos, geo, mun] = await Promise.all([
     modosDatos(),
-    api<GeoCatalogo>('/zonas/geojson?limit=500&piloto=false').catch(() => null),
+    api<GeoCatalogo>('/zonas/geojson?limit=3000&piloto=false&simplificar=0.0012').catch(() => null),
+    api<{ features: PiezaMunicipio[] }>('/municipios/geojson?simplificar=0.004').catch(() => null),
   ]);
   const zonas = geo?.features ?? [];
+  const municipios = mun?.features ?? [];
   const comercios = zonas.reduce((s, z) => s + z.properties.num_comercios, 0);
   const paradas = zonas.reduce((s, z) => s + z.properties.num_paradas, 0);
+  const habitantes = zonas.reduce((s, z) => s + (z.properties.poblacion ?? 0), 0);
+  const millones = (n: number) => (n / 1_000_000).toLocaleString('es-MX', { maximumFractionDigits: 1 });
 
   return (
     <div className="portada">
@@ -41,7 +46,7 @@ export default async function Inicio() {
         <div className="hero-texto">
           <h1 id="h-hero">¿Cuánto cuesta de verdad vivir en tu colonia?</h1>
           <p className="hero-lead">
-            CIVITAS junta datos abiertos y precios de renta de Puebla en un solo lugar y los explica en claro, para que decidir dónde vivir deje de ser una apuesta a ciegas.
+            CIVITAS junta los datos abiertos del INEGI y los precios de renta de todo el estado de Puebla en un solo lugar y los explica en claro, para que decidir dónde vivir deje de ser una apuesta a ciegas.
           </p>
           <div className="hero-acciones">
             <Link className="boton boton-amarillo" href="/colonias">Explorar zonas</Link>
@@ -50,9 +55,9 @@ export default async function Inicio() {
         </div>
         {zonas.length > 0 && (
           <div className="hero-mapa">
-            <Mosaico zonas={zonas} />
+            <Mosaico zonas={zonas} municipios={municipios} />
             <p className="hero-cifras">
-              <b>{num(zonas.length)}</b> zonas, <b>{num(comercios)}</b> comercios y <b>{num(paradas)}</b> paradas de transporte del municipio de Puebla, tomados de datos abiertos.
+              <b>{num(zonas.length)}</b> zonas urbanas de <b>{num(municipios.length)}</b> municipios, con <b>{millones(habitantes)} millones</b> de habitantes, <b>{num(comercios)}</b> comercios y <b>{num(paradas)}</b> paradas de transporte del estado de Puebla, tomados de datos abiertos.
             </p>
           </div>
         )}
@@ -99,8 +104,9 @@ export default async function Inicio() {
           <div>
             <h3>Ya funciona</h3>
             <ul>
-              <li>Mapa y catálogo de zonas con búsqueda y filtros</li>
-              <li>Precio típico de renta por zona, comparado con la ciudad</li>
+              <li>Mapa y catálogo de las zonas urbanas de los 217 municipios, con búsqueda y filtros</li>
+              <li>Precio típico de renta por zona, comparado con su municipio</li>
+              <li>Etiqueta de precio en cada anuncio: justo, inflado o subprecio</li>
               <li>Comparador de hasta tres zonas</li>
               <li>Cuentas de usuario y captura de entrevistas de precio</li>
             </ul>
@@ -109,7 +115,7 @@ export default async function Inicio() {
             <h3>Lo que sigue</h3>
             <ul>
               <li>Probar que puedes pagar una renta sin entregar tus estados de cuenta, con pruebas criptográficas</li>
-              <li>Avisar cuando un precio se ve inflado frente a su zona</li>
+              <li>Avisarte cuando aparece un anuncio inflado en tu zona</li>
               <li>Anticipar la gentrificación antes de que sea irreversible</li>
             </ul>
           </div>

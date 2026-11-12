@@ -31,7 +31,7 @@ export default async function Entrevistas({ searchParams }: { searchParams: Prom
 
   let datos: Respuesta, zonas: ListaCatalogo;
   try {
-    [datos, zonas] = await Promise.all([api<Respuesta>('/entrevistas', sesion.token), api<ListaCatalogo>('/zonas?limit=600&orden=nombre&piloto=false')]);
+    [datos, zonas] = await Promise.all([api<Respuesta>('/entrevistas', sesion.token), api<ListaCatalogo>('/zonas?limit=200&orden=nombre')]);
   } catch {
     return <div><h1>Entrevistas de precio</h1><p className="aviso-borrador">No se pudieron cargar las entrevistas en este momento. Inténtalo de nuevo en unos minutos.</p></div>;
   }

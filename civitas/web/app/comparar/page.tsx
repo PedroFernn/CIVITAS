@@ -15,21 +15,27 @@ const uno = (v: string | string[] | undefined) => (Array.isArray(v) ? v[0] : v)?
 const SIN = 'Pocos datos';
 const dif = (d: number | null) => (d === null ? '—' : `${d >= 0 ? '+' : '−'}${Math.abs(d).toLocaleString('es-MX', { maximumFractionDigits: 1 })} %`);
 const precio = (z: ItemComparacion, v: string) => (z.estadistica_suprimida ? SIN : v);
+const dato = (v: number | null, d = 0) => (v === null ? 'Sin dato del Censo' : num(v, d));
 
 interface Fila { grupo: string; etiqueta: string; texto: (z: ItemComparacion) => string }
 const FILAS: Fila[] = [
   { grupo: 'Precio', etiqueta: 'Renta típica al mes', texto: (z) => precio(z, mxnC(z.renta_mediana)) },
   { grupo: 'Precio', etiqueta: 'Rango normal de rentas', texto: (z) => precio(z, z.renta_p25 === null ? '—' : `${mxnC(z.renta_p25)} – ${mxnC(z.renta_p75)}`) },
   { grupo: 'Precio', etiqueta: 'Renta por m²', texto: (z) => precio(z, z.precio_m2_mediano === null ? '—' : mxn2(z.precio_m2_mediano)) },
-  { grupo: 'Precio', etiqueta: 'Frente al promedio de la ciudad', texto: (z) => precio(z, dif(z.renta_vs_ciudad_pct)) },
-  { grupo: 'Precio', etiqueta: 'Lugar por precio (1 = más cara)', texto: (z) => precio(z, z.posicion_precio_m2 ? `${z.posicion_precio_m2.lugar} de ${z.posicion_precio_m2.de}` : '—') },
+  { grupo: 'Precio', etiqueta: 'Frente al promedio de su municipio o del estado', texto: (z) => precio(z, z.renta_vs_ciudad_pct === null ? '—' : `${dif(z.renta_vs_ciudad_pct)} frente a ${z.referencia}`) },
+  { grupo: 'Precio', etiqueta: 'Lugar por precio (1 = más cara)', texto: (z) => precio(z, z.posicion_precio_m2 ? `${z.posicion_precio_m2.lugar} de ${z.posicion_precio_m2.de} en ${z.posicion_precio_m2.ambito === 'estado' ? 'todo el estado' : z.ciudad}` : '—') },
   { grupo: 'Precio', etiqueta: 'Anuncios de renta', texto: (z) => entero(z.n_listados) },
+  { grupo: 'Población', etiqueta: 'Habitantes (Censo 2020)', texto: (z) => dato(z.poblacion) },
+  { grupo: 'Población', etiqueta: 'Viviendas habitadas', texto: (z) => dato(z.viviendas) },
+  { grupo: 'Población', etiqueta: 'Habitantes por km²', texto: (z) => dato(z.densidad_hab_km2) },
+  { grupo: 'Población', etiqueta: 'Comercios por cada 1,000 habitantes', texto: (z) => dato(z.comercios_por_1000_hab, 1) },
   { grupo: 'Comercio', etiqueta: 'Comercios', texto: (z) => entero(z.num_comercios) },
   { grupo: 'Comercio', etiqueta: 'Comercios de mayoreo', texto: (z) => entero(z.num_comercios_mayoreo) },
   { grupo: 'Comercio', etiqueta: 'Comercios de menudeo', texto: (z) => entero(z.num_comercios_menudeo) },
   { grupo: 'Comercio', etiqueta: 'Comercios por km²', texto: (z) => (z.densidad_comercios_km2 === null ? '—' : num(z.densidad_comercios_km2, 0)) },
   { grupo: 'Transporte', etiqueta: 'Paradas de transporte', texto: (z) => entero(z.num_paradas) },
   { grupo: 'Transporte', etiqueta: 'Paradas por km²', texto: (z) => (z.paradas_por_km2 === null ? '—' : num(z.paradas_por_km2, 1)) },
+  { grupo: 'Zona', etiqueta: 'Municipio', texto: (z) => z.ciudad },
   { grupo: 'Zona', etiqueta: 'Área (km²)', texto: (z) => (z.area_km2 === null ? '—' : num(z.area_km2, 2)) },
 ];
 
@@ -46,12 +52,14 @@ export default async function Comparar({ searchParams }: { searchParams: Promise
   }
   const url = (xs: string[], s = solo) => `/comparar${xs.length || s ? '?' : ''}${[xs.length ? `items=${xs.join(',')}` : '', s ? 'solo=diferencias' : ''].filter(Boolean).join('&')}`;
 
-  let cmp: Comparacion | null = null, catalogo: ListaCatalogo, modos: ModosDatos;
+  // Con miles de zonas ya no cabe un <select>: se busca por nombre, localidad o municipio (del lado del servidor, así funciona sin JavaScript).
+  const buscar = uno(sp.buscar)?.slice(0, 60);
+  let cmp: Comparacion | null = null, modos: ModosDatos, candidatas: ListaCatalogo['items'] = [], falloBusqueda = false;
   try {
-    [catalogo, modos] = await Promise.all([
-      api<ListaCatalogo>('/zonas?limit=600&orden=nombre&piloto=false'),
-      modosDatos(),
-    ]);
+    modos = await modosDatos();
+    if (buscar) {
+      try { candidatas = (await api<{ items: ListaCatalogo['items'] }>(`/zonas/buscar?q=${encodeURIComponent(buscar)}&piloto=false&limit=8`)).items; } catch { falloBusqueda = true; }
+    }
     if (ids.length) cmp = await api<Comparacion>(`/zonas/comparar?items=${ids.join(',')}`);
   } catch (e) {
     const msg = (e as Error).message;
@@ -66,7 +74,7 @@ export default async function Comparar({ searchParams }: { searchParams: Promise
   }
 
   const zonas = cmp?.items ?? [];
-  const disponibles = catalogo.items.filter((z) => !ids.includes(z.id));
+  const nuevas = candidatas.filter((z) => !ids.includes(z.id));
   const filas = FILAS.map((f) => ({ f, textos: zonas.map(f.texto) }));
   const visibles = solo && zonas.length > 1 ? filas.filter(({ textos }) => new Set(textos).size > 1) : filas;
   const lleno = ids.length >= MAX_COMPARAR;
@@ -81,16 +89,28 @@ export default async function Comparar({ searchParams }: { searchParams: Promise
       <form className="filtros filtros-comparar" method="get" action="/comparar">
         {ids.length > 0 && <input type="hidden" name="items" value={ids.join(',')} />}
         {solo && <input type="hidden" name="solo" value="diferencias" />}
-        <label>Añadir una zona
-          <select name="agregar" defaultValue="" disabled={lleno} required>
-            <option value="" disabled>{lleno ? `Ya hay ${MAX_COMPARAR} zonas` : 'Elige una zona…'}</option>
-            {disponibles.map((z) => <option key={z.id} value={z.id}>{z.nombre}</option>)}
-          </select></label>
+        <label>{lleno ? `Ya hay ${MAX_COMPARAR} zonas: quita una para añadir otra` : 'Busca una zona para añadir'}
+          <input name="buscar" defaultValue={buscar ?? ''} placeholder="colonia, localidad o municipio" maxLength={60} disabled={lleno} /></label>
         <div className="filtros-acciones">
-          <button type="submit" disabled={lleno}>Añadir</button>
+          <button type="submit" disabled={lleno}>Buscar</button>
           {ids.length > 0 && <Link href={url([], false)} className="enlace-sec">Vaciar</Link>}
         </div>
       </form>
+      {buscar && !lleno && (
+        falloBusqueda ? <p className="aviso-borrador">No se pudo buscar ahora. Inténtalo de nuevo.</p>
+          : nuevas.length === 0 ? <p className="vacio">Ninguna zona nueva coincide con «{buscar}». Prueba con parte del nombre, la localidad o el municipio.</p>
+          : (
+            <ul className="candidatas" aria-label={`Zonas que coinciden con ${buscar}`}>
+              {nuevas.map((z) => (
+                <li key={z.id}>
+                  <span><b>{z.nombre}</b><small>{z.ciudad}{z.localidad && z.localidad !== z.ciudad ? ` · ${z.localidad}` : ''}</small></span>
+                  <span className="candidata-dato">{z.estadistica_suprimida ? 'pocos anuncios' : `${mxnC(z.renta_mediana)} al mes`}</span>
+                  <Link className="boton boton-sec boton-chico" href={url([...ids, z.id])}>Añadir</Link>
+                </li>
+              ))}
+            </ul>
+          )
+      )}
 
       {zonas.length === 0 ? (
         <p className="vacio">Todavía no hay zonas para comparar. Añade una arriba o márcalas con «Comparar» en el <Link href="/colonias">catálogo</Link>.</p>
@@ -110,7 +130,7 @@ export default async function Comparar({ searchParams }: { searchParams: Promise
                   {zonas.map((z) => (
                     <th scope="col" key={z.id} className="col-zona">
                       <Link href={`/colonias/${z.id}`}>{z.nombre}</Link>
-                      <small><Link href={url(ids.filter((x) => x !== z.id))} aria-label={`Quitar ${z.nombre} de la comparación`}>Quitar</Link></small>
+                      <small>{z.ciudad} · <Link href={url(ids.filter((x) => x !== z.id))} aria-label={`Quitar ${z.nombre} de la comparación`}>Quitar</Link></small>
                     </th>
                   ))}
                 </tr>
